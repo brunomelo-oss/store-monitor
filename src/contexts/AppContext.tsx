@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react'
 import { App } from '@/types'
 import { localStorageApi } from '@/lib/storage'
+import { MOCK_APPS } from '@/lib/mock-data'
 import { useAuth } from './AuthContext'
 
 interface AppState {
@@ -17,6 +18,7 @@ interface AppState {
   moveApp: (id: number, dir: 1 | -1) => Promise<void>
   totalApps: number
   hasRealData: App[]
+  resetData: () => Promise<void>
 }
 
 const AppContext = createContext<AppState>(null!)
@@ -83,6 +85,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (!isAdmin && mode === 'edit') setMode('view')
   }, [isAdmin, mode])
 
+  const resetData = useCallback(async () => {
+    const fresh = JSON.parse(JSON.stringify(MOCK_APPS))
+    setApps(fresh)
+    await localStorageApi.saveApps(fresh)
+  }, [])
+
   const hasRealData = apps.filter(a =>
     (a.playStore.version && a.playStore.version !== '-') ||
     (a.appStore.version && a.appStore.version !== '-')
@@ -91,7 +99,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   return (
     <AppContext.Provider value={{
       apps, loading, mode, setMode,
-      addApp, updateApp, removeApp, togglePin, moveApp,
+      addApp, updateApp, removeApp, togglePin, moveApp, resetData,
       totalApps: apps.length, hasRealData,
     }}>
       {children}

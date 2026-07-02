@@ -3,12 +3,16 @@
 import { useState, useRef, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
+import { ChangePasswordModal } from '@/components/ChangePasswordModal'
+import { UserManager } from '@/components/admin/UserManager'
 import { LogOut, Users, Lock } from 'lucide-react'
 
 export function ProfileDropdown() {
   const { user, logout, isAdmin } = useAuth()
   const router = useRouter()
   const [open, setOpen] = useState(false)
+  const [showPasswordModal, setShowPasswordModal] = useState(false)
+  const [showUserManager, setShowUserManager] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -44,7 +48,7 @@ export function ProfileDropdown() {
             <>
               <button
                 className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-zinc-300 hover:bg-white/5 transition"
-                onClick={() => { setOpen(false); }}
+                onClick={() => { setOpen(false); setShowUserManager(true) }}
               >
                 <Users size={16} />
                 Gerenciar usuários
@@ -54,7 +58,7 @@ export function ProfileDropdown() {
           )}
           <button
             className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-zinc-300 hover:bg-white/5 transition"
-            onClick={() => { setOpen(false); }}
+            onClick={() => { setOpen(false); setShowPasswordModal(true) }}
           >
             <Lock size={16} />
             Alterar senha
@@ -67,6 +71,20 @@ export function ProfileDropdown() {
             <LogOut size={16} />
             Sair
           </button>
+        </div>
+      )}
+
+      {showPasswordModal && <ChangePasswordModal onClose={() => setShowPasswordModal(false)} />}
+
+      {showUserManager && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-10 pb-10 bg-black/60 overflow-y-auto" onClick={e => { if (e.target === e.currentTarget) setShowUserManager(false) }}>
+          <div className="w-full max-w-2xl bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl p-6 m-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-base font-semibold text-white">Gerenciar Usuários</h3>
+              <button onClick={() => setShowUserManager(false)} className="text-sm text-zinc-400 hover:text-white transition">Fechar</button>
+            </div>
+            <UserManager />
+          </div>
         </div>
       )}
     </div>

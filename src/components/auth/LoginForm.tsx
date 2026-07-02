@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
-import { Eye, EyeOff, Loader2 } from 'lucide-react'
+import { localStorageApi } from '@/lib/storage'
+import { Eye, EyeOff, Loader2, MailQuestion } from 'lucide-react'
 
 interface LoginFormProps {
-  onSwitch: (step: string) => void
+  onSwitch: (step: string, data?: string) => void
   onSuccess: () => void
 }
 
@@ -17,7 +18,15 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [attempts, setAttempts] = useState(0)
+  const [hasInvite, setHasInvite] = useState(false)
   const passRef = useRef<HTMLInputElement>(null)
+
+  const checkInvite = async () => {
+    const val = username.trim().toLowerCase()
+    if (!val || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) { setHasInvite(false); return }
+    const invites = await localStorageApi.getInvites()
+    setHasInvite(!!invites.find(i => i.email === val))
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -48,6 +57,7 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
           placeholder="Usuário ou e-mail"
           value={username}
           onChange={e => setUsername(e.target.value)}
+          onBlur={checkInvite}
           onKeyDown={e => e.key === 'Enter' && passRef.current?.focus()}
         />
         <div className="relative">
@@ -68,6 +78,17 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
           </button>
         </div>
         {error && <p className="text-red-400 text-xs">{error}</p>}
+        {hasInvite && (
+          <div className="flex items-center gap-2 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
+            <MailQuestion size={16} className="text-blue-400 shrink-0" />
+            <div className="text-xs text-blue-300">
+              Você tem um convite pendente.{' '}
+              <button type="button" className="underline font-semibold" onClick={() => onSwitch('invite', username)}>
+                Configurar conta
+              </button>
+            </div>
+          </div>
+        )}
         <button
           type="submit"
           disabled={loading}

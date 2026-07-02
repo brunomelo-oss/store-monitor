@@ -28,7 +28,8 @@ export default function LoginPage() {
       <div className="relative w-full max-w-sm">
         {step === 'login' && (
           <LoginForm
-            onSwitch={(s) => {
+            onSwitch={(s, data) => {
+              if (s === 'invite' && data) { setInviteEmail(data); setStep('invite') }
               if (s === 'email') setStep('email')
               if (s === 'register') setStep('register')
             }}

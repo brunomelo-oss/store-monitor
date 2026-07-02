@@ -8,6 +8,7 @@ import { InstallChart } from './InstallChart'
 import { RatingsGrid } from './RatingsGrid'
 import { Indicators } from './Indicators'
 import { DashboardSkeleton } from './DashboardSkeleton'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { AppsView } from '@/components/apps/AppsView'
 import { UserManager } from '@/components/admin/UserManager'
 
@@ -22,17 +23,17 @@ export function DashboardView() {
         {activeTab === 'dashboard' && (
           <Suspense fallback={<DashboardSkeleton />}>
             <div className="space-y-8">
-              <BentoMetrics />
-              <InstallChart />
-              <RatingsGrid />
-              <Indicators />
+              <ErrorBoundary><BentoMetrics /></ErrorBoundary>
+              <ErrorBoundary><InstallChart /></ErrorBoundary>
+              <ErrorBoundary><RatingsGrid /></ErrorBoundary>
+              <ErrorBoundary><Indicators /></ErrorBoundary>
             </div>
           </Suspense>
         )}
 
-        {activeTab === 'apps' && <AppsView />}
+        {activeTab === 'apps' && <ErrorBoundary><AppsView /></ErrorBoundary>}
 
-        {activeTab === 'users' && <UserManager />}
+        {activeTab === 'users' && <ErrorBoundary><UserManager /></ErrorBoundary>}
       </div>
     </div>
   )
