@@ -3,9 +3,10 @@
 import { App } from '@/types'
 import { useAppContext } from '@/contexts/AppContext'
 import { useAuth } from '@/contexts/AuthContext'
+import { useToast } from '@/components/Toast'
 import { overallStatus, latestVersion, daysLabel, statusColor, statusBgColor, formatDate, appImagePath, getAccountName } from '@/lib/utils'
 import { STATUS_LABELS } from '@/lib/mock-data'
-import { Pin, GripVertical, Edit, Trash2, StickyNote, Eye } from 'lucide-react'
+import { Pin, GripVertical, Edit, Trash2, Eye } from 'lucide-react'
 
 interface AppCardProps {
   app: App
@@ -21,6 +22,7 @@ const storeIcons = {
 export function AppCard({ app, onEdit, onDetails }: AppCardProps) {
   const { mode, togglePin, moveApp, removeApp } = useAppContext()
   const { isAdmin } = useAuth()
+  const { show } = useToast()
   const isEdit = mode === 'edit' && isAdmin
   const imgSrc = appImagePath(app.name)
 
@@ -41,6 +43,9 @@ export function AppCard({ app, onEdit, onDetails }: AppCardProps) {
             Fixado
           </div>
         )}
+        <div className="absolute top-2 right-2 bg-zinc-900/70 text-zinc-300 text-[10px] font-medium px-2 py-0.5 rounded-md">
+          {daysLabel(app)}
+        </div>
       </div>
 
       {/* Content */}
@@ -95,7 +100,7 @@ export function AppCard({ app, onEdit, onDetails }: AppCardProps) {
                 <button onClick={() => moveApp(app.id, 1)} className="p-1 text-zinc-600 hover:text-white transition" title="Mover para baixo">
                   <GripVertical size={14} className="rotate-180" />
                 </button>
-                <button onClick={() => togglePin(app.id)} className={`p-1 transition ${app.pinned ? 'text-purple-400' : 'text-zinc-600 hover:text-purple-400'}`} title="Fixar/Desfixar">
+                <button onClick={async () => { const err = await togglePin(app.id); if (err) show(err, 'warning') }} className={`p-1 transition ${app.pinned ? 'text-purple-400' : 'text-zinc-600 hover:text-purple-400'}`} title="Fixar/Desfixar">
                   <Pin size={14} />
                 </button>
               </>

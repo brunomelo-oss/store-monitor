@@ -6,7 +6,8 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/components/Toast'
 import { localStorageApi } from '@/lib/storage'
 import { validatePassword } from '@/lib/utils'
-import { X, Plus, Loader2, Mail } from 'lucide-react'
+import { X, Plus, Mail } from 'lucide-react'
+import { EmailPreviewModal } from '@/components/EmailPreviewModal'
 
 export function UserManager() {
   const { isAdmin } = useAuth()
@@ -19,6 +20,7 @@ export function UserManager() {
   const [inviteEmail, setInviteEmail] = useState('')
   const [showAdd, setShowAdd] = useState(false)
   const [newUser, setNewUser] = useState({ email: '', password: '', role: 'user' as 'user' | 'admin' })
+  const [previewEmail, setPreviewEmail] = useState('')
 
   const load = async () => {
     setUsers(await localStorageApi.getUsers())
@@ -42,8 +44,8 @@ export function UserManager() {
     const newInvites = [...invites, { email: inviteEmail, invitedAt: new Date().toISOString() }]
     await localStorageApi.saveInvites(newInvites)
     setInvites(newInvites)
+    setPreviewEmail(inviteEmail)
     setInviteEmail('')
-    show('Convite enviado para ' + inviteEmail, 'success')
   }
 
   const handleDeleteUser = async (u: User) => {
@@ -184,6 +186,7 @@ export function UserManager() {
           ))}
         </div>
       </div>
+      {previewEmail && <EmailPreviewModal email={previewEmail} onClose={() => setPreviewEmail('')} />}
     </div>
   )
 }

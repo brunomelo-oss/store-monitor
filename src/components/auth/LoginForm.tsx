@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { localStorageApi } from '@/lib/storage'
 import { Eye, EyeOff, Loader2, MailQuestion } from 'lucide-react'
@@ -21,6 +21,13 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
   const [hasInvite, setHasInvite] = useState(false)
   const passRef = useRef<HTMLInputElement>(null)
 
+  useEffect(() => {
+    try {
+      const saved = parseInt(sessionStorage.getItem('sasi_loginAttempts') || '0', 10)
+      setAttempts(saved)
+    } catch {}
+  }, [])
+
   const checkInvite = async () => {
     const val = username.trim().toLowerCase()
     if (!val || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) { setHasInvite(false); return }
@@ -37,9 +44,12 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
     const res = await login(username, password)
     setLoading(false)
     if (res.ok) {
+      try { sessionStorage.removeItem('sasi_loginAttempts') } catch {}
       onSuccess()
     } else {
-      setAttempts(a => a + 1)
+      const next = attempts + 1
+      setAttempts(next)
+      try { sessionStorage.setItem('sasi_loginAttempts', String(next)) } catch {}
       setError(res.error || 'Erro ao fazer login')
     }
   }

@@ -22,8 +22,22 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-4 relative overflow-hidden">
       {/* Background blur elements */}
-      <div className="absolute -top-32 -right-32 w-96 h-96 bg-sasi-blue/10 rounded-full blur-3xl" />
-      <div className="absolute -bottom-32 -left-32 w-80 h-80 bg-sasi-red/5 rounded-full blur-3xl" />
+      <div className="absolute -top-32 -right-32 w-96 h-96 bg-sasi-blue/10 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute -bottom-32 -left-32 w-80 h-80 bg-sasi-red/5 rounded-full blur-3xl animate-pulse" style={{animationDelay:'2s'}} />
+
+      {/* Floating geometric shapes */}
+      <div className="absolute top-1/4 left-[10%] w-4 h-4 border border-sasi-blue/20 rotate-45 hidden sm:block animate-float" />
+      <div className="absolute top-1/3 right-[15%] w-6 h-6 border border-sasi-red/15 rounded-lg hidden sm:block animate-float" style={{animationDelay:'1s'}} />
+      <div className="absolute bottom-1/4 left-[20%] w-3 h-3 bg-sasi-blue/10 rounded-full hidden sm:block animate-float" style={{animationDelay:'3s'}} />
+      <div className="absolute bottom-1/3 right-[10%] w-5 h-5 border border-white/5 rotate-12 hidden sm:block animate-float" style={{animationDelay:'2.5s'}} />
+
+      <style>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(-12px) rotate(5deg); }
+        }
+        .animate-float { animation: float 6s ease-in-out infinite; }
+      `}</style>
 
       <div className="relative w-full max-w-sm">
         {step === 'login' && (

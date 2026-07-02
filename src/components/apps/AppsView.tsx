@@ -17,7 +17,12 @@ export function AppsView() {
   const [modal, setModal] = useState<{ app: App | null; mode: 'edit' | 'add' | 'details'; region: string } | null>(null)
 
   const q = search.toLowerCase().trim()
-  const filtered = q ? apps.filter(a => a.name.toLowerCase().includes(q)) : apps
+  const sorted = [...apps].sort((a, b) => {
+    if (a.pinned && !b.pinned) return -1
+    if (!a.pinned && b.pinned) return 1
+    return (a.sortOrder || 0) - (b.sortOrder || 0)
+  })
+  const filtered = q ? sorted.filter(a => a.name.toLowerCase().includes(q)) : sorted
 
   const brasil = filtered.filter(a => a.region === 'Brasil')
   const internacional = filtered.filter(a => a.region === 'Internacional')

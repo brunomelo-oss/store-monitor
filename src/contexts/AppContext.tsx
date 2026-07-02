@@ -14,7 +14,7 @@ interface AppState {
   addApp: (app: App) => Promise<void>
   updateApp: (id: number, data: Partial<App>) => Promise<void>
   removeApp: (id: number) => Promise<void>
-  togglePin: (id: number) => Promise<void>
+  togglePin: (id: number) => Promise<string | null>
   moveApp: (id: number, dir: 1 | -1) => Promise<void>
   totalApps: number
   hasRealData: App[]
@@ -59,11 +59,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const togglePin = useCallback(async (id: number) => {
     const app = apps.find(a => a.id === id)
-    if (!app) return
+    if (!app) return null
     const pinnedCount = apps.filter(a => a.pinned).length
-    if (!app.pinned && pinnedCount >= 3) return
+    if (!app.pinned && pinnedCount >= 3) return 'Máximo de 3 apps fixados'
     const next = apps.map(a => a.id === id ? { ...a, pinned: !a.pinned } as App : a)
     await persist(next)
+    return null
   }, [apps, persist])
 
   const moveApp = useCallback(async (id: number, dir: 1 | -1) => {
