@@ -9,16 +9,17 @@ import { useAuth } from './AuthContext'
 interface AppState {
   apps: App[]
   loading: boolean
+  error: string | null
   mode: 'view' | 'edit'
   setMode: (m: 'view' | 'edit') => void
-  addApp: (app: App) => Promise<void>
-  updateApp: (id: number, data: Partial<App>) => Promise<void>
-  removeApp: (id: number) => Promise<void>
+  addApp: (app: App) => Promise<string | null>
+  updateApp: (id: number, data: Partial<App>) => Promise<string | null>
+  removeApp: (id: number) => Promise<string | null>
   togglePin: (id: number) => Promise<string | null>
-  moveApp: (id: number, dir: 1 | -1) => Promise<void>
+  moveApp: (id: number, dir: 1 | -1) => Promise<string | null>
   totalApps: number
   hasRealData: App[]
-  resetData: () => Promise<void>
+  resetData: () => Promise<string | null>
 }
 
 const AppContext = createContext<AppState>(null!)
@@ -26,36 +27,54 @@ const AppContext = createContext<AppState>(null!)
 export function AppProvider({ children }: { children: ReactNode }) {
   const [apps, setApps] = useState<App[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [mode, setMode] = useState<'view' | 'edit'>('view')
   const { isAdmin, loading: authLoading } = useAuth()
 
   const load = useCallback(async () => {
-    const data = await backendApi.getApps()
-    setApps(data)
-    setLoading(false)
+    try {
+      setError(null)
+      const data = await backendApi.getApps()
+      setApps(data)
+    } catch {
+      setError('Não foi possível carregar os apps. Verifique a conexão com o servidor.')
+    } finally {
+      setLoading(false)
+    }
   }, [])
 
   useEffect(() => {
     if (!authLoading) load()
   }, [authLoading, load])
 
-  const persist = useCallback(async (newApps: App[]) => {
-    setApps(newApps)
-  }, [])
-
   const addApp = useCallback(async (app: App) => {
-    const created = await backendApi.createApp(app)
-    setApps(prev => [...prev, created])
+    try {
+      const created = await backendApi.createApp(app)
+      setApps(prev => [...prev, created])
+      return null
+    } catch (e: any) {
+      return e.message
+    }
   }, [])
 
   const updateApp = useCallback(async (id: number, data: Partial<App>) => {
-    await backendApi.updateApp(id, data)
-    setApps(prev => prev.map(a => a.id === id ? { ...a, ...data } as App : a))
+    try {
+      await backendApi.updateApp(id, data)
+      setApps(prev => prev.map(a => a.id === id ? { ...a, ...data } as App : a))
+      return null
+    } catch (e: any) {
+      return e.message
+    }
   }, [])
 
   const removeApp = useCallback(async (id: number) => {
-    await backendApi.deleteApp(id)
-    setApps(prev => prev.filter(a => a.id !== id))
+    try {
+      await backendApi.deleteApp(id)
+      setApps(prev => prev.filter(a => a.id !== id))
+      return null
+    } catch (e: any) {
+      return e.message
+    }
   }, [])
 
   const togglePin = useCallback(async (id: number) => {
@@ -69,8 +88,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const moveApp = useCallback(async (id: number, dir: 1 | -1) => {
-    const updated = await backendApi.moveApp(id, dir)
-    setApps(updated)
+    try {
+      const updated = await backendApi.moveApp(id, dir)
+      setApps(updated)
+      return null
+    } catch (e: any) {
+      return e.message
+    }
   }, [])
 
   useEffect(() => {
@@ -78,9 +102,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [isAdmin, mode])
 
   const resetData = useCallback(async () => {
-    const fresh = JSON.parse(JSON.stringify(MOCK_APPS))
-    await backendApi.bulkReplace(fresh)
-    setApps(fresh)
+    try {
+      const fresh = JSON.parse(JSON.stringify(MOCK_APPS))
+      await backendApi.bulkReplace(fresh)
+      setApps(fresh)
+      return null
+    } catch (e: any) {
+      return e.message
+    }
   }, [])
 
   const hasRealData = apps.filter(a =>
@@ -90,7 +119,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   return (
     <AppContext.Provider value={{
-      apps, loading, mode, setMode,
+      apps, loading, error, mode, setMode,
       addApp, updateApp, removeApp, togglePin, moveApp, resetData,
       totalApps: apps.length, hasRealData,
     }}>

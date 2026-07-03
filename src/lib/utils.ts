@@ -22,7 +22,7 @@ export function overallStatus(app: App): AppStatus {
   for (const s of [app.playStore, app.appStore]) {
     if (s.version && s.version !== '-') {
       hasData = true
-      if (STATUS_ORDER.indexOf(s.status) < STATUS_ORDER.indexOf(worst)) {
+      if (STATUS_ORDER.indexOf(s.status) > STATUS_ORDER.indexOf(worst)) {
         worst = s.status
       }
     }
