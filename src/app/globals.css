@@ -3,38 +3,53 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-@theme inline {
-  --color-background: #f5f5f7;
-  --color-foreground: #1a1a2e;
+:root {
+  --bg: #f5f5f7;
+  --bg-card: #ffffff;
+  --bg-surface: #eaeaec;
+  --bg-inset: #e0e0e4;
+  --bg-card-hover: #f0f0f2;
+  --border: #d4d4d8;
+  --border-light: #c0c0c6;
+  --text: #1a1a2e;
+  --text-secondary: #555566;
+  --text-muted: #88889a;
   --color-sasi-blue: #1a3a8c;
   --color-sasi-red: #DC2626;
-  --color-surface: #eaeaec;
-  --color-inset: #e0e0e4;
-  --color-card: #ffffff;
-  --color-card-hover: #f0f0f2;
-  --color-muted: #6b6b80;
-  --color-muted-foreground: #88889a;
-  --color-border: #d4d4d8;
-  --color-border-light: #c0c0c6;
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .dark {
-  --color-background: #000000;
-  --color-foreground: #f1f5f9;
-  --color-surface: #0d0d14;
-  --color-inset: #14141e;
-  --color-card: #0a0a0f;
-  --color-card-hover: #111118;
-  --color-muted: #6b6b80;
-  --color-muted-foreground: #6b6b80;
-  --color-border: #1c1c28;
-  --color-border-light: #2a2a3e;
+  --bg: #020617;
+  --bg-card: #0F172A;
+  --bg-surface: #1E293B;
+  --bg-inset: #14141e;
+  --bg-card-hover: #1a2332;
+  --border: #334155;
+  --border-light: #475569;
+  --text: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+}
+
+@theme inline {
+  --color-background: var(--bg);
+  --color-foreground: var(--text);
+  --color-sasi-blue: #1a3a8c;
+  --color-sasi-red: #DC2626;
+  --color-surface: var(--bg-surface);
+  --color-inset: var(--bg-inset);
+  --color-card: var(--bg-card);
+  --color-card-hover: var(--bg-card-hover);
+  --color-muted: var(--text-muted);
+  --color-muted-foreground: var(--text-muted);
+  --color-border: var(--border);
+  --color-border-light: var(--border-light);
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 body {
-  background: var(--color-background);
-  color: var(--color-foreground);
+  background: var(--bg);
+  color: var(--text);
   font-family: var(--font-sans);
   transition: background-color 0.3s ease, color 0.3s ease;
 }
@@ -52,8 +67,8 @@ body::before {
 
 /* Light mode header override */
 .app-header {
-  background: var(--color-card);
-  border-bottom: 1px solid var(--color-border);
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
   transition: background 0.3s ease, border-color 0.3s ease;
 }
 

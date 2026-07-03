@@ -4,9 +4,9 @@ import { App } from '@/types'
 import { useAppContext } from '@/contexts/AppContext'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/components/Toast'
-import { overallStatus, latestVersion, daysLabel, statusColor, statusBgColor, formatDate, appImagePath, getAccountName } from '@/lib/utils'
+import { overallStatus, daysLabel, statusColor, statusBgColor, formatDate, appImagePath, getAccountName } from '@/lib/utils'
 import { STATUS_LABELS } from '@/lib/mock-data'
-import { Pin, Edit, Trash2, Eye, ChevronUp, ChevronDown } from 'lucide-react'
+import { Pin, Edit, Trash2, Eye, ChevronUp, ChevronDown, Star, Download } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
 interface AppCardProps {
@@ -31,18 +31,17 @@ export function AppCard({ app, onEdit, onDetails, index = 0 }: AppCardProps) {
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const t = setTimeout(() => setVisible(true), index * 60)
+    const t = setTimeout(() => setVisible(true), Math.min(index * 60, 300))
     return () => clearTimeout(t)
   }, [index])
 
   return (
     <div
       ref={ref}
-      className={`bg-card border border-border rounded-2xl overflow-hidden shadow-sm transition-all duration-300 group hover:shadow-md hover:-translate-y-0.5 ${app.pinned ? 'border-amber-400/50 shadow-amber-400/10 shadow-md' : ''} ${
-        visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'
+      className={`relative bg-card border border-border rounded-2xl overflow-hidden shadow-sm transition-all duration-300 group hover:shadow-md hover:-translate-y-0.5 ${app.pinned ? 'border-amber-400/50 shadow-amber-400/10 shadow-md' : ''} ${
+        visible ? 'opacity-100' : 'opacity-0'
       }`}
     >
-      {/* Watermark background */}
       {imgSrc && (
         <div
           className="app-card-bg"
@@ -50,7 +49,6 @@ export function AppCard({ app, onEdit, onDetails, index = 0 }: AppCardProps) {
         />
       )}
 
-      {/* Image area */}
       <div className="relative h-36 bg-gradient-to-b from-zinc-900 to-black overflow-hidden">
         {imgSrc && (
           <img
@@ -78,9 +76,7 @@ export function AppCard({ app, onEdit, onDetails, index = 0 }: AppCardProps) {
         </div>
       </div>
 
-      {/* Content */}
-      <div className="p-5 space-y-3 relative z-[1]">
-        {/* Title */}
+      <div className="p-5 space-y-3 relative z-[1] bg-card">
         <div className="flex items-center justify-between gap-2">
           <h3 className="font-semibold text-foreground text-sm leading-tight truncate">{app.name}</h3>
           {isEdit && (
@@ -90,7 +86,6 @@ export function AppCard({ app, onEdit, onDetails, index = 0 }: AppCardProps) {
           )}
         </div>
 
-        {/* Stores */}
         <div className="space-y-2">
           <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-surface">
             <img src={storeIcons.play} alt="" className="w-4 h-4 shrink-0 opacity-70" />
@@ -119,7 +114,21 @@ export function AppCard({ app, onEdit, onDetails, index = 0 }: AppCardProps) {
           </div>
         </div>
 
-        {/* Actions */}
+        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+          {app.rating > 0 && (
+            <span className="flex items-center gap-1">
+              <Star size={12} className="text-yellow-500" />
+              {app.rating.toFixed(1)}
+            </span>
+          )}
+          {app.installations > 0 && (
+            <span className="flex items-center gap-1">
+              <Download size={12} />
+              {app.installations.toLocaleString('pt-BR')}
+            </span>
+          )}
+        </div>
+
         <div className="flex items-center justify-between pt-3 border-t border-border/50">
           <div className="flex items-center gap-1">
             {isEdit ? (
