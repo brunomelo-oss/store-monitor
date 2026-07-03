@@ -12,10 +12,10 @@ export function RatingsGrid() {
     return (
       <div>
         <h3 className="flex items-center gap-2 text-base font-bold text-foreground mb-4">
-          <Star size={18} className="text-yellow-400" />
+          <Star size={18} className="text-yellow-500" />
           Avaliação Média
         </h3>
-        <div className="text-center text-sm text-zinc-600 py-12 bg-surface border border-border rounded-xl">
+        <div className="text-center text-sm text-muted-foreground py-12 bg-card border border-border rounded-2xl shadow-sm">
           Nenhuma avaliação disponível
         </div>
       </div>
@@ -25,7 +25,7 @@ export function RatingsGrid() {
   return (
     <div>
       <div className="flex items-center gap-2 mb-4">
-        <Star size={18} className="text-yellow-400" />
+        <Star size={18} className="text-yellow-500" />
         <h3 className="text-base font-bold text-foreground">Avaliação Média</h3>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
@@ -37,29 +37,29 @@ export function RatingsGrid() {
           return (
             <div
               key={app.id}
-              className="bg-surface border border-border rounded-xl p-4 text-center transition-all duration-200 hover:border-zinc-500 hover:-translate-y-0.5"
+              className="bg-card border border-border rounded-2xl p-5 text-center transition-all duration-300 hover:shadow-md hover:-translate-y-0.5"
               style={{ animationDelay: `${i * 50}ms` }}
             >
-              <div className="text-sm font-semibold text-foreground truncate mb-2">{app.name}</div>
-              <div className="flex justify-center gap-0.5 mb-1.5">
+              <div className="text-sm font-semibold text-foreground truncate mb-3">{app.name}</div>
+              <div className="flex justify-center gap-0.5 mb-2">
                 {Array.from({ length: full }).map((_, j) => (
-                  <Star key={`f${j}`} size={15} className="fill-yellow-400 text-yellow-400" />
+                  <Star key={`f${j}`} size={14} className="fill-yellow-500 text-yellow-500" />
                 ))}
                 {hasHalf && (
                   <div className="relative">
-                    <Star size={15} className="text-zinc-600" />
+                    <Star size={14} className="text-zinc-300 dark:text-zinc-600" />
                     <div className="absolute inset-0 overflow-hidden w-1/2">
-                      <Star size={15} className="fill-yellow-400 text-yellow-400" />
+                      <Star size={14} className="fill-yellow-500 text-yellow-500" />
                     </div>
                   </div>
                 )}
                 {Array.from({ length: empty }).map((_, j) => (
-                  <Star key={`e${j}`} size={15} className="text-zinc-600" />
+                  <Star key={`e${j}`} size={14} className="text-zinc-300 dark:text-zinc-600" />
                 ))}
               </div>
-              <div className="flex items-center justify-center gap-1.5">
-                <span className="text-sm font-bold text-foreground">{app.rating.toFixed(1)}</span>
-                <span className="text-[10px] text-zinc-600">/ 5.0</span>
+              <div className="flex items-baseline justify-center gap-1">
+                <span className="text-2xl font-bold text-foreground">{app.rating.toFixed(1)}</span>
+                <span className="text-xs text-muted-foreground">/ 5.0</span>
               </div>
             </div>
           )

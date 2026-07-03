@@ -27,23 +27,25 @@ export function Header() {
     }
   }
 
-  const btnClass = 'p-2 rounded-lg text-zinc-500 hover:text-foreground hover:bg-black/[0.05] dark:hover:bg-white/[0.08] transition'
+  const btnClass = 'p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-zinc-200/50 dark:hover:bg-white/[0.08] transition-all duration-200'
 
   return (
-    <header className={`sticky top-0 z-40 bg-surface/80 backdrop-blur-lg border-b transition-all duration-200 ${scrolled ? 'border-zinc-500/30 shadow-lg shadow-black/10' : 'border-border'}`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="text-xl font-bold text-foreground tracking-tight select-none" onDoubleClick={handleReset}>SASI</div>
-          <span className="hidden sm:inline text-xs text-zinc-600">Comunicações Ágil Ltda</span>
+    <header className={`sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b transition-all duration-300 ${scrolled ? 'border-border/80 shadow-sm' : 'border-transparent'}`}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="text-xl font-extrabold text-foreground tracking-tight select-none" onDoubleClick={handleReset}>SASI</div>
+          <span className="hidden sm:inline-block h-4 w-px bg-border" />
+          <span className="hidden sm:inline text-xs text-muted-foreground font-medium">Comunicações Ágil Ltda</span>
         </div>
 
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-zinc-500 mr-1">
-            <span className="font-semibold text-zinc-300">{totalApps}</span> apps
-          </span>
+        <div className="flex items-center gap-3">
+          <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface text-xs font-medium text-muted-foreground">
+            <span className="font-semibold text-foreground">{totalApps}</span>
+            app{totalApps !== 1 ? 's' : ''}
+          </div>
 
           <button onClick={toggle} className={btnClass} title="Alternar tema">
-            <div className="transition-transform duration-300 hover:scale-110">
+            <div className="transition-transform duration-300 hover:scale-110 active:scale-90">
               {isDark ? <Sun size={16} /> : <Moon size={16} />}
             </div>
           </button>

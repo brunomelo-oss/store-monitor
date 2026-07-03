@@ -22,26 +22,26 @@ export function InstallChart() {
 
   return (
     <div>
-        <h3 className="flex items-center gap-2 text-base font-bold text-foreground mb-4">
-        <ArrowDownWideNarrow size={18} className="text-zinc-400" />
+      <h3 className="flex items-center gap-2 text-base font-bold text-foreground mb-4">
+        <ArrowDownWideNarrow size={18} className="text-muted-foreground" />
         Instalações por App
-        <span className="text-xs font-normal text-zinc-600">· Top 10</span>
+        <span className="text-xs font-normal text-muted-foreground">· Top 10</span>
       </h3>
-      <div className="bg-surface border border-border rounded-xl p-5">
+      <div className="bg-card border border-border rounded-2xl p-5 shadow-sm">
         <div className="space-y-3">
           {withInstalls.map((app, i) => {
             const pct = Math.round((app.installations / maxInst) * 100)
             return (
-              <div key={app.id} className="flex items-center gap-3">
-                <div className="w-8 text-xs text-zinc-600 font-mono text-right shrink-0">{i + 1}</div>
+              <div key={app.id} className="flex items-center gap-4">
+                <div className="w-7 text-xs text-muted-foreground font-medium text-right shrink-0">{i + 1}</div>
                 <div className="w-[140px] text-sm font-medium text-foreground truncate shrink-0">{app.name}</div>
-                <div className="flex-1 h-6 bg-zinc-800 rounded-md overflow-hidden">
+                <div className="flex-1 h-5 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
                   <div
-                    className="h-full rounded-md bg-gradient-to-r from-sasi-red to-red-400 transition-all duration-700 ease-out"
+                    className="h-full rounded-full bg-gradient-to-r from-sasi-blue to-blue-400 transition-all duration-700 ease-out"
                     style={{ width: anim ? `${pct}%` : '0%', minWidth: anim ? '4px' : '0px' }}
                   />
                 </div>
-                <div className="w-[70px] text-sm font-semibold text-right text-zinc-400 shrink-0">
+                <div className="w-[70px] text-sm font-semibold text-right text-muted-foreground shrink-0">
                   {app.installations.toLocaleString('pt-BR')}
                 </div>
               </div>
@@ -49,7 +49,7 @@ export function InstallChart() {
           })}
         </div>
         {withInstalls.length === 0 && (
-          <div className="text-center text-sm text-zinc-600 py-8">Nenhum app com instalações registradas</div>
+          <div className="text-center text-sm text-muted-foreground py-8">Nenhum app com instalações registradas</div>
         )}
       </div>
     </div>

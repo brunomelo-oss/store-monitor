@@ -24,9 +24,9 @@ export function AppGrid({ apps, region, badge, badgeClass, onEdit, onDetails }: 
             {badge}
           </span>
         </div>
-        <span className="text-xs text-zinc-500">{apps.length} app{apps.length !== 1 ? 's' : ''}</span>
+        <span className="text-xs text-muted-foreground">{apps.length} app{apps.length !== 1 ? 's' : ''}</span>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
         {apps.map((app, i) => (
           <AppCard key={app.id} app={app} onEdit={onEdit} onDetails={onDetails} index={i} />
         ))}

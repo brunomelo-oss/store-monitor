@@ -19,10 +19,10 @@ export function DashboardView() {
     <div>
       <NavTabs active={activeTab} onChange={setActiveTab} />
 
-      <div className="mt-6">
+      <div className="mt-8">
         {activeTab === 'dashboard' && (
           <Suspense fallback={<DashboardSkeleton />}>
-            <div className="space-y-8">
+            <div className="space-y-10">
               <ErrorBoundary><BentoMetrics /></ErrorBoundary>
               <ErrorBoundary><InstallChart /></ErrorBoundary>
               <ErrorBoundary><RatingsGrid /></ErrorBoundary>

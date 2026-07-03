@@ -18,15 +18,15 @@ export function NavTabs({ active, onChange }: NavTabsProps) {
   ]
 
   return (
-    <div className="flex gap-1 bg-surface border border-border rounded-xl p-1 w-fit">
+    <div className="flex gap-1 bg-surface border border-border rounded-2xl p-1 w-fit shadow-sm">
       {tabs.map(({ id, label, icon: Icon }) => (
         <button
           key={id}
           onClick={() => onChange(id)}
-          className={`flex items-center gap-2 px-4 py-2 rounded-[10px] text-sm font-medium transition ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
             active === id
-              ? 'bg-zinc-800 text-white'
-              : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50'
+              ? 'bg-card text-foreground shadow-sm'
+              : 'text-muted-foreground hover:text-foreground hover:bg-zinc-200/50 dark:hover:bg-white/[0.05]'
           }`}
         >
           <Icon size={16} />

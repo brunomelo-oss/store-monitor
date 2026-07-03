@@ -38,7 +38,7 @@ export function AppCard({ app, onEdit, onDetails, index = 0 }: AppCardProps) {
   return (
     <div
       ref={ref}
-      className={`bg-surface border border-border rounded-xl overflow-hidden hover:border-zinc-500 transition-all duration-300 group ${
+      className={`bg-card border border-border rounded-2xl overflow-hidden shadow-sm transition-all duration-300 group hover:shadow-md hover:-translate-y-0.5 ${
         visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'
       }`}
     >
@@ -66,7 +66,7 @@ export function AppCard({ app, onEdit, onDetails, index = 0 }: AppCardProps) {
       </div>
 
       {/* Content */}
-      <div className="p-4 space-y-3">
+      <div className="p-5 space-y-3">
         {/* Title + Status */}
         <div className="flex items-start justify-between gap-2">
           <h3 className="font-semibold text-foreground text-sm leading-tight truncate">{app.name}</h3>
@@ -76,18 +76,18 @@ export function AppCard({ app, onEdit, onDetails, index = 0 }: AppCardProps) {
         </div>
 
         {/* Stores */}
-        <div className="space-y-2">
+        <div className="space-y-2.5">
           <div className="flex items-center gap-2">
             <img src={storeIcons.play} alt="" className="w-4 h-4 shrink-0 opacity-70" />
             <div className="flex-1 min-w-0 flex items-center gap-1.5">
               <span className={`text-xs font-medium ${statusColor(app.playStore.status)}`}>
                 {STATUS_LABELS[app.playStore.status]}
               </span>
-              <span className="text-xs text-zinc-600">
+              <span className="text-xs text-muted-foreground">
                 {app.playStore.version ? `v${app.playStore.version}` : '--'}
               </span>
             </div>
-            <span className="text-[10px] text-zinc-600 truncate max-w-[80px]">{getAccountName('google', app.googleAccount)}</span>
+            <span className="text-[10px] text-muted-foreground truncate max-w-[80px]">{getAccountName('google', app.googleAccount)}</span>
           </div>
 
           <div className="flex items-center gap-2">
@@ -96,31 +96,31 @@ export function AppCard({ app, onEdit, onDetails, index = 0 }: AppCardProps) {
               <span className={`text-xs font-medium ${statusColor(app.appStore.status)}`}>
                 {STATUS_LABELS[app.appStore.status]}
               </span>
-              <span className="text-xs text-zinc-600">
+              <span className="text-xs text-muted-foreground">
                 {app.appStore.version ? `v${app.appStore.version}` : '--'}
               </span>
             </div>
-            <span className="text-[10px] text-zinc-600 truncate max-w-[80px]">{getAccountName('apple', app.appleAccount)}</span>
+            <span className="text-[10px] text-muted-foreground truncate max-w-[80px]">{getAccountName('apple', app.appleAccount)}</span>
           </div>
         </div>
 
         {/* Actions */}
-        <div className="flex items-center justify-between pt-1 border-t border-border/50">
+        <div className="flex items-center justify-between pt-3 border-t border-border/50">
           <div className="flex items-center gap-1">
             {isEdit ? (
               <>
-                <button onClick={() => moveApp(app.id, -1)} className="p-1.5 text-zinc-600 hover:text-foreground transition rounded-md hover:bg-zinc-800" title="Mover para cima">
+                <button onClick={() => moveApp(app.id, -1)} className="p-1.5 text-muted-foreground hover:text-foreground transition rounded-md hover:bg-zinc-800" title="Mover para cima">
                   <ChevronUp size={14} />
                 </button>
-                <button onClick={() => moveApp(app.id, 1)} className="p-1.5 text-zinc-600 hover:text-foreground transition rounded-md hover:bg-zinc-800" title="Mover para baixo">
+                <button onClick={() => moveApp(app.id, 1)} className="p-1.5 text-muted-foreground hover:text-foreground transition rounded-md hover:bg-zinc-800" title="Mover para baixo">
                   <ChevronDown size={14} />
                 </button>
-                <button onClick={async () => { const err = await togglePin(app.id); if (err) show(err, 'warning') }} className={`p-1.5 rounded-md transition ${app.pinned ? 'text-purple-400' : 'text-zinc-600 hover:text-purple-400 hover:bg-zinc-800'}`} title="Fixar/Desfixar">
+                <button onClick={async () => { const err = await togglePin(app.id); if (err) show(err, 'warning') }} className={`p-1.5 rounded-md transition ${app.pinned ? 'text-purple-400' : 'text-muted-foreground hover:text-purple-400 hover:bg-zinc-800'}`} title="Fixar/Desfixar">
                   <Pin size={13} />
                 </button>
               </>
             ) : (
-              <button onClick={() => onDetails(app)} className="flex items-center gap-1 text-xs text-zinc-500 hover:text-foreground transition">
+              <button onClick={() => onDetails(app)} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition">
                 <Eye size={13} />
                 Detalhes
               </button>
@@ -132,14 +132,14 @@ export function AppCard({ app, onEdit, onDetails, index = 0 }: AppCardProps) {
               <>
                 <button
                   onClick={() => onEdit(app)}
-                  className="flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-md bg-yellow-500/10 text-yellow-400 hover:bg-yellow-500/20 transition"
+                  className="flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-md bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500/20 transition"
                 >
                   <Edit size={11} />
                   Editar
                 </button>
                 <button
                   onClick={() => { if (confirm(`Remover "${app.name}" do dashboard?`)) removeApp(app.id) }}
-                  className="p-1.5 text-zinc-600 hover:text-red-400 transition rounded-md hover:bg-zinc-800"
+                  className="p-1.5 text-muted-foreground hover:text-red-400 transition rounded-md hover:bg-zinc-800"
                 >
                   <Trash2 size={13} />
                 </button>
