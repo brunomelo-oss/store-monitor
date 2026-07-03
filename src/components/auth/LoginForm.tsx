@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
-import { localStorageApi } from '@/lib/storage'
+import { backendApi } from '@/lib/backend-api'
 import { Eye, EyeOff, Loader2, MailQuestion } from 'lucide-react'
 
 interface LoginFormProps {
@@ -31,8 +31,10 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
   const checkInvite = async () => {
     const val = username.trim().toLowerCase()
     if (!val || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) { setHasInvite(false); return }
-    const invites = await localStorageApi.getInvites()
-    setHasInvite(!!invites.find(i => i.email === val))
+    try {
+      const { invited } = await backendApi.checkInvite(val)
+      setHasInvite(invited)
+    } catch { setHasInvite(false) }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {

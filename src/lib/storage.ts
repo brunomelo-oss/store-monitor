@@ -1,6 +1,5 @@
 import { App, User, Invite } from '@/types'
 import { MOCK_APPS, DEFAULT_USERS } from './mock-data'
-import type { AppApi } from './api'
 
 const LS_APPS = 'sasi_dashboard_apps'
 const LS_USERS = 'sasi_users'
@@ -8,7 +7,7 @@ const LS_INVITES = 'sasi_invites'
 const LS_THEME = 'sasi_theme'
 const LS_SESSION = 'sasi_session'
 
-export const localStorageApi: AppApi = {
+export const localStorageApi = {
   async getApps() {
     const saved = localStorage.getItem(LS_APPS)
     if (saved) {

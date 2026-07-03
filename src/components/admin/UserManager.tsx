@@ -1,21 +1,21 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { User, Invite } from '@/types'
+import { Invite } from '@/types'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/components/Toast'
-import { localStorageApi } from '@/lib/storage'
+import { backendApi } from '@/lib/backend-api'
 import { validatePassword } from '@/lib/utils'
-import { X, Plus, Mail } from 'lucide-react'
+import { X, Plus, Mail, Trash2, Shield, ShieldOff } from 'lucide-react'
 import { EmailPreviewModal } from '@/components/EmailPreviewModal'
 
 export function UserManager() {
-  const { isAdmin } = useAuth()
+  const { isAdmin, user: currentUser } = useAuth()
   const { show } = useToast()
-  const [users, setUsers] = useState<User[]>([])
+  const [users, setUsers] = useState<any[]>([])
   const [invites, setInvites] = useState<Invite[]>([])
   const [loading, setLoading] = useState(true)
-  const [editingUser, setEditingUser] = useState<User | null>(null)
+  const [editingUserId, setEditingUserId] = useState<number | null>(null)
   const [newPassword, setNewPassword] = useState('')
   const [inviteEmail, setInviteEmail] = useState('')
   const [showAdd, setShowAdd] = useState(false)
@@ -23,8 +23,11 @@ export function UserManager() {
   const [previewEmail, setPreviewEmail] = useState('')
 
   const load = async () => {
-    setUsers(await localStorageApi.getUsers())
-    setInvites(await localStorageApi.getInvites())
+    try {
+      const [u, i] = await Promise.all([backendApi.getUsers(), backendApi.getInvites()])
+      setUsers(u)
+      setInvites(i)
+    } catch {}
     setLoading(false)
   }
 
@@ -39,53 +42,78 @@ export function UserManager() {
       show('E-mail inválido', 'error')
       return
     }
-    const existing = [...users, ...invites].find(i => i.email === inviteEmail)
-    if (existing) { show('E-mail já possui convite ou conta', 'warning'); return }
-    const newInvites = [...invites, { email: inviteEmail, invitedAt: new Date().toISOString() }]
-    await localStorageApi.saveInvites(newInvites)
-    setInvites(newInvites)
-    setPreviewEmail(inviteEmail)
-    setInviteEmail('')
+    try {
+      const invite = await backendApi.createInvite(inviteEmail)
+      setInvites(prev => [...prev, invite])
+      setPreviewEmail(inviteEmail)
+      setInviteEmail('')
+    } catch (e: any) {
+      show(e.message, 'error')
+    }
   }
 
-  const handleDeleteUser = async (u: User) => {
-    if (u.username === 'admin') { show('Não é possível remover o admin principal', 'error'); return }
-    if (!confirm(`Remover usuário "${u.email}"?`)) return
-    const next = users.filter(x => x.username !== u.username)
-    await localStorageApi.saveUsers(next)
-    setUsers(next)
-    show('Usuário removido', 'success')
+  const handleDeleteInvite = async (id: number) => {
+    try {
+      await backendApi.deleteInvite(id)
+      setInvites(prev => prev.filter(i => i.id !== id))
+      show('Convite removido', 'success')
+    } catch (e: any) {
+      show(e.message, 'error')
+    }
   }
 
-  const handlePasswordChange = async (u: User) => {
+  const handleDeleteUser = async (id: number, email: string) => {
+    if (!confirm(`Remover usuário "${email}"?`)) return
+    try {
+      await backendApi.deleteUser(id)
+      setUsers(prev => prev.filter(u => u.id !== id))
+      show('Usuário removido', 'success')
+    } catch (e: any) {
+      show(e.message, 'error')
+    }
+  }
+
+  const handleToggleRole = async (u: any) => {
+    const newRole = u.role === 'admin' ? 'user' : 'admin'
+    try {
+      const updated = await backendApi.updateUserRole(u.id, newRole)
+      setUsers(prev => prev.map(x => x.id === u.id ? updated : x))
+      show(`Agora é ${newRole === 'admin' ? 'Administrador' : 'Usuário'}`, 'success')
+    } catch (e: any) {
+      show(e.message, 'error')
+    }
+  }
+
+  const handlePasswordChange = async (userId: number) => {
     if (!validatePassword(newPassword)) { show('Senha não atende aos requisitos', 'error'); return }
-    const next = users.map(x => x.username === u.username ? { ...x, password: newPassword } : x)
-    await localStorageApi.saveUsers(next)
-    setUsers(next)
-    setEditingUser(null)
-    setNewPassword('')
-    show('Senha alterada', 'success')
+    try {
+      await backendApi.updateUserPassword(userId, newPassword)
+      setEditingUserId(null)
+      setNewPassword('')
+      show('Senha alterada', 'success')
+    } catch (e: any) {
+      show(e.message, 'error')
+    }
   }
 
   const handleAddUser = async () => {
     if (!newUser.email) { show('Digite o e-mail', 'error'); return }
     if (!validatePassword(newUser.password)) { show('Senha não atende aos requisitos', 'error'); return }
-    if (users.find(u => u.email === newUser.email)) { show('E-mail já cadastrado', 'error'); return }
-    const u: User = { username: newUser.email.split('@')[0], password: newUser.password, email: newUser.email, role: newUser.role }
-    const next = [...users, u]
-    await localStorageApi.saveUsers(next)
-    setUsers(next)
-    setShowAdd(false)
-    setNewUser({ email: '', password: '', role: 'user' })
-    show('Usuário criado', 'success')
+    try {
+      const u = await backendApi.createUser(newUser.email, newUser.password, newUser.role)
+      setUsers(prev => [...prev, u])
+      setShowAdd(false)
+      setNewUser({ email: '', password: '', role: 'user' })
+      show('Usuário criado', 'success')
+    } catch (e: any) {
+      show(e.message, 'error')
+    }
   }
 
   const inputClass = 'w-full px-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700 text-white text-sm outline-none focus:border-zinc-500 transition'
-  const labelClass = 'block text-xs text-zinc-500 mb-1'
 
   return (
     <div className="max-w-3xl mx-auto space-y-8">
-      {/* Invite Section */}
       <div className="bg-surface border border-zinc-800 rounded-xl p-5">
         <h3 className="text-base font-bold text-white mb-4 flex items-center gap-2">
           <Mail size={18} className="text-zinc-400" />
@@ -105,17 +133,24 @@ export function UserManager() {
         </div>
         {invites.length > 0 && (
           <div className="mt-3 space-y-1">
-            {invites.map((inv, i) => (
-              <div key={i} className="flex items-center justify-between text-xs text-zinc-500 py-1">
+            {invites.map(inv => (
+              <div key={inv.id || inv.email} className="flex items-center justify-between text-xs text-zinc-500 py-1 group">
                 <span>{inv.email}</span>
-                <span className="text-[10px] text-zinc-600">Pendente</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] text-zinc-600">Pendente</span>
+                  <button
+                    onClick={() => inv.id && handleDeleteInvite(inv.id)}
+                    className="p-1 rounded text-zinc-600 hover:text-red-400 hover:bg-red-400/10 opacity-0 group-hover:opacity-100 transition"
+                  >
+                    <Trash2 size={12} />
+                  </button>
+                </div>
               </div>
             ))}
           </div>
         )}
       </div>
 
-      {/* Add User Section */}
       <div className="bg-surface border border-zinc-800 rounded-xl p-5">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-base font-bold text-white">Usuários</h3>
@@ -149,7 +184,7 @@ export function UserManager() {
 
         <div className="space-y-2">
           {users.map(u => (
-            <div key={u.username} className="flex items-center justify-between px-4 py-3 rounded-lg bg-zinc-800/30 border border-zinc-800">
+            <div key={u.id} className="flex items-center justify-between px-4 py-3 rounded-lg bg-zinc-800/30 border border-zinc-800">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-zinc-700 flex items-center justify-center text-xs font-bold text-white">
                   {u.email.charAt(0).toUpperCase()}
@@ -157,12 +192,12 @@ export function UserManager() {
                 <div>
                   <div className="text-sm text-white">{u.email}</div>
                   <div className="text-[10px] text-zinc-500">
-                    {u.role === 'admin' ? 'Administrador' : 'Usuário'} {u.username === 'admin' && '· Principal'}
+                    {u.role === 'admin' ? 'Administrador' : 'Usuário'}
                   </div>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                {editingUser?.username === u.username ? (
+                {editingUserId === u.id ? (
                   <div className="flex items-center gap-2">
                     <input
                       className="w-32 px-2 py-1 rounded bg-zinc-800 border border-zinc-700 text-white text-xs outline-none"
@@ -170,15 +205,22 @@ export function UserManager() {
                       placeholder="Nova senha"
                       value={newPassword}
                       onChange={e => setNewPassword(e.target.value)}
-                      onKeyDown={e => e.key === 'Enter' && handlePasswordChange(u)}
+                      onKeyDown={e => e.key === 'Enter' && handlePasswordChange(u.id)}
                     />
-                    <button onClick={() => handlePasswordChange(u)} className="text-xs text-emerald-400 hover:underline">Salvar</button>
-                    <button onClick={() => { setEditingUser(null); setNewPassword('') }} className="text-xs text-zinc-500 hover:underline">Cancelar</button>
+                    <button onClick={() => handlePasswordChange(u.id)} className="text-xs text-emerald-400 hover:underline">Salvar</button>
+                    <button onClick={() => { setEditingUserId(null); setNewPassword('') }} className="text-xs text-zinc-500 hover:underline">Cancelar</button>
                   </div>
                 ) : (
                   <>
-                    <button onClick={() => setEditingUser(u)} className="text-xs text-yellow-400 hover:underline">Alterar senha</button>
-                    <button onClick={() => handleDeleteUser(u)} className="text-xs text-red-400 hover:underline">Remover</button>
+                    <button
+                      onClick={() => handleToggleRole(u)}
+                      className="flex items-center gap-1 text-xs text-zinc-500 hover:text-yellow-400 transition"
+                      title={u.role === 'admin' ? 'Rebaixar para usuário' : 'Promover para admin'}
+                    >
+                      {u.role === 'admin' ? <ShieldOff size={12} /> : <Shield size={12} />}
+                    </button>
+                    <button onClick={() => setEditingUserId(u.id)} className="text-xs text-yellow-400 hover:underline">Alterar senha</button>
+                    <button onClick={() => handleDeleteUser(u.id, u.email)} className="text-xs text-red-400 hover:underline">Remover</button>
                   </>
                 )}
               </div>

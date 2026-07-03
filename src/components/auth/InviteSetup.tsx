@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { Eye, EyeOff, Loader2 } from 'lucide-react'
-import { localStorageApi } from '@/lib/storage'
 
 interface InviteSetupProps {
   email: string

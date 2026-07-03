@@ -39,8 +39,10 @@ export interface User {
 }
 
 export interface Invite {
+  id?: number
   email: string
-  invitedAt: string
+  invitedAt?: string
+  createdAt?: string
 }
 
 export type ModalMode = 'edit' | 'add' | 'details' | 'password'

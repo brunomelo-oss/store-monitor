@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/components/Toast'
 import { validatePassword } from '@/lib/utils'
-import { localStorageApi } from '@/lib/storage'
+import { backendApi } from '@/lib/backend-api'
 import { X, Eye, EyeOff, Loader2 } from 'lucide-react'
 
 interface Props {
@@ -30,15 +30,15 @@ export function ChangePasswordModal({ onClose }: Props) {
     if (newPw !== confirm) { setError('Senhas não conferem'); return }
 
     setLoading(true)
-    const users = await localStorageApi.getUsers()
-    const u = users.find(x => x.username === user?.username)
-    if (!u) { setError('Usuário não encontrado'); setLoading(false); return }
-    if (u.password !== current) { setError('Senha atual incorreta'); setLoading(false); return }
-    u.password = newPw
-    await localStorageApi.saveUsers(users)
-    setLoading(false)
-    show('Senha alterada com sucesso', 'success')
-    onClose()
+    try {
+      await backendApi.changePassword(current, newPw)
+      setLoading(false)
+      show('Senha alterada com sucesso', 'success')
+      onClose()
+    } catch (e: any) {
+      setError(e.message)
+      setLoading(false)
+    }
   }
 
   const inputClass = 'w-full px-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700 text-white text-sm outline-none focus:border-zinc-500 transition'
