@@ -18,7 +18,7 @@ export function NavTabs({ active, onChange }: NavTabsProps) {
   ]
 
   return (
-    <div className="flex gap-1 bg-surface border border-zinc-800 rounded-xl p-1 w-fit">
+    <div className="flex gap-1 bg-surface border border-border rounded-xl p-1 w-fit">
       {tabs.map(({ id, label, icon: Icon }) => (
         <button
           key={id}

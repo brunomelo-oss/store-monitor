@@ -2,10 +2,11 @@ import { Router, Request, Response } from 'express'
 import { z } from 'zod'
 import { prisma } from '../lib/prisma'
 import { requireAuth, requireAdmin } from '../middleware/auth'
+import { DbApp, FrontendApp } from '../types'
 
 const router = Router()
 
-function toFrontend(app: any) {
+function toFrontend(app: DbApp): FrontendApp {
   return {
     id: app.id,
     name: app.name,
@@ -21,7 +22,22 @@ function toFrontend(app: any) {
   }
 }
 
-function toDb(data: any) {
+interface DbCreateInput {
+  name: string
+  region: string
+  googleAccount: string
+  appleAccount: string
+  playStatus: string
+  playVersion: string
+  playLastUpdate: string
+  appStatus: string
+  appVersion: string
+  appLastUpdate: string
+  installations: number
+  rating: number
+}
+
+function toDb(data: Record<string, any>): DbCreateInput {
   return {
     name: data.name,
     region: data.region || 'Brasil',
@@ -48,6 +64,8 @@ const appInputSchema = z.object({
   installations: z.number().optional(),
   rating: z.number().optional(),
 })
+
+type AppInput = z.infer<typeof appInputSchema>
 
 // GET /api/apps
 router.get('/', requireAuth, async (_req: Request, res: Response) => {
@@ -143,7 +161,7 @@ router.put('/bulk', requireAuth, requireAdmin, async (req: Request, res: Respons
 
   await prisma.$transaction([
     prisma.app.deleteMany(),
-    ...apps.map((a: any) => prisma.app.create({ data: { ...toDb(a), sortOrder: a.sortOrder || 0 } })),
+    ...apps.map((a: AppInput & { sortOrder?: number }) => prisma.app.create({ data: { ...toDb(a), sortOrder: a.sortOrder || 0 } })),
   ])
 
   const updated = await prisma.app.findMany({ orderBy: [{ pinned: 'desc' }, { sortOrder: 'asc' }] })

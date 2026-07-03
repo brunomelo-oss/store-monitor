@@ -35,8 +35,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const u = await backendApi.login(username, password)
       setUser(u)
       return { ok: true }
-    } catch (e: any) {
-      return { ok: false, error: e.message }
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : 'Erro ao fazer login' }
     }
   }, [])
 
@@ -49,8 +49,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await backendApi.register(email, password)
       return null
-    } catch (e: any) {
-      return e.message
+    } catch (e) {
+      return e instanceof Error ? e.message : 'Erro ao registrar'
     }
   }, [])
 
@@ -58,17 +58,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await backendApi.register(email, password)
       return null
-    } catch (e: any) {
-      return e.message
+    } catch (e) {
+      return e instanceof Error ? e.message : 'Erro ao configurar conta'
     }
   }, [])
 
   const sendResetEmail = useCallback(async (email: string) => {
     try {
-      await backendApi.checkEmail(email)
+      const { registered } = await backendApi.checkEmail(email)
+      if (!registered) return 'E-mail não encontrado'
       return null
-    } catch (e: any) {
-      return e.message
+    } catch (e) {
+      return e instanceof Error ? e.message : 'Erro ao verificar e-mail'
     }
   }, [])
 
@@ -76,8 +77,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await backendApi.resetPassword(email, password)
       return null
-    } catch (e: any) {
-      return e.message
+    } catch (e) {
+      return e instanceof Error ? e.message : 'Erro ao redefinir senha'
     }
   }, [])
 

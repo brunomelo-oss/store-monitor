@@ -1,7 +1,8 @@
 'use client'
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { localStorageApi } from '@/lib/storage'
+
+const THEME_KEY = 'sasi_theme'
 
 interface ThemeState {
   isDark: boolean
@@ -14,15 +15,14 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [isDark, setIsDark] = useState(true)
 
   useEffect(() => {
-    localStorageApi.getTheme().then(saved => {
-      if (saved === 'light') {
-        setIsDark(false)
-        document.documentElement.classList.remove('dark')
-      } else {
-        setIsDark(true)
-        document.documentElement.classList.add('dark')
-      }
-    })
+    const saved = localStorage.getItem(THEME_KEY)
+    if (saved === 'light') {
+      setIsDark(false)
+      document.documentElement.classList.remove('dark')
+    } else {
+      setIsDark(true)
+      document.documentElement.classList.add('dark')
+    }
   }, [])
 
   const toggle = () => {
@@ -30,10 +30,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       const next = !prev
       if (next) {
         document.documentElement.classList.add('dark')
-        localStorageApi.saveTheme('dark')
+        localStorage.setItem(THEME_KEY, 'dark')
       } else {
         document.documentElement.classList.remove('dark')
-        localStorageApi.saveTheme('light')
+        localStorage.setItem(THEME_KEY, 'light')
       }
       return next
     })

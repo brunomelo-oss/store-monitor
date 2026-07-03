@@ -45,8 +45,8 @@ export function ChangePasswordModal({ onClose }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60" onClick={e => { if (e.target === e.currentTarget) onClose() }}>
-      <div className="w-full max-w-sm bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl" onClick={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-800">
+      <div className="w-full max-w-sm bg-zinc-900 border border-border rounded-2xl shadow-2xl" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
           <h3 className="text-base font-semibold text-white">Alterar Senha</h3>
           <button onClick={onClose} className="p-1 text-zinc-500 hover:text-white transition">
             <X size={18} />
@@ -68,7 +68,7 @@ export function ChangePasswordModal({ onClose }: Props) {
           </div>
           {error && <p className="text-red-400 text-xs">{error}</p>}
         </div>
-        <div className="flex items-center justify-end gap-3 px-5 py-4 border-t border-zinc-800">
+        <div className="flex items-center justify-end gap-3 px-5 py-4 border-t border-border">
           <button onClick={onClose} className="px-4 py-2 text-sm text-zinc-400 hover:text-white transition">Cancelar</button>
           <button onClick={handleSave} disabled={loading}
             className="px-5 py-2 rounded-lg bg-sasi-red text-white text-sm font-semibold hover:opacity-90 disabled:opacity-50 transition flex items-center gap-2"

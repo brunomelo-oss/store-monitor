@@ -6,13 +6,15 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/components/Toast'
 import { backendApi } from '@/lib/backend-api'
 import { validatePassword } from '@/lib/utils'
-import { X, Plus, Mail, Trash2, Shield, ShieldOff } from 'lucide-react'
+import { X, Plus, Mail, Trash2, Shield, ShieldOff, UserPlus, Loader2 } from 'lucide-react'
 import { EmailPreviewModal } from '@/components/EmailPreviewModal'
+
+const inputClass = 'w-full px-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700 text-white text-sm placeholder-zinc-500 outline-none focus:border-zinc-500 transition'
 
 export function UserManager() {
   const { isAdmin, user: currentUser } = useAuth()
   const { show } = useToast()
-  const [users, setUsers] = useState<any[]>([])
+  const [users, setUsers] = useState<{ id: number; username: string; email: string; role: string; createdAt?: string }[]>([])
   const [invites, setInvites] = useState<Invite[]>([])
   const [loading, setLoading] = useState(true)
   const [editingUserId, setEditingUserId] = useState<number | null>(null)
@@ -25,8 +27,7 @@ export function UserManager() {
   const load = async () => {
     try {
       const [u, i] = await Promise.all([backendApi.getUsers(), backendApi.getInvites()])
-      setUsers(u)
-      setInvites(i)
+      setUsers(u); setInvites(i)
     } catch {}
     setLoading(false)
   }
@@ -39,16 +40,15 @@ export function UserManager() {
 
   const handleInvite = async () => {
     if (!inviteEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inviteEmail)) {
-      show('E-mail inválido', 'error')
-      return
+      show('E-mail inválido', 'error'); return
     }
     try {
       const invite = await backendApi.createInvite(inviteEmail)
       setInvites(prev => [...prev, invite])
       setPreviewEmail(inviteEmail)
       setInviteEmail('')
-    } catch (e: any) {
-      show(e.message, 'error')
+    } catch (e) {
+      show(e instanceof Error ? e.message : 'Erro ao convidar', 'error')
     }
   }
 
@@ -57,8 +57,8 @@ export function UserManager() {
       await backendApi.deleteInvite(id)
       setInvites(prev => prev.filter(i => i.id !== id))
       show('Convite removido', 'success')
-    } catch (e: any) {
-      show(e.message, 'error')
+    } catch (e) {
+      show(e instanceof Error ? e.message : 'Erro ao remover convite', 'error')
     }
   }
 
@@ -68,19 +68,19 @@ export function UserManager() {
       await backendApi.deleteUser(id)
       setUsers(prev => prev.filter(u => u.id !== id))
       show('Usuário removido', 'success')
-    } catch (e: any) {
-      show(e.message, 'error')
+    } catch (e) {
+      show(e instanceof Error ? e.message : 'Erro ao remover usuário', 'error')
     }
   }
 
-  const handleToggleRole = async (u: any) => {
+  const handleToggleRole = async (u: { id: number; role: string; email?: string }) => {
     const newRole = u.role === 'admin' ? 'user' : 'admin'
     try {
       const updated = await backendApi.updateUserRole(u.id, newRole)
       setUsers(prev => prev.map(x => x.id === u.id ? updated : x))
       show(`Agora é ${newRole === 'admin' ? 'Administrador' : 'Usuário'}`, 'success')
-    } catch (e: any) {
-      show(e.message, 'error')
+    } catch (e) {
+      show(e instanceof Error ? e.message : 'Erro ao alterar papel', 'error')
     }
   }
 
@@ -88,11 +88,10 @@ export function UserManager() {
     if (!validatePassword(newPassword)) { show('Senha não atende aos requisitos', 'error'); return }
     try {
       await backendApi.updateUserPassword(userId, newPassword)
-      setEditingUserId(null)
-      setNewPassword('')
+      setEditingUserId(null); setNewPassword('')
       show('Senha alterada', 'success')
-    } catch (e: any) {
-      show(e.message, 'error')
+    } catch (e) {
+      show(e instanceof Error ? e.message : 'Erro ao alterar senha', 'error')
     }
   }
 
@@ -105,18 +104,17 @@ export function UserManager() {
       setShowAdd(false)
       setNewUser({ email: '', password: '', role: 'user' })
       show('Usuário criado', 'success')
-    } catch (e: any) {
-      show(e.message, 'error')
+    } catch (e) {
+      show(e instanceof Error ? e.message : 'Erro ao criar usuário', 'error')
     }
   }
 
-  const inputClass = 'w-full px-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700 text-white text-sm outline-none focus:border-zinc-500 transition'
-
   return (
     <div className="max-w-3xl mx-auto space-y-8">
-      <div className="bg-surface border border-zinc-800 rounded-xl p-5">
-        <h3 className="text-base font-bold text-white mb-4 flex items-center gap-2">
-          <Mail size={18} className="text-zinc-400" />
+      {/* Convite Section */}
+      <div className="bg-surface border border-border rounded-xl p-5">
+        <h3 className="text-base font-bold text-foreground mb-4 flex items-center gap-2">
+          <Mail size={17} className="text-zinc-400" />
           Convidar Usuário
         </h3>
         <div className="flex gap-3">
@@ -127,17 +125,17 @@ export function UserManager() {
             onChange={e => setInviteEmail(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleInvite()}
           />
-          <button onClick={handleInvite} className="px-4 py-2 rounded-lg bg-sasi-red text-white text-sm font-semibold hover:opacity-90 transition whitespace-nowrap">
+          <button onClick={handleInvite} className="px-4 py-2 rounded-lg bg-sasi-red text-white text-sm font-semibold hover:opacity-90 transition whitespace-nowrap shrink-0">
             Convidar
           </button>
         </div>
         {invites.length > 0 && (
           <div className="mt-3 space-y-1">
             {invites.map(inv => (
-              <div key={inv.id || inv.email} className="flex items-center justify-between text-xs text-zinc-500 py-1 group">
-                <span>{inv.email}</span>
+              <div key={inv.id || inv.email} className="flex items-center justify-between px-3 py-2 rounded-lg bg-zinc-800/20 group">
+                <span className="text-xs text-zinc-400">{inv.email}</span>
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] text-zinc-600">Pendente</span>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-yellow-500/10 text-yellow-400">Pendente</span>
                   <button
                     onClick={() => inv.id && handleDeleteInvite(inv.id)}
                     className="p-1 rounded text-zinc-600 hover:text-red-400 hover:bg-red-400/10 opacity-0 group-hover:opacity-100 transition"
@@ -151,9 +149,10 @@ export function UserManager() {
         )}
       </div>
 
-      <div className="bg-surface border border-zinc-800 rounded-xl p-5">
+      {/* Usuários Section */}
+      <div className="bg-surface border border-border rounded-xl p-5">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-base font-bold text-white">Usuários</h3>
+          <h3 className="text-base font-bold text-foreground">Usuários</h3>
           <button
             onClick={() => setShowAdd(!showAdd)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 text-sm font-medium hover:bg-emerald-500/20 transition"
@@ -165,13 +164,17 @@ export function UserManager() {
 
         {showAdd && (
           <div className="mb-4 p-4 bg-zinc-800/40 rounded-xl border border-zinc-700/50 space-y-3">
+            <div className="flex items-center gap-2 mb-1">
+              <UserPlus size={14} className="text-zinc-500" />
+              <span className="text-xs text-zinc-500">Novo Usuário</span>
+            </div>
             <input className={inputClass} placeholder="E-mail" value={newUser.email} onChange={e => setNewUser({ ...newUser, email: e.target.value })} />
             <input className={inputClass} type="password" placeholder="Senha" value={newUser.password} onChange={e => setNewUser({ ...newUser, password: e.target.value })} />
             <select className={inputClass} value={newUser.role} onChange={e => setNewUser({ ...newUser, role: e.target.value as 'user' | 'admin' })}>
               <option value="user">Usuário</option>
               <option value="admin">Admin</option>
             </select>
-            <div className="flex gap-2">
+            <div className="flex gap-2 pt-1">
               <button onClick={handleAddUser} className="px-4 py-2 rounded-lg bg-sasi-red text-white text-sm font-semibold hover:opacity-90 transition">
                 Criar
               </button>
@@ -184,25 +187,34 @@ export function UserManager() {
 
         <div className="space-y-2">
           {users.map(u => (
-            <div key={u.id} className="flex items-center justify-between px-4 py-3 rounded-lg bg-zinc-800/30 border border-zinc-800">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-zinc-700 flex items-center justify-center text-xs font-bold text-white">
+            <div key={u.id} className="flex items-center justify-between px-4 py-3 rounded-lg bg-zinc-800/30 border border-border hover:border-zinc-500 transition">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0 ${
+                  u.role === 'admin' ? 'bg-gradient-to-br from-sasi-red to-red-500' : 'bg-zinc-700'
+                }`}>
                   {u.email.charAt(0).toUpperCase()}
                 </div>
-                <div>
-                  <div className="text-sm text-white">{u.email}</div>
-                  <div className="text-[10px] text-zinc-500">
-                    {u.role === 'admin' ? 'Administrador' : 'Usuário'}
+                <div className="min-w-0">
+                  <div className="text-sm text-foreground truncate">{u.email}</div>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
+                      u.role === 'admin' ? 'bg-sasi-red/10 text-red-400' : 'bg-zinc-700/50 text-zinc-400'
+                    }`}>
+                      {u.role === 'admin' ? 'Administrador' : 'Usuário'}
+                    </span>
+                    {u.email === currentUser?.email && (
+                      <span className="text-[10px] text-zinc-600">(você)</span>
+                    )}
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+
+              <div className="flex items-center gap-2 shrink-0">
                 {editingUserId === u.id ? (
                   <div className="flex items-center gap-2">
                     <input
-                      className="w-32 px-2 py-1 rounded bg-zinc-800 border border-zinc-700 text-white text-xs outline-none"
-                      type="password"
-                      placeholder="Nova senha"
+                      className="w-28 px-2 py-1 rounded bg-zinc-800 border border-zinc-700 text-white text-xs outline-none focus:border-zinc-500"
+                      type="password" placeholder="Nova senha"
                       value={newPassword}
                       onChange={e => setNewPassword(e.target.value)}
                       onKeyDown={e => e.key === 'Enter' && handlePasswordChange(u.id)}
@@ -214,20 +226,30 @@ export function UserManager() {
                   <>
                     <button
                       onClick={() => handleToggleRole(u)}
-                      className="flex items-center gap-1 text-xs text-zinc-500 hover:text-yellow-400 transition"
+                      className="flex items-center gap-1 px-2 py-1 rounded text-xs text-zinc-500 hover:text-yellow-400 hover:bg-yellow-500/10 transition"
                       title={u.role === 'admin' ? 'Rebaixar para usuário' : 'Promover para admin'}
                     >
                       {u.role === 'admin' ? <ShieldOff size={12} /> : <Shield size={12} />}
                     </button>
-                    <button onClick={() => setEditingUserId(u.id)} className="text-xs text-yellow-400 hover:underline">Alterar senha</button>
-                    <button onClick={() => handleDeleteUser(u.id, u.email)} className="text-xs text-red-400 hover:underline">Remover</button>
+                    <button onClick={() => setEditingUserId(u.id)} className="text-xs text-yellow-500 hover:underline">Senha</button>
+                    {u.email !== currentUser?.email && (
+                      <button onClick={() => handleDeleteUser(u.id, u.email)} className="text-xs text-zinc-500 hover:text-red-400 transition">Remover</button>
+                    )}
                   </>
                 )}
               </div>
             </div>
           ))}
         </div>
+
+        {loading && (
+          <div className="flex items-center justify-center py-8 text-zinc-500">
+            <Loader2 size={18} className="animate-spin mr-2" />
+            <span className="text-xs">Carregando...</span>
+          </div>
+        )}
       </div>
+
       {previewEmail && <EmailPreviewModal email={previewEmail} onClose={() => setPreviewEmail('')} />}
     </div>
   )

@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express'
 import { z } from 'zod'
+import rateLimit from 'express-rate-limit'
 import { prisma } from '../lib/prisma'
 import { hashPassword, comparePassword } from '../lib/hash'
 import { signAccessToken, signRefreshToken, verifyRefreshToken, setAuthCookies, clearAuthCookies, getAccessToken, getRefreshToken, JwtPayload } from '../lib/jwt'
@@ -179,15 +180,23 @@ router.post('/change-password', requireAuth, async (req: Request, res: Response)
   }
 })
 
+const checkEmailLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: { error: 'Muitas tentativas. Tente novamente em 15 minutos' },
+  standardHeaders: true,
+  legacyHeaders: false,
+})
+
 // POST /api/auth/check-email
-router.post('/check-email', async (req: Request, res: Response) => {
+router.post('/check-email', checkEmailLimiter, async (req: Request, res: Response) => {
   const { email } = req.body
   if (!email) return res.status(400).json({ error: 'E-mail obrigatório' })
 
   const user = await prisma.user.findUnique({ where: { email: email.toLowerCase() } })
-  if (!user) return res.status(404).json({ error: 'E-mail não encontrado' })
+  if (!user) return res.json({ registered: false })
 
-  return res.json({ ok: true })
+  return res.json({ registered: true })
 })
 
 // POST /api/auth/reset-password (simplificado - sem envio real de email)

@@ -36,8 +36,8 @@ Equipe SASI`
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60" onClick={e => { if (e.target === e.currentTarget) onClose() }}>
-      <div className="w-full max-w-lg bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl" onClick={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800">
+      <div className="w-full max-w-lg bg-zinc-900 border border-border rounded-2xl shadow-2xl" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
           <h3 className="text-base font-semibold text-white">Preview do E-mail</h3>
           <button onClick={onClose} className="p-1 text-zinc-500 hover:text-white transition">
             <X size={18} />
@@ -63,7 +63,7 @@ Equipe SASI`
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-zinc-800">
+        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-border">
           <a
             href={mailto}
             className="px-4 py-2 rounded-lg bg-sasi-blue/20 text-blue-400 text-sm font-medium hover:bg-sasi-blue/30 transition"

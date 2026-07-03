@@ -10,27 +10,20 @@ export function ModeToggle({ mode, onChange, show }: ModeToggleProps) {
   if (!show) return null
 
   return (
-    <div className="flex rounded-lg border border-zinc-800 overflow-hidden">
-      <button
-        onClick={() => onChange('view')}
-        className={`px-4 py-2 text-sm font-medium transition ${
-          mode === 'view'
-            ? 'bg-zinc-800 text-white'
-            : 'bg-surface text-zinc-500 hover:text-zinc-300'
-        }`}
-      >
-        Visualizador
-      </button>
-      <button
-        onClick={() => onChange('edit')}
-        className={`px-4 py-2 text-sm font-medium transition ${
-          mode === 'edit'
-            ? 'bg-zinc-800 text-white'
-            : 'bg-surface text-zinc-500 hover:text-zinc-300'
-        }`}
-      >
-        Editor
-      </button>
+    <div className="flex rounded-lg border border-border overflow-hidden bg-surface p-0.5">
+      {(['view', 'edit'] as const).map(m => (
+        <button
+          key={m}
+          onClick={() => onChange(m)}
+          className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all duration-200 ${
+            mode === m
+              ? 'bg-zinc-800 text-white shadow-sm'
+              : 'text-zinc-500 hover:text-zinc-300'
+          }`}
+        >
+          {m === 'view' ? 'Visualizador' : 'Editor'}
+        </button>
+      ))}
     </div>
   )
 }

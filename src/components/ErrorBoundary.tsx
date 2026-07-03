@@ -27,7 +27,7 @@ export class ErrorBoundary extends Component<Props, State> {
       return this.props.fallback || (
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <div className="text-4xl mb-4">⚠️</div>
-          <h2 className="text-lg font-bold text-white mb-2">Algo deu errado</h2>
+          <h2 className="text-lg font-bold text-foreground mb-2">Algo deu errado</h2>
           <p className="text-sm text-zinc-500 mb-4 max-w-md">
             {this.state.error?.message || 'Ocorreu um erro inesperado ao carregar este componente.'}
           </p>

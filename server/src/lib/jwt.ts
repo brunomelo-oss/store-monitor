@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken'
+import jwt, { SignOptions } from 'jsonwebtoken'
 import { config } from '../config'
 import { Request, Response } from 'express'
 
@@ -15,11 +15,11 @@ const COOKIE_OPTIONS = {
 }
 
 export function signAccessToken(payload: JwtPayload): string {
-  return jwt.sign(payload, config.jwt.secret, { expiresIn: config.jwt.accessExpiresIn } as any)
+  return jwt.sign(payload as object, config.jwt.secret, { expiresIn: config.jwt.accessExpiresIn } as SignOptions)
 }
 
 export function signRefreshToken(payload: JwtPayload): string {
-  return jwt.sign(payload, config.jwt.refreshSecret, { expiresIn: config.jwt.refreshExpiresIn } as any)
+  return jwt.sign(payload as object, config.jwt.refreshSecret, { expiresIn: config.jwt.refreshExpiresIn } as SignOptions)
 }
 
 export function verifyAccessToken(token: string): JwtPayload {

@@ -51,8 +51,8 @@ export const backendApi = {
     })
   },
 
-  async checkEmail(email: string): Promise<void> {
-    await api('/auth/check-email', {
+  async checkEmail(email: string): Promise<{ registered: boolean }> {
+    return api<{ registered: boolean }>('/auth/check-email', {
       method: 'POST',
       body: JSON.stringify({ email }),
     })
@@ -93,7 +93,7 @@ export const backendApi = {
     })
   },
 
-  async bulkReplace(apps: any[]): Promise<App[]> {
+  async bulkReplace(apps: Partial<App>[]): Promise<App[]> {
     return api<App[]>('/apps/bulk', {
       method: 'PUT',
       body: JSON.stringify({ apps }),
@@ -101,14 +101,21 @@ export const backendApi = {
   },
 
   // Users (admin)
-  async getUsers(): Promise<any[]> {
-    return api<any[]>('/users')
+  async getUsers(): Promise<{ id: number; username: string; email: string; role: string; createdAt: string }[]> {
+    return api('/users')
   },
 
-  async createUser(email: string, password: string, role: string): Promise<any> {
-    return api<any>('/users', {
+  async createUser(email: string, password: string, role: string): Promise<{ id: number; username: string; email: string; role: string }> {
+    return api('/users', {
       method: 'POST',
       body: JSON.stringify({ email, password, role }),
+    })
+  },
+
+  async updateUserRole(id: number, role: string): Promise<{ id: number; username: string; email: string; role: string; createdAt?: string }> {
+    return api(`/users/${id}/role`, {
+      method: 'PATCH',
+      body: JSON.stringify({ role }),
     })
   },
 
@@ -116,13 +123,6 @@ export const backendApi = {
     await api(`/users/${id}/password`, {
       method: 'PATCH',
       body: JSON.stringify({ password }),
-    })
-  },
-
-  async updateUserRole(id: number, role: string): Promise<any> {
-    return api<any>(`/users/${id}/role`, {
-      method: 'PATCH',
-      body: JSON.stringify({ role }),
     })
   },
 

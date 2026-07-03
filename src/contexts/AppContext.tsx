@@ -52,8 +52,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const created = await backendApi.createApp(app)
       setApps(prev => [...prev, created])
       return null
-    } catch (e: any) {
-      return e.message
+    } catch (e) {
+      return e instanceof Error ? e.message : 'Erro ao adicionar app'
     }
   }, [])
 
@@ -62,8 +62,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       await backendApi.updateApp(id, data)
       setApps(prev => prev.map(a => a.id === id ? { ...a, ...data } as App : a))
       return null
-    } catch (e: any) {
-      return e.message
+    } catch (e) {
+      return e instanceof Error ? e.message : 'Erro ao atualizar app'
     }
   }, [])
 
@@ -72,8 +72,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       await backendApi.deleteApp(id)
       setApps(prev => prev.filter(a => a.id !== id))
       return null
-    } catch (e: any) {
-      return e.message
+    } catch (e) {
+      return e instanceof Error ? e.message : 'Erro ao remover app'
     }
   }, [])
 
@@ -82,8 +82,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const updated = await backendApi.togglePin(id)
       setApps(prev => prev.map(a => a.id === id ? updated : a))
       return null
-    } catch (e: any) {
-      return e.message
+    } catch (e) {
+      return e instanceof Error ? e.message : 'Erro ao fixar/desfixar'
     }
   }, [])
 
@@ -92,8 +92,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const updated = await backendApi.moveApp(id, dir)
       setApps(updated)
       return null
-    } catch (e: any) {
-      return e.message
+    } catch (e) {
+      return e instanceof Error ? e.message : 'Erro ao mover app'
     }
   }, [])
 
@@ -107,8 +107,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       await backendApi.bulkReplace(fresh)
       setApps(fresh)
       return null
-    } catch (e: any) {
-      return e.message
+    } catch (e) {
+      return e instanceof Error ? e.message : 'Erro ao restaurar dados'
     }
   }, [])
 

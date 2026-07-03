@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react'
 import { App, AppStatus } from '@/types'
 import { useAppContext } from '@/contexts/AppContext'
 import { STATUS_LABELS, ACCOUNTS } from '@/lib/mock-data'
-import { validateVersion } from '@/lib/utils'
-import { X, Loader2 } from 'lucide-react'
+import { validateVersion, overallStatus, formatDate } from '@/lib/utils'
+import { X, Loader2, Smartphone, Apple, Globe, Tag } from 'lucide-react'
 
 interface AppModalProps {
   app: App | null
@@ -14,16 +14,25 @@ interface AppModalProps {
   onClose: () => void
 }
 
+const inputClass = 'w-full px-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700 text-white text-sm placeholder-zinc-500 outline-none focus:border-zinc-500 transition'
+const selectClass = inputClass
+const labelClass = 'block text-xs text-zinc-500 mb-1.5'
+
 export function AppModal({ app, mode, region, onClose }: AppModalProps) {
   const { addApp, updateApp, apps } = useAppContext()
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [animIn, setAnimIn] = useState(false)
+
+  useEffect(() => {
+    const t = setTimeout(() => setAnimIn(true), 10)
+    return () => clearTimeout(t)
+  }, [])
 
   const isDetails = mode === 'details'
   const isAdd = mode === 'add'
   const title = isAdd ? `Novo App - ${region}` : (isDetails ? app?.name || '' : 'Editar App')
 
-  // Form state
   const [name, setName] = useState('')
   const [appRegion, setAppRegion] = useState(region)
   const [playStatus, setPlayStatus] = useState<AppStatus>('unpublished')
@@ -37,27 +46,15 @@ export function AppModal({ app, mode, region, onClose }: AppModalProps) {
 
   useEffect(() => {
     if (app) {
-      setName(app.name)
-      setAppRegion(app.region)
-      setPlayStatus(app.playStore.status)
-      setPlayVersion(app.playStore.version)
-      setPlayDate(app.playStore.lastUpdate)
-      setAppStatus(app.appStore.status)
-      setAppVersion(app.appStore.version)
-      setAppDate(app.appStore.lastUpdate)
-      setGoogleAccount(app.googleAccount)
-      setAppleAccount(app.appleAccount)
+      setName(app.name); setAppRegion(app.region)
+      setPlayStatus(app.playStore.status); setPlayVersion(app.playStore.version); setPlayDate(app.playStore.lastUpdate)
+      setAppStatus(app.appStore.status); setAppVersion(app.appStore.version); setAppDate(app.appStore.lastUpdate)
+      setGoogleAccount(app.googleAccount); setAppleAccount(app.appleAccount)
     } else if (isAdd) {
-      setName('')
-      setAppRegion(region)
-      setPlayStatus('unpublished')
-      setPlayVersion('')
-      setPlayDate('')
-      setAppStatus('unpublished')
-      setAppVersion('')
-      setAppDate('')
-      setGoogleAccount('sasiHoldings')
-      setAppleAccount('sasTech')
+      setName(''); setAppRegion(region)
+      setPlayStatus('unpublished'); setPlayVersion(''); setPlayDate('')
+      setAppStatus('unpublished'); setAppVersion(''); setAppDate('')
+      setGoogleAccount('sasiHoldings'); setAppleAccount('sasTech')
     }
   }, [app, isAdd, region])
 
@@ -70,10 +67,8 @@ export function AppModal({ app, mode, region, onClose }: AppModalProps) {
 
     setSaving(true)
     const data = {
-      name: n,
-      region: appRegion as 'Brasil' | 'Internacional',
-      googleAccount,
-      appleAccount,
+      name: n, region: appRegion as 'Brasil' | 'Internacional',
+      googleAccount, appleAccount,
       playStore: { status: playStatus, version: playVersion, lastUpdate: playDate },
       appStore: { status: appStatus, version: appVersion, lastUpdate: appDate },
     }
@@ -81,14 +76,7 @@ export function AppModal({ app, mode, region, onClose }: AppModalProps) {
     if (isAdd) {
       const maxOrder = apps.reduce((m, a) => Math.max(m, a.sortOrder || 0), 0)
       const newId = apps.reduce((m, a) => Math.max(m, a.id), 0) + 1
-      await addApp({
-        id: newId,
-        ...data,
-        installations: 0,
-        rating: 0,
-        pinned: false,
-        sortOrder: maxOrder + 1,
-      })
+      await addApp({ id: newId, ...data, installations: 0, rating: 0, pinned: false, sortOrder: maxOrder + 1 })
     } else if (app) {
       await updateApp(app.id, data)
     }
@@ -96,55 +84,114 @@ export function AppModal({ app, mode, region, onClose }: AppModalProps) {
     onClose()
   }
 
-  const selectClass = 'w-full px-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700 text-white text-sm outline-none focus:border-zinc-500 transition'
-  const inputClass = 'w-full px-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700 text-white text-sm placeholder-zinc-500 outline-none focus:border-zinc-500 transition'
-  const labelClass = 'block text-xs text-zinc-500 mb-1'
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60" onClick={e => { if (e.target === e.currentTarget) onClose() }}>
-      <div className="w-full max-w-lg bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800">
+    <div
+      className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-200 ${animIn ? 'bg-black/60' : 'bg-transparent'}`}
+      onClick={e => { if (e.target === e.currentTarget) onClose() }}
+    >
+      <div className={`w-full max-w-lg bg-zinc-900 border border-border rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto transition-all duration-200 ${animIn ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
           <h3 className="text-base font-semibold text-white">{title}</h3>
-          <button onClick={onClose} className="p-1 text-zinc-500 hover:text-white transition">
-            <X size={18} />
+          <button onClick={onClose} className="p-1.5 rounded-lg text-zinc-500 hover:text-white hover:bg-zinc-800 transition">
+            <X size={16} />
           </button>
         </div>
 
+        {error && (
+          <div className="mx-6 mt-4">
+            <div className="flex items-center gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
+              <div className="w-1.5 h-1.5 rounded-full bg-red-400 shrink-0" />
+              <p className="text-xs text-red-400">{error}</p>
+            </div>
+          </div>
+        )}
+
         <div className="p-6 space-y-5">
           {isDetails ? (
-            <div className="space-y-4">
+            <div className="space-y-5">
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <div className={labelClass}>Região</div>
-                  <div className="text-sm text-white">{app?.region}</div>
+                <div className="p-3 rounded-lg bg-zinc-800/40">
+                  <div className="flex items-center gap-1.5 text-[10px] text-zinc-600 uppercase tracking-wider mb-1">
+                    <Globe size={11} />
+                    Região
+                  </div>
+                  <div className="text-sm font-medium text-white">{app?.region}</div>
                 </div>
-                <div>
-                  <div className={labelClass}>Conta Google</div>
-                  <div className="text-sm text-white">{ACCOUNTS.google.find(a => a.id === app?.googleAccount)?.name || '---'}</div>
-                </div>
-                <div>
-                  <div className={labelClass}>Conta Apple</div>
-                  <div className="text-sm text-white">{ACCOUNTS.apple.find(a => a.id === app?.appleAccount)?.name || '---'}</div>
+                <div className="p-3 rounded-lg bg-zinc-800/40">
+                  <div className="flex items-center gap-1.5 text-[10px] text-zinc-600 uppercase tracking-wider mb-1">
+                    <Tag size={11} />
+                    Status
+                  </div>
+                  <div className="text-sm font-medium text-white">{app ? STATUS_LABELS[overallStatus(app)] : '---'}</div>
                 </div>
               </div>
+
               <div>
-                <div className={labelClass}>Play Store</div>
-                <div className="text-sm text-white">{STATUS_LABELS[app?.playStore.status || 'unpublished']} {app?.playStore.version ? `· v${app.playStore.version}` : ''}</div>
+                <div className="flex items-center gap-1.5 text-xs text-zinc-500 mb-2">
+                  <Smartphone size={13} />
+                  Contas
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-zinc-500">Google</span>
+                    <span className="text-white">{ACCOUNTS.google.find(a => a.id === app?.googleAccount)?.name || '---'}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-zinc-500">Apple</span>
+                    <span className="text-white">{ACCOUNTS.apple.find(a => a.id === app?.appleAccount)?.name || '---'}</span>
+                  </div>
+                </div>
               </div>
+
               <div>
-                <div className={labelClass}>App Store</div>
-                <div className="text-sm text-white">{STATUS_LABELS[app?.appStore.status || 'unpublished']} {app?.appStore.version ? `· v${app.appStore.version}` : ''}</div>
+                <div className="flex items-center gap-1.5 text-xs text-zinc-500 mb-2">
+                  <Smartphone size={13} />
+                  Google Play
+                </div>
+                <div className="p-3 rounded-lg bg-zinc-800/40 space-y-1">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-zinc-500">Status</span>
+                    <span className="text-white font-medium">{STATUS_LABELS[app?.playStore.status || 'unpublished']}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-zinc-500">Versão</span>
+                    <span className="text-white">{app?.playStore.version || '--'}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-zinc-500">Data</span>
+                    <span className="text-white">{app ? formatDate(app.playStore.lastUpdate) : '--'}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center gap-1.5 text-xs text-zinc-500 mb-2">
+                  <Apple size={13} />
+                  App Store
+                </div>
+                <div className="p-3 rounded-lg bg-zinc-800/40 space-y-1">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-zinc-500">Status</span>
+                    <span className="text-white font-medium">{STATUS_LABELS[app?.appStore.status || 'unpublished']}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-zinc-500">Versão</span>
+                    <span className="text-white">{app?.appStore.version || '--'}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-zinc-500">Data</span>
+                    <span className="text-white">{app ? formatDate(app.appStore.lastUpdate) : '--'}</span>
+                  </div>
+                </div>
               </div>
             </div>
           ) : (
             <>
-              {/* Name */}
               <div>
                 <label className={labelClass}>Nome do App</label>
-                <input className={inputClass} value={name} onChange={e => setName(e.target.value)} />
+                <input className={inputClass} value={name} onChange={e => setName(e.target.value)} placeholder="Ex: App SASI" />
               </div>
 
-              {/* Region */}
               <div>
                 <label className={labelClass}>Região</label>
                 <select className={selectClass} value={appRegion} onChange={e => setAppRegion(e.target.value)}>
@@ -153,9 +200,11 @@ export function AppModal({ app, mode, region, onClose }: AppModalProps) {
                 </select>
               </div>
 
-              {/* Play Store */}
               <div className="space-y-3 p-4 bg-zinc-800/40 rounded-xl border border-zinc-700/50">
-                <div className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Google Play</div>
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+                  <Smartphone size={13} />
+                  Google Play
+                </div>
                 <div className="grid grid-cols-3 gap-3">
                   <div>
                     <label className={labelClass}>Status</label>
@@ -180,9 +229,11 @@ export function AppModal({ app, mode, region, onClose }: AppModalProps) {
                 </div>
               </div>
 
-              {/* App Store */}
               <div className="space-y-3 p-4 bg-zinc-800/40 rounded-xl border border-zinc-700/50">
-                <div className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Apple Store</div>
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+                  <Apple size={13} />
+                  Apple Store
+                </div>
                 <div className="grid grid-cols-3 gap-3">
                   <div>
                     <label className={labelClass}>Status</label>
@@ -210,7 +261,7 @@ export function AppModal({ app, mode, region, onClose }: AppModalProps) {
           )}
         </div>
 
-        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-zinc-800">
+        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-border">
           <button onClick={onClose} className="px-4 py-2 text-sm text-zinc-400 hover:text-white transition">
             {isDetails ? 'Fechar' : 'Cancelar'}
           </button>
