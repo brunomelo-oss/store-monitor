@@ -35,7 +35,7 @@ export function ProfileDropdown() {
         onClick={() => setOpen(!open)}
         className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-border bg-card text-foreground text-sm hover:shadow-sm transition-all duration-200"
       >
-        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-sasi-red to-red-500 flex items-center justify-center text-xs font-bold shadow-sm">
+        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-sasi-red to-red-500 flex items-center justify-center text-xs font-bold text-white shadow-sm">
           {initial}
         </div>
         <span className="hidden sm:inline text-xs text-zinc-400">{display}</span>
@@ -44,11 +44,11 @@ export function ProfileDropdown() {
 
       {open && (
         <div className="absolute right-0 top-full mt-2 w-56 bg-card border border-border rounded-xl shadow-xl py-1.5 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
-          <div className="px-4 py-2.5 text-xs text-muted-foreground border-b border-border/50">{user.email}</div>
+          <div className="px-4 py-2.5 text-xs text-muted-foreground border-b border-border mb-1">{user.email}</div>
 
           {isAdmin && (
             <button
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-zinc-100 dark:hover:bg-white/[0.06] transition"
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-inset transition"
               onClick={() => { setOpen(false); setShowUserManager(true) }}
             >
               <Users size={15} className="text-muted-foreground" />
@@ -57,7 +57,7 @@ export function ProfileDropdown() {
           )}
 
           <button
-            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-zinc-300 hover:bg-zinc-800/50 transition"
+            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-inset transition"
             onClick={() => { setOpen(false); setShowPasswordModal(true) }}
           >
             <Lock size={15} className="text-muted-foreground" />

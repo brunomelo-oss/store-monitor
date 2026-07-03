@@ -37,11 +37,12 @@ export function RatingsGrid() {
           return (
             <div
               key={app.id}
-              className="bg-card border border-border rounded-2xl p-5 text-center transition-all duration-300 hover:shadow-md hover:-translate-y-0.5"
+              className="bg-card border border-border rounded-[14px] p-4 text-center transition-all duration-300 hover:shadow-md hover:-translate-y-0.5"
               style={{ animationDelay: `${i * 50}ms` }}
             >
-              <div className="text-sm font-semibold text-foreground truncate mb-3">{app.name}</div>
-              <div className="flex justify-center gap-0.5 mb-2">
+              <div className="text-sm font-semibold text-foreground truncate mb-2">{app.name}</div>
+              <div className="text-lg font-bold text-foreground mb-1">{app.rating.toFixed(1)}</div>
+              <div className="flex justify-center gap-0.5 mb-1">
                 {Array.from({ length: full }).map((_, j) => (
                   <Star key={`f${j}`} size={14} className="fill-yellow-500 text-yellow-500" />
                 ))}
@@ -57,10 +58,7 @@ export function RatingsGrid() {
                   <Star key={`e${j}`} size={14} className="text-zinc-300 dark:text-zinc-600" />
                 ))}
               </div>
-              <div className="flex items-baseline justify-center gap-1">
-                <span className="text-2xl font-bold text-foreground">{app.rating.toFixed(1)}</span>
-                <span className="text-xs text-muted-foreground">/ 5.0</span>
-              </div>
+              <div className="text-xs text-muted-foreground">/ 5.0</div>
             </div>
           )
         })}

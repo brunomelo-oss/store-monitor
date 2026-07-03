@@ -22,14 +22,17 @@ const accentStyles = {
   default: {
     icon: 'bg-zinc-100 dark:bg-white/[0.08] text-zinc-500 dark:text-zinc-400',
     value: 'text-foreground',
+    card: '',
   },
   success: {
     icon: 'bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
-    value: 'text-emerald-600 dark:text-emerald-400',
+    value: 'metric-glow-green',
+    card: '',
   },
   danger: {
     icon: 'bg-red-100 dark:bg-red-500/10 text-red-600 dark:text-red-400',
-    value: 'text-red-600 dark:text-red-400',
+    value: 'metric-glow-red',
+    card: 'critical-alert',
   },
 }
 
@@ -38,7 +41,7 @@ function MetricCard({ icon, label, value, sub, accent }: MetricCardProps) {
   const s = accentStyles[accent]
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
+    <div className={`relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 ${s.card}`}>
       <div className="flex items-start justify-between mb-4">
         <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</span>
         <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${s.icon}`}>

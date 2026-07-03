@@ -17,10 +17,10 @@ export function AppGrid({ apps, region, badge, badgeClass, onEdit, onDetails }: 
 
   return (
     <div className="mb-8">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between pb-3 mb-4 border-b border-border">
         <div className="flex items-center gap-3">
           <h3 className="text-base font-bold text-foreground">{region}</h3>
-          <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${badgeClass || 'bg-emerald-500/10 text-emerald-400'}`}>
+          <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${badgeClass || 'bg-surface text-muted-foreground border border-border'}`}>
             {badge}
           </span>
         </div>

@@ -28,20 +28,22 @@ export function InstallChart() {
         <span className="text-xs font-normal text-muted-foreground">· Top 10</span>
       </h3>
       <div className="bg-card border border-border rounded-2xl p-5 shadow-sm">
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           {withInstalls.map((app, i) => {
             const pct = Math.round((app.installations / maxInst) * 100)
             return (
-              <div key={app.id} className="flex items-center gap-4">
-                <div className="w-7 text-xs text-muted-foreground font-medium text-right shrink-0">{i + 1}</div>
-                <div className="w-[140px] text-sm font-medium text-foreground truncate shrink-0">{app.name}</div>
-                <div className="flex-1 h-5 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
+              <div key={app.id} className="grid grid-cols-[180px_1fr_70px] items-center gap-3">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="text-xs text-muted-foreground font-medium shrink-0 w-5 text-right">{i + 1}</span>
+                  <span className="text-sm font-semibold text-foreground truncate">{app.name}</span>
+                </div>
+                <div className="h-7 bg-surface rounded-lg overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-sasi-blue to-blue-400 transition-all duration-700 ease-out"
+                    className="h-full rounded-lg bg-gradient-to-r from-sasi-red to-red-400 transition-all duration-700 ease-out"
                     style={{ width: anim ? `${pct}%` : '0%', minWidth: anim ? '4px' : '0px' }}
                   />
                 </div>
-                <div className="w-[70px] text-sm font-semibold text-right text-muted-foreground shrink-0">
+                <div className="text-sm font-bold text-muted-foreground text-right">
                   {app.installations.toLocaleString('pt-BR')}
                 </div>
               </div>

@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/components/Toast'
 import { overallStatus, latestVersion, daysLabel, statusColor, statusBgColor, formatDate, appImagePath, getAccountName } from '@/lib/utils'
 import { STATUS_LABELS } from '@/lib/mock-data'
-import { Pin, GripVertical, Edit, Trash2, Eye, ChevronUp, ChevronDown } from 'lucide-react'
+import { Pin, Edit, Trash2, Eye, ChevronUp, ChevronDown } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
 interface AppCardProps {
@@ -38,10 +38,18 @@ export function AppCard({ app, onEdit, onDetails, index = 0 }: AppCardProps) {
   return (
     <div
       ref={ref}
-      className={`bg-card border border-border rounded-2xl overflow-hidden shadow-sm transition-all duration-300 group hover:shadow-md hover:-translate-y-0.5 ${
+      className={`bg-card border border-border rounded-2xl overflow-hidden shadow-sm transition-all duration-300 group hover:shadow-md hover:-translate-y-0.5 ${app.pinned ? 'border-amber-400/50 shadow-amber-400/10 shadow-md' : ''} ${
         visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'
       }`}
     >
+      {/* Watermark background */}
+      {imgSrc && (
+        <div
+          className="app-card-bg"
+          style={{ backgroundImage: `url('${imgSrc}')` }}
+        />
+      )}
+
       {/* Image area */}
       <div className="relative h-36 bg-gradient-to-b from-zinc-900 to-black overflow-hidden">
         {imgSrc && (
@@ -53,12 +61,17 @@ export function AppCard({ app, onEdit, onDetails, index = 0 }: AppCardProps) {
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
 
-        {app.pinned && (
-          <div className="absolute top-2 left-2 bg-purple-500/80 backdrop-blur-sm text-white text-[10px] font-medium px-2 py-0.5 rounded-md flex items-center gap-1 shadow-lg">
-            <Pin size={10} />
-            Fixado
+        <div className="absolute top-2 left-2 flex items-center gap-1.5">
+          {app.pinned && (
+            <div className="bg-amber-400/80 backdrop-blur-sm text-white text-[10px] font-medium px-2 py-0.5 rounded-md flex items-center gap-1 shadow-lg">
+              <Pin size={10} />
+              Fixado
+            </div>
+          )}
+          <div className={`text-[10px] font-medium px-1.5 py-0.5 rounded-md shadow-lg backdrop-blur-sm ${statusBgColor(overallStatus(app))} ${statusColor(overallStatus(app))}`}>
+            {STATUS_LABELS[overallStatus(app)]}
           </div>
-        )}
+        </div>
 
         <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-sm text-zinc-300 text-[10px] font-medium px-2 py-0.5 rounded-md">
           {daysLabel(app)}
@@ -66,18 +79,20 @@ export function AppCard({ app, onEdit, onDetails, index = 0 }: AppCardProps) {
       </div>
 
       {/* Content */}
-      <div className="p-5 space-y-3">
-        {/* Title + Status */}
-        <div className="flex items-start justify-between gap-2">
+      <div className="p-5 space-y-3 relative z-[1]">
+        {/* Title */}
+        <div className="flex items-center justify-between gap-2">
           <h3 className="font-semibold text-foreground text-sm leading-tight truncate">{app.name}</h3>
-          <div className={`text-[10px] font-medium px-1.5 py-0.5 rounded shrink-0 ${statusBgColor(overallStatus(app))} ${statusColor(overallStatus(app))}`}>
-            {STATUS_LABELS[overallStatus(app)]}
-          </div>
+          {isEdit && (
+            <button onClick={async () => { const err = await togglePin(app.id); if (err) show(err, 'warning') }} className={`p-1.5 rounded-md transition shrink-0 ${app.pinned ? 'text-amber-400' : 'text-muted-foreground hover:text-amber-400 hover:bg-surface'}`} title="Fixar/Desfixar">
+              <Pin size={13} />
+            </button>
+          )}
         </div>
 
         {/* Stores */}
-        <div className="space-y-2.5">
-          <div className="flex items-center gap-2">
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-surface">
             <img src={storeIcons.play} alt="" className="w-4 h-4 shrink-0 opacity-70" />
             <div className="flex-1 min-w-0 flex items-center gap-1.5">
               <span className={`text-xs font-medium ${statusColor(app.playStore.status)}`}>
@@ -90,7 +105,7 @@ export function AppCard({ app, onEdit, onDetails, index = 0 }: AppCardProps) {
             <span className="text-[10px] text-muted-foreground truncate max-w-[80px]">{getAccountName('google', app.googleAccount)}</span>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-surface">
             <img src={storeIcons.apple} alt="" className="w-4 h-4 shrink-0 opacity-70" />
             <div className="flex-1 min-w-0 flex items-center gap-1.5">
               <span className={`text-xs font-medium ${statusColor(app.appStore.status)}`}>
@@ -109,13 +124,13 @@ export function AppCard({ app, onEdit, onDetails, index = 0 }: AppCardProps) {
           <div className="flex items-center gap-1">
             {isEdit ? (
               <>
-                <button onClick={() => moveApp(app.id, -1)} className="p-1.5 text-muted-foreground hover:text-foreground transition rounded-md hover:bg-zinc-800" title="Mover para cima">
+                <button onClick={() => moveApp(app.id, -1)} className="p-1.5 text-muted-foreground hover:text-foreground transition rounded-md hover:bg-surface" title="Mover para cima">
                   <ChevronUp size={14} />
                 </button>
-                <button onClick={() => moveApp(app.id, 1)} className="p-1.5 text-muted-foreground hover:text-foreground transition rounded-md hover:bg-zinc-800" title="Mover para baixo">
+                <button onClick={() => moveApp(app.id, 1)} className="p-1.5 text-muted-foreground hover:text-foreground transition rounded-md hover:bg-surface" title="Mover para baixo">
                   <ChevronDown size={14} />
                 </button>
-                <button onClick={async () => { const err = await togglePin(app.id); if (err) show(err, 'warning') }} className={`p-1.5 rounded-md transition ${app.pinned ? 'text-purple-400' : 'text-muted-foreground hover:text-purple-400 hover:bg-zinc-800'}`} title="Fixar/Desfixar">
+                <button onClick={async () => { const err = await togglePin(app.id); if (err) show(err, 'warning') }} className={`p-1.5 rounded-md transition ${app.pinned ? 'text-amber-400' : 'text-muted-foreground hover:text-amber-400 hover:bg-surface'}`} title="Fixar/Desfixar">
                   <Pin size={13} />
                 </button>
               </>
@@ -139,7 +154,7 @@ export function AppCard({ app, onEdit, onDetails, index = 0 }: AppCardProps) {
                 </button>
                 <button
                   onClick={() => { if (confirm(`Remover "${app.name}" do dashboard?`)) removeApp(app.id) }}
-                  className="p-1.5 text-muted-foreground hover:text-red-400 transition rounded-md hover:bg-zinc-800"
+                  className="p-1.5 text-muted-foreground hover:text-red-400 transition rounded-md hover:bg-surface"
                 >
                   <Trash2 size={13} />
                 </button>

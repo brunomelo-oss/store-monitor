@@ -17,7 +17,7 @@ export function ModeToggle({ mode, onChange, show }: ModeToggleProps) {
           onClick={() => onChange(m)}
           className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-all duration-200 ${
             mode === m
-              ? 'bg-card text-foreground shadow-sm'
+              ? 'bg-sasi-red text-white shadow-sm shadow-sasi-red/20'
               : 'text-muted-foreground hover:text-foreground'
           }`}
         >

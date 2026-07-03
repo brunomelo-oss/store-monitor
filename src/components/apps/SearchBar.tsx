@@ -12,7 +12,7 @@ export function SearchBar({ value, onChange }: SearchBarProps) {
     <div className="relative max-w-xs w-full">
       <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
       <input
-        className="w-full pl-9 pr-8 py-2.5 rounded-xl bg-surface border border-border text-foreground placeholder-muted-foreground text-sm outline-none focus:border-sasi-blue/30 focus:ring-1 focus:ring-sasi-blue/20 transition-all duration-200"
+        className="w-full pl-9 pr-8 py-2.5 rounded-xl bg-surface border border-border text-foreground placeholder-muted-foreground text-sm outline-none focus:border-sasi-red/50 focus:ring-2 focus:ring-sasi-red/10 transition-all duration-200"
         type="text"
         placeholder="Buscar app..."
         value={value}

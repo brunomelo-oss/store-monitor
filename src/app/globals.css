@@ -4,26 +4,32 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme inline {
-  --color-background: #F8FAFC;
-  --color-foreground: #0F172A;
+  --color-background: #f5f5f7;
+  --color-foreground: #1a1a2e;
   --color-sasi-blue: #1a3a8c;
-  --color-sasi-red: #e63329;
-  --color-surface: #F1F5F9;
-  --color-card: #FFFFFF;
+  --color-sasi-red: #DC2626;
+  --color-surface: #eaeaec;
+  --color-inset: #e0e0e4;
+  --color-card: #ffffff;
+  --color-card-hover: #f0f0f2;
   --color-muted: #6b6b80;
-  --color-muted-foreground: #64748B;
-  --color-border: #E2E8F0;
+  --color-muted-foreground: #88889a;
+  --color-border: #d4d4d8;
+  --color-border-light: #c0c0c6;
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .dark {
-  --color-background: #020617;
-  --color-foreground: #F8FAFC;
-  --color-surface: #1E293B;
-  --color-card: #0F172A;
+  --color-background: #000000;
+  --color-foreground: #f1f5f9;
+  --color-surface: #0d0d14;
+  --color-inset: #14141e;
+  --color-card: #0a0a0f;
+  --color-card-hover: #111118;
   --color-muted: #6b6b80;
-  --color-muted-foreground: #94A3B8;
-  --color-border: #334155;
+  --color-muted-foreground: #6b6b80;
+  --color-border: #1c1c28;
+  --color-border-light: #2a2a3e;
 }
 
 body {
@@ -31,4 +37,138 @@ body {
   color: var(--color-foreground);
   font-family: var(--font-sans);
   transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Light theme subtle background glow */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+/* Light mode header override */
+.app-header {
+  background: var(--color-card);
+  border-bottom: 1px solid var(--color-border);
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+/* Light mode: blue gradient header */
+:root:not(.dark) .app-header {
+  background: linear-gradient(90deg, #004bcc, #00177a);
+  border-bottom: none;
+}
+:root:not(.dark) .app-header .text-foreground {
+  color: #fff;
+}
+:root:not(.dark) .app-header .text-muted-foreground {
+  color: rgba(255,255,255,0.6);
+}
+:root:not(.dark) .app-header .bg-surface {
+  background: rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.7);
+}
+:root:not(.dark) .app-header .text-foreground.font-semibold {
+  color: #fff;
+}
+:root:not(.dark) .app-header [class*="hover:bg-zinc"] {
+  color: rgba(255,255,255,0.7);
+}
+:root:not(.dark) .app-header [class*="hover:bg-zinc"]:hover {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+}
+:root:not(.dark) .app-header .border-border {
+  border-color: rgba(255,255,255,0.15);
+}
+:root:not(.dark) .app-header .bg-card {
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+}
+:root:not(.dark) .app-header .bg-card .text-zinc-400 {
+  color: rgba(255,255,255,0.7);
+}
+:root:not(.dark) .app-header .bg-card .text-zinc-500 {
+  color: rgba(255,255,255,0.5);
+}
+
+/* Light mode: subtle background glow */
+:root:not(.dark) body::before {
+  background:
+    radial-gradient(ellipse 600px 400px at 10% 15%, rgba(0,75,204,0.05) 0%, transparent 100%),
+    radial-gradient(ellipse 500px 500px at 90% 85%, rgba(0,23,122,0.04) 0%, transparent 100%);
+  opacity: 1;
+}
+
+/* SASI logo gradient animation */
+.logo-sasi {
+  background: linear-gradient(90deg, var(--color-sasi-red), #F87171, var(--color-sasi-red));
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradientShift 4s ease infinite;
+}
+
+/* Light mode: logo light text on blue header */
+:root:not(.dark) .logo-sasi {
+  background: linear-gradient(90deg, #e0e8ff, #ffffff, #e0e8ff);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Metric glow effects */
+.metric-glow-green {
+  color: #00FFA3;
+  text-shadow: 0 0 20px rgba(0, 255, 163, 0.3);
+}
+
+.metric-glow-red {
+  color: #FF4A6B;
+  text-shadow: 0 0 20px rgba(255, 74, 107, 0.3);
+}
+
+/* Critical alert pulse animation */
+@keyframes pulse-border {
+  0% { box-shadow: 0 0 0 0 rgba(255, 74, 107, 0.2); }
+  70% { box-shadow: 0 0 0 10px rgba(255, 74, 107, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 74, 107, 0); }
+}
+
+.critical-alert {
+  border-color: rgba(255, 74, 107, 0.4);
+  animation: pulse-border 2s infinite;
+}
+
+/* App card watermark */
+.app-card-bg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 200px;
+  height: 200px;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.1;
+  border-radius: 16px;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.app-card:hover .app-card-bg {
+  opacity: 0.18;
 }

@@ -27,15 +27,19 @@ export function Header() {
     }
   }
 
-  const btnClass = 'p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-zinc-200/50 dark:hover:bg-white/[0.08] transition-all duration-200'
-
   return (
-    <header className={`sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b transition-all duration-300 ${scrolled ? 'border-border/80 shadow-sm' : 'border-transparent'}`}>
+    <header className={`app-header sticky top-0 z-40 transition-all duration-300 ${scrolled ? 'shadow-sm' : ''}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <div className="text-xl font-extrabold text-foreground tracking-tight select-none" onDoubleClick={handleReset}>SASI</div>
-          <span className="hidden sm:inline-block h-4 w-px bg-border" />
-          <span className="hidden sm:inline text-xs text-muted-foreground font-medium">Comunicações Ágil Ltda</span>
+          <div className="w-9 h-9 rounded-lg bg-[url('/assets/SASI-4.png')] bg-center bg-contain bg-no-repeat shrink-0" />
+          <div className="flex flex-col">
+            <span className="logo-sasi text-xl font-extrabold tracking-tight select-none leading-none" onDoubleClick={handleReset}>
+              SASI
+            </span>
+            <span className="text-[10px] text-muted-foreground font-medium leading-tight mt-0.5">
+              Comunicações Ágil Ltda
+            </span>
+          </div>
         </div>
 
         <div className="flex items-center gap-3">
@@ -44,16 +48,24 @@ export function Header() {
             app{totalApps !== 1 ? 's' : ''}
           </div>
 
-          <button onClick={toggle} className={btnClass} title="Alternar tema">
-            <div className="transition-transform duration-300 hover:scale-110 active:scale-90">
-              {isDark ? <Sun size={16} /> : <Moon size={16} />}
+          <button
+            onClick={toggle}
+            className="w-[34px] h-[34px] rounded-full border border-border bg-inset text-muted-foreground hover:text-foreground hover:border-border-light hover:bg-card-hover flex items-center justify-center transition-all duration-200 shrink-0"
+            title="Alternar tema"
+          >
+            <div className="transition-transform duration-300 hover:scale-110 active:scale-90 flex items-center justify-center">
+              {isDark ? <Sun size={15} /> : <Moon size={15} />}
             </div>
           </button>
 
           <ProfileDropdown />
 
-          <button onClick={handleReset} className={btnClass} title="Restaurar dados iniciais">
-            <RotateCcw size={15} />
+          <button
+            onClick={handleReset}
+            className="w-[34px] h-[34px] rounded-full border border-border bg-inset text-muted-foreground hover:text-foreground hover:border-border-light hover:bg-card-hover flex items-center justify-center transition-all duration-200 shrink-0"
+            title="Restaurar dados iniciais"
+          >
+            <RotateCcw size={14} />
           </button>
         </div>
       </div>
