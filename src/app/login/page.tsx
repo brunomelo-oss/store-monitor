@@ -48,7 +48,7 @@ export default function LoginPage() {
 
         .login-bg {
           position: fixed; inset: 0; z-index: 0;
-          background-image: url('/assets/jungle-backgrounds.png.webp');
+          background-image: url('/assets/fundo-floresta.png');
           background-size: cover; background-position: center;
           background-repeat: no-repeat; background-attachment: fixed;
           animation: bgFadeIn 1s ease;
