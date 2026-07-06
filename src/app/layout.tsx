@@ -3,7 +3,7 @@ import './globals.css'
 import { Providers } from './providers'
 
 export const metadata: Metadata = {
-  title: 'SASI - Store Monitor',
+  title: 'SASI - Comunicação Ágil - Store Monitor',
   description: 'Monitoramento de apps Play Store e App Store',
 }
 

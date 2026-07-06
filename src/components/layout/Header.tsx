@@ -34,10 +34,7 @@ export function Header() {
           <div className="w-9 h-9 rounded-lg bg-[url('/assets/SASI-4.png')] bg-center bg-contain bg-no-repeat shrink-0" />
           <div className="flex flex-col">
             <span className="logo-sasi text-xl font-extrabold tracking-tight select-none leading-none" onDoubleClick={handleReset}>
-              SASI
-            </span>
-            <span className="text-[10px] text-muted-foreground font-medium leading-tight mt-0.5">
-              Comunicações Ágil Ltda
+              SASI - Comunicação Ágil
             </span>
           </div>
         </div>

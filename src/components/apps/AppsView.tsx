@@ -8,8 +8,6 @@ import { SearchBar } from './SearchBar'
 import { ModeToggle } from './ModeToggle'
 import { AppGrid } from './AppGrid'
 import { AppModal } from './AppModal'
-import { Plus } from 'lucide-react'
-
 export function AppsView() {
   const { apps, mode, setMode } = useAppContext()
   const { isAdmin } = useAuth()
@@ -33,24 +31,6 @@ export function AppsView() {
         <SearchBar value={search} onChange={setSearch} />
         <div className="flex items-center gap-3">
           <ModeToggle mode={mode} onChange={setMode} show={isAdmin} />
-          {isAdmin && mode === 'edit' && (
-            <div className="flex gap-2">
-              <button
-                onClick={() => setModal({ app: null, mode: 'add', region: 'Brasil' })}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-500/10 text-emerald-400 text-sm font-medium hover:bg-emerald-500/20 transition"
-              >
-                <Plus size={16} />
-                Brasil
-              </button>
-              <button
-                onClick={() => setModal({ app: null, mode: 'add', region: 'Internacional' })}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-500/10 text-emerald-400 text-sm font-medium hover:bg-emerald-500/20 transition"
-              >
-                <Plus size={16} />
-                Internacional
-              </button>
-            </div>
-          )}
         </div>
       </div>
 

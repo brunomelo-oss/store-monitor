@@ -489,9 +489,9 @@ body::before {
 }
 
 .app-header button[title] svg {
-  width: 20px !important;
-  height: 20px !important;
-  stroke-width: 2 !important;
+  width: 16px !important;
+  height: 16px !important;
+  stroke-width: 1.75 !important;
   color: var(--text-secondary);
   transition: color 0.2s ease;
 }

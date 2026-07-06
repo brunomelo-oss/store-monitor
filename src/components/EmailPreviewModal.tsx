@@ -11,10 +11,10 @@ interface Props {
 export function EmailPreviewModal({ email, onClose }: Props) {
   const [copied, setCopied] = useState(false)
 
-  const subject = 'Convite - SASI Store Monitor'
+  const subject = 'Convite - SASI - Comunicação Ágil - Store Monitor'
   const body = `Olá,
 
-Você foi convidado(a) para acessar o SASI Store Monitor.
+Você foi convidado(a) para acessar o SASI - Comunicação Ágil - Store Monitor.
 
 Para configurar sua conta, siga os passos abaixo:
 
@@ -24,7 +24,7 @@ Para configurar sua conta, siga os passos abaixo:
 4. Defina sua senha
 
 Atenciosamente,
-Equipe SASI`
+Equipe SASI - Comunicação Ágil`
 
   const mailto = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
 
