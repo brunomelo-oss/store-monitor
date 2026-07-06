@@ -363,6 +363,10 @@ body::before {
   to { opacity: 1; transform: translateY(0); }
 }
 
+.animate-dropdownIn {
+  animation: dropdownIn 0.2s ease both;
+}
+
 /* Dropdown items */
 [class*="absolute right-0 top-full mt-2 w-56"] button {
   height: 48px !important;
@@ -475,8 +479,8 @@ body::before {
 
 /* Theme toggle and reload buttons */
 .app-header button[title] {
-  width: 44px !important;
-  height: 44px !important;
+  width: 32px !important;
+  height: 32px !important;
   background: var(--bg-card) !important;
   border: 1px solid var(--border) !important;
   box-shadow: 0 1px 3px rgba(0,0,0,.06);

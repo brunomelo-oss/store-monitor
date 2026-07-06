@@ -114,7 +114,7 @@ export default function LoginPage() {
 
       <div className="fixed top-6 left-0 right-0 z-10 text-center">
         <span className="inline-block px-4 py-1.5 rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-[11px] font-medium text-white/70 tracking-wide select-none">
-          power bi SASI — Comunicação Ágil
+          Created by SASI — Agile Communication
         </span>
       </div>
 
