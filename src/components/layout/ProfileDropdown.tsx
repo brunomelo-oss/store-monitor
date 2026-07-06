@@ -5,9 +5,11 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import { ChangePasswordModal } from '@/components/ChangePasswordModal'
 import { LogOut, Lock, ChevronDown } from 'lucide-react'
+import { useLang } from '@/contexts/LanguageContext'
 
 export function ProfileDropdown() {
   const { user, logout } = useAuth()
+  const { t } = useLang()
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [showPasswordModal, setShowPasswordModal] = useState(false)
@@ -49,7 +51,7 @@ export function ProfileDropdown() {
             onClick={() => { setOpen(false); setShowPasswordModal(true) }}
           >
             <Lock size={15} className="text-muted-foreground" />
-            Alterar senha
+            {t('profile.changePassword')}
           </button>
 
           <div className="h-px bg-border mx-3 my-1" />
@@ -59,7 +61,7 @@ export function ProfileDropdown() {
             onClick={() => { setOpen(false); logout(); router.push('/login') }}
           >
             <LogOut size={15} />
-            Sair
+            {t('profile.logout')}
           </button>
         </div>
       )}

@@ -1,5 +1,6 @@
 'use client'
 
+import { useLang } from '@/contexts/LanguageContext'
 import { App } from '@/types'
 import { AppCard } from './AppCard'
 
@@ -13,6 +14,7 @@ interface AppGridProps {
 }
 
 export function AppGrid({ apps, region, badge, badgeClass, onEdit, onDetails }: AppGridProps) {
+  const { t } = useLang()
   if (apps.length === 0) return null
 
   return (
@@ -24,7 +26,7 @@ export function AppGrid({ apps, region, badge, badgeClass, onEdit, onDetails }: 
             {badge}
           </span>
         </div>
-        <span className="text-xs text-muted-foreground">{apps.length} app{apps.length !== 1 ? 's' : ''}</span>
+        <span className="text-xs text-muted-foreground">{t('appGrid.count', { count: apps.length, s: apps.length !== 1 ? 's' : '' })}</span>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
         {apps.map((app, i) => (

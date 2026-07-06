@@ -4,22 +4,25 @@ import { useState, useEffect } from 'react'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useAppContext } from '@/contexts/AppContext'
 import { useToast } from '@/components/Toast'
+import { useLang } from '@/contexts/LanguageContext'
 import { ProfileDropdown } from './ProfileDropdown'
 import { Moon, Sun, RotateCcw, Languages } from 'lucide-react'
+import type { LangCode } from '@/lib/i18n'
 
 export function Header() {
   const { isDark, toggle } = useTheme()
   const { totalApps, resetData } = useAppContext()
   const { show } = useToast()
+  const { lang, setLang, t } = useLang()
   const [scrolled, setScrolled] = useState(false)
   const [langOpen, setLangOpen] = useState(false)
 
-  const languages = [
-    { code: 'en', label: 'English' },
-    { code: 'pt', label: 'Português' },
-    { code: 'ar', label: 'العربية' },
+  const languages: { code: LangCode; label: string }[] = [
+    { code: 'en', label: t('header.langEn') },
+    { code: 'pt', label: t('header.langPt') },
+    { code: 'ar', label: t('header.langAr') },
   ]
-  const [currentLang, setCurrentLang] = useState('pt')
+
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10)
     window.addEventListener('scroll', onScroll, { passive: true })
@@ -27,10 +30,10 @@ export function Header() {
   }, [])
 
   const handleReset = async () => {
-    if (confirm('Restaurar dados iniciais do dashboard?')) {
+    if (confirm(t('header.resetConfirm'))) {
       const err = await resetData()
       if (err) show(err, 'error')
-      else show('Dados restaurados', 'success')
+      else show(t('header.resetSuccess'), 'success')
     }
   }
 
@@ -41,7 +44,7 @@ export function Header() {
           <div className="w-9 h-9 rounded-lg bg-[url('/assets/SASI-4.png')] bg-center bg-contain bg-no-repeat shrink-0" />
           <div className="flex flex-col">
             <span className="logo-sasi text-xl font-extrabold tracking-tight select-none leading-none" onDoubleClick={handleReset}>
-              SASI - Comunicação Ágil
+              {t('header.logo')}
             </span>
           </div>
         </div>
@@ -49,13 +52,13 @@ export function Header() {
         <div className="flex items-center gap-2">
           <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface text-xs font-medium text-muted-foreground">
             <span className="font-semibold text-foreground">{totalApps}</span>
-            app{totalApps !== 1 ? 's' : ''}
+            {t('header.appCount', { count: '', s: totalApps !== 1 ? 's' : '' }).replace('{count}', '').trim()}
           </div>
 
           <button
             onClick={toggle}
             className="w-[32px] h-[32px] rounded-full border border-border bg-inset text-muted-foreground hover:text-foreground hover:border-border-light hover:bg-card-hover flex items-center justify-center transition-all duration-200 shrink-0"
-            title="Alternar tema"
+            title={t('header.themeToggle')}
           >
             <div className="transition-transform duration-300 hover:scale-110 active:scale-90 flex items-center justify-center">
               {isDark ? <Sun size={14} /> : <Moon size={14} />}
@@ -66,22 +69,22 @@ export function Header() {
             <button
               onClick={() => setLangOpen(!langOpen)}
               className="w-[32px] h-[32px] rounded-full border border-border bg-inset text-muted-foreground hover:text-foreground hover:border-border-light hover:bg-card-hover flex items-center justify-center transition-all duration-200 shrink-0"
-              title="Idioma"
+              title={t('header.language')}
             >
               <Languages size={14} />
             </button>
             {langOpen && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setLangOpen(false)} />
-                <div className="absolute right-0 top-full mt-2 w-36 bg-card border border-border rounded-xl shadow-xl py-1 z-50 animate-dropdownIn origin-top-right">
-                  {languages.map(lang => (
+                <div className="absolute right-0 top-full mt-2 w-56 bg-card border border-border rounded-[18px] shadow-[0_20px_50px_rgba(0,0,0,0.18)] py-1.5 z-50 animate-dropdownIn">
+                  {languages.map(l => (
                     <button
-                      key={lang.code}
-                      onClick={() => { setCurrentLang(lang.code); setLangOpen(false) }}
-                      className={`w-full px-4 py-2 text-left text-sm flex items-center justify-between transition-colors ${currentLang === lang.code ? 'text-foreground font-medium' : 'text-muted-foreground hover:text-foreground hover:bg-accent'}`}
+                      key={l.code}
+                      onClick={() => { setLang(l.code); setLangOpen(false) }}
+                      className={`w-full h-12 px-4 text-left text-sm flex items-center justify-between transition-colors ${lang === l.code ? 'text-foreground font-medium' : 'text-muted-foreground hover:text-foreground hover:bg-accent'}`}
                     >
-                      {lang.label}
-                      {currentLang === lang.code && (
+                      {l.label}
+                      {lang === l.code && (
                         <span className="w-1.5 h-1.5 rounded-full bg-sasi-red" />
                       )}
                     </button>
@@ -96,7 +99,7 @@ export function Header() {
           <button
             onClick={handleReset}
             className="w-[32px] h-[32px] rounded-full border border-border bg-inset text-muted-foreground hover:text-foreground hover:border-border-light hover:bg-card-hover flex items-center justify-center transition-all duration-200 shrink-0"
-            title="Restaurar dados iniciais"
+            title={t('header.reset')}
           >
             <RotateCcw size={13} />
           </button>

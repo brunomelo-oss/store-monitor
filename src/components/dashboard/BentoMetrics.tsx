@@ -1,6 +1,7 @@
 'use client'
 
 import { useAppContext } from '@/contexts/AppContext'
+import { useLang } from '@/contexts/LanguageContext'
 import { overallStatus } from '@/lib/utils'
 import { Smartphone, CheckCircle2, TriangleAlert } from 'lucide-react'
 
@@ -56,6 +57,7 @@ function MetricCard({ icon, label, value, sub, accent }: MetricCardProps) {
 
 export function BentoMetrics() {
   const { hasRealData } = useAppContext()
+  const { t } = useLang()
 
   const total = hasRealData.length
   const healthy = hasRealData.filter(a => overallStatus(a) === 'published').length
@@ -63,9 +65,9 @@ export function BentoMetrics() {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-      <MetricCard icon="Smartphone" label="Total de Apps" value={total} sub="Mapeados nas contas de produção" accent="default" />
-      <MetricCard icon="CheckCircle2" label="Status Saudável" value={healthy} sub={`${healthy} aplicativos operando normalmente`} accent="success" />
-      <MetricCard icon="TriangleAlert" label="Rejeições Ativas" value={rejected} sub="Ações imediatas necessárias na Play Store" accent="danger" />
+      <MetricCard icon="Smartphone" label={t('bento.totalApps')} value={total} sub={t('bento.totalSub')} accent="default" />
+      <MetricCard icon="CheckCircle2" label={t('bento.healthy')} value={healthy} sub={t('bento.healthySub', { count: healthy })} accent="success" />
+      <MetricCard icon="TriangleAlert" label={t('bento.rejected')} value={rejected} sub={t('bento.rejectedSub')} accent="danger" />
     </div>
   )
 }

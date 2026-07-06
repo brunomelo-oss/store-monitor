@@ -4,11 +4,13 @@ import { useState } from 'react'
 import { App } from '@/types'
 import { useAppContext } from '@/contexts/AppContext'
 import { useAuth } from '@/contexts/AuthContext'
+import { useLang } from '@/contexts/LanguageContext'
 import { SearchBar } from './SearchBar'
 import { ModeToggle } from './ModeToggle'
 import { AppGrid } from './AppGrid'
 import { AppModal } from './AppModal'
 export function AppsView() {
+  const { t } = useLang()
   const { apps, mode, setMode } = useAppContext()
   const { isAdmin } = useAuth()
   const [search, setSearch] = useState('')
@@ -36,15 +38,15 @@ export function AppsView() {
 
       <AppGrid
         apps={brasil}
-        region="Apps Brasil"
-        badge="Nacional"
+        region={t('appsView.sectionBrasil')}
+        badge={t('appsView.badgeBrasil')}
         onEdit={a => setModal({ app: a, mode: 'edit', region: a.region })}
         onDetails={a => setModal({ app: a, mode: 'details', region: a.region })}
       />
       <AppGrid
         apps={internacional}
-        region="Apps Internacional"
-        badge="Dubai"
+        region={t('appsView.sectionInternacional')}
+        badge={t('appsView.badgeInternacional')}
         badgeClass="bg-blue-500/10 text-blue-400"
         onEdit={a => setModal({ app: a, mode: 'edit', region: a.region })}
         onDetails={a => setModal({ app: a, mode: 'details', region: a.region })}

@@ -8,9 +8,11 @@ import { RegisterForm } from '@/components/auth/RegisterForm'
 import { InviteSetup } from '@/components/auth/InviteSetup'
 import { PasswordReset } from '@/components/auth/PasswordReset'
 import { SuccessScreen } from '@/components/ui/primitives'
+import { useLang } from '@/contexts/LanguageContext'
 
 export default function LoginPage() {
   const { user } = useAuth()
+  const { t } = useLang()
   const router = useRouter()
   const [step, setStep] = useState<string>('login')
   const [inviteEmail, setInviteEmail] = useState('')
@@ -114,7 +116,7 @@ export default function LoginPage() {
 
       <div className="fixed top-6 left-0 right-0 z-10 text-center">
         <span className="inline-block px-4 py-1.5 rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-[11px] font-medium text-white/70 tracking-wide select-none">
-          Created by SASI — Agile Communication
+          {t('login.createdBy')}
         </span>
       </div>
 
@@ -137,9 +139,9 @@ export default function LoginPage() {
         )}
         {step === 'regSuccess' && (
           <SuccessScreen
-            title="Cadastro realizado!"
-            message="Sua conta foi criada. Faça login para acessar o dashboard."
-            buttonLabel="Fazer login"
+            title={t('success.registered.title')}
+            message={t('success.registered.message')}
+            buttonLabel={t('success.registered.button')}
             onClick={() => setStep('login')}
           />
         )}
@@ -152,9 +154,9 @@ export default function LoginPage() {
         )}
         {step === 'inviteSuccess' && (
           <SuccessScreen
-            title="Conta Criada!"
-            message="Sua senha foi definida. Faça login para acessar o dashboard."
-            buttonLabel="Fazer login"
+            title={t('success.invite.title')}
+            message={t('success.invite.message')}
+            buttonLabel={t('success.registered.button')}
             onClick={() => setStep('login')}
           />
         )}
@@ -166,9 +168,9 @@ export default function LoginPage() {
         )}
         {step === 'resetSuccess' && (
           <SuccessScreen
-            title="Senha Alterada!"
-            message="Você já pode fazer login com sua nova senha."
-            buttonLabel="Fazer login"
+            title={t('success.reset.title')}
+            message={t('success.reset.message')}
+            buttonLabel={t('success.registered.button')}
             onClick={() => setStep('login')}
           />
         )}

@@ -1,5 +1,7 @@
 'use client'
 
+import { useLang } from '@/contexts/LanguageContext'
+
 interface ModeToggleProps {
   mode: 'view' | 'edit'
   onChange: (mode: 'view' | 'edit') => void
@@ -7,6 +9,7 @@ interface ModeToggleProps {
 }
 
 export function ModeToggle({ mode, onChange, show }: ModeToggleProps) {
+  const { t } = useLang()
   if (!show) return null
 
   return (
@@ -21,7 +24,7 @@ export function ModeToggle({ mode, onChange, show }: ModeToggleProps) {
               : 'text-muted-foreground hover:text-foreground'
           }`}
         >
-          {m === 'view' ? 'Visualizador' : 'Editor'}
+          {m === 'view' ? t('modeToggle.view') : t('modeToggle.edit')}
         </button>
       ))}
     </div>

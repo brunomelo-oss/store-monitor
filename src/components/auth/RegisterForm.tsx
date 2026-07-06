@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { Loader2, ArrowLeft, Eye, EyeOff } from 'lucide-react'
 import { PasswordChecklist } from './PasswordChecklist'
+import { useLang } from '@/contexts/LanguageContext'
 
 interface RegisterFormProps {
   onSuccess: () => void
@@ -14,6 +15,7 @@ const inputClass = 'w-full px-4 py-3 rounded-lg bg-white/10 border border-white/
 
 export function RegisterForm({ onSuccess, onBack }: RegisterFormProps) {
   const { register } = useAuth()
+  const { t } = useLang()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPw, setShowPw] = useState(false)
@@ -25,8 +27,8 @@ export function RegisterForm({ onSuccess, onBack }: RegisterFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-    if (!email) { setError('Digite seu e-mail'); return }
-    if (!pwOk) { setError('Senha não atende aos requisitos'); return }
+    if (!email) { setError(t('register.error.email')); return }
+    if (!pwOk) { setError(t('register.error.password')); return }
     setLoading(true)
     const err = await register(email, password)
     setLoading(false)
@@ -38,25 +40,25 @@ export function RegisterForm({ onSuccess, onBack }: RegisterFormProps) {
     <div className="space-y-5 animate-in fade-in slide-in-from-bottom-3 duration-300">
       <button onClick={onBack} className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition">
         <ArrowLeft size={14} />
-        Voltar
+        {t('common.back')}
       </button>
 
       <div className="text-center">
-        <div className="text-lg font-semibold text-white">Criar Conta</div>
-        <div className="text-sm text-zinc-500 mt-1">Preencha os dados para se registrar</div>
+        <div className="text-lg font-semibold text-white">{t('register.title')}</div>
+        <div className="text-sm text-zinc-500 mt-1">{t('register.subtitle')}</div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-3">
         <input
           className={inputClass}
-          type="email" placeholder="Seu e-mail"
+          type="email" placeholder={t('register.email')}
           value={email} onChange={e => setEmail(e.target.value)}
         />
 
         <div className="relative">
           <input
             className={`${inputClass} pr-10`}
-            type={showPw ? 'text' : 'password'} placeholder="Crie uma senha"
+            type={showPw ? 'text' : 'password'} placeholder={t('register.password')}
             value={password} onChange={e => setPassword(e.target.value)}
           />
           <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition" onClick={() => setShowPw(!showPw)}>
@@ -77,7 +79,7 @@ export function RegisterForm({ onSuccess, onBack }: RegisterFormProps) {
           className="w-full py-3 rounded-lg bg-gradient-to-r from-sasi-red to-red-500 text-white font-semibold text-sm hover:opacity-90 disabled:opacity-50 transition flex items-center justify-center gap-2 shadow-lg shadow-sasi-red/20"
         >
           {loading && <Loader2 size={16} className="animate-spin" />}
-          Cadastrar
+          {t('register.submit')}
         </button>
       </form>
     </div>

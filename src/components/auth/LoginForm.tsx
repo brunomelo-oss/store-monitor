@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { useAuth, setRememberSession } from '@/contexts/AuthContext'
 import { backendApi } from '@/lib/backend-api'
 import { Loader2, Eye, EyeOff, MailQuestion } from 'lucide-react'
+import { useLang } from '@/contexts/LanguageContext'
 
 interface LoginFormProps {
   onSwitch: (step: string, data?: string) => void
@@ -14,6 +15,7 @@ const inputClass = 'w-full px-4 py-3 rounded-lg bg-white/10 border border-white/
 
 export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
   const { login } = useAuth()
+  const { t } = useLang()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [showPw, setShowPw] = useState(false)
@@ -49,8 +51,8 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-    if (!username) { setError('Digite seu usuário ou e-mail'); triggerShake(); return }
-    if (!password) { setError('Digite sua senha'); triggerShake(); return }
+    if (!username) { setError(t('login.error.username')); triggerShake(); return }
+    if (!password) { setError(t('login.error.password')); triggerShake(); return }
     setLoading(true)
     const res = await login(username, password)
     setLoading(false)
@@ -65,7 +67,7 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
       const next = attempts + 1
       setAttempts(next)
       try { sessionStorage.setItem('sasi_loginAttempts', String(next)) } catch {}
-      setError(res.error || 'Erro ao fazer login')
+      setError(res.error || t('login.error.default'))
       triggerShake()
     }
   }
@@ -74,9 +76,9 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
     <div className="space-y-5">
       <div className="text-center">
         <div className="w-[180px] h-[60px] mx-auto mb-4">
-          <img src="/assets/SASI-4.png" alt="SASI" className="w-full h-full object-contain" />
+          <img src="/assets/SASI-4.png" alt={t('login.altLogo')} className="w-full h-full object-contain" />
         </div>
-        <div className="text-sm text-zinc-500">Monitoramento de Apps</div>
+        <div className="text-sm text-zinc-500">{t('login.subtitle')}</div>
       </div>
 
       <form onSubmit={handleSubmit} className={`space-y-3 ${shaking ? 'animate-shake' : ''}`}>
@@ -84,7 +86,7 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
           <input
             className={inputClass}
             type="text"
-            placeholder="Usuário ou e-mail"
+            placeholder={t('login.username')}
             value={username}
             onChange={e => setUsername(e.target.value)}
             onBlur={checkInvite}
@@ -97,7 +99,7 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
             ref={passRef}
             className={`${inputClass} pr-10`}
             type={showPw ? 'text' : 'password'}
-            placeholder="Senha"
+            placeholder={t('login.password')}
             value={password}
             onChange={e => setPassword(e.target.value)}
           />
@@ -121,9 +123,9 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
           <div className="flex items-start gap-2.5 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
             <MailQuestion size={15} className="text-blue-400 shrink-0 mt-0.5" />
             <div className="text-xs text-blue-300 leading-relaxed">
-              Você tem um convite pendente.{' '}
+              {t('login.invite.pending')}{' '}
               <button type="button" className="underline font-semibold hover:text-blue-200 transition" onClick={() => onSwitch('invite', username)}>
-                Configurar conta
+                {t('login.invite.setup')}
               </button>
             </div>
           </div>
@@ -136,7 +138,7 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
           >
             <div className={`absolute top-[2px] left-[2px] w-[18px] h-[18px] rounded-full bg-white shadow-sm transition-transform duration-200 ${rememberMe ? 'translate-x-[16px]' : ''}`} />
           </div>
-          <span className="text-xs text-zinc-400">Lembrar acesso</span>
+          <span className="text-xs text-zinc-400">{t('login.remember')}</span>
         </label>
 
         <button
@@ -145,7 +147,7 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
           className="w-full py-3 rounded-lg bg-gradient-to-r from-sasi-red to-red-500 text-white font-semibold text-sm hover:opacity-90 disabled:opacity-50 transition flex items-center justify-center gap-2 shadow-lg shadow-sasi-red/20"
         >
           {loading && <Loader2 size={16} className="animate-spin" />}
-          Entrar
+          {t('login.signIn')}
         </button>
       </form>
 
@@ -154,7 +156,7 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
           className="w-full text-center text-xs text-zinc-500 hover:text-zinc-300 transition"
           onClick={() => onSwitch('email')}
         >
-          Esqueci minha senha
+          {t('login.forgotPassword')}
         </button>
       )}
 
@@ -163,7 +165,7 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
           <div className="w-full border-t border-border" />
         </div>
         <div className="relative flex justify-center text-xs">
-          <span className="bg-black px-3 text-zinc-600">ou</span>
+          <span className="bg-black px-3 text-zinc-600">{t('login.or')}</span>
         </div>
       </div>
 
@@ -171,7 +173,7 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
         className="w-full py-2.5 rounded-lg border border-border text-zinc-400 text-sm font-medium hover:border-zinc-500 hover:text-zinc-300 transition"
         onClick={() => onSwitch('register')}
       >
-        Primeiro acesso
+        {t('login.firstAccess')}
       </button>
     </div>
   )

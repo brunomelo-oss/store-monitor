@@ -1,6 +1,7 @@
 'use client'
 
 import { useAppContext } from '@/contexts/AppContext'
+import { useLang } from '@/contexts/LanguageContext'
 import { overallStatus } from '@/lib/utils'
 import { Star, CheckCircle, AlertTriangle } from 'lucide-react'
 
@@ -12,6 +13,7 @@ const accentStyles = {
 
 export function Indicators() {
   const { hasRealData } = useAppContext()
+  const { t } = useLang()
 
   const healthy = hasRealData.filter(a => overallStatus(a) === 'published').length
   const rejected = hasRealData.filter(a => overallStatus(a) === 'rejected').length
@@ -21,9 +23,9 @@ export function Indicators() {
     : 0
 
   const cards = [
-    { icon: Star, value: avgRating.toFixed(1), label: 'Média Geral', accent: accentStyles.star },
-    { icon: CheckCircle, value: healthy.toString(), label: 'Apps Saudáveis', accent: accentStyles.check },
-    { icon: AlertTriangle, value: rejected.toString(), label: 'Com Rejeição', accent: accentStyles.alert },
+    { icon: Star, value: avgRating.toFixed(1), label: t('indicators.average'), accent: accentStyles.star },
+    { icon: CheckCircle, value: healthy.toString(), label: t('indicators.healthy'), accent: accentStyles.check },
+    { icon: AlertTriangle, value: rejected.toString(), label: t('indicators.rejected'), accent: accentStyles.alert },
   ]
 
   return (

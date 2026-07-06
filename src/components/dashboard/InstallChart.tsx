@@ -2,15 +2,17 @@
 
 import { useEffect, useState } from 'react'
 import { useAppContext } from '@/contexts/AppContext'
+import { useLang } from '@/contexts/LanguageContext'
 import { ArrowDownWideNarrow } from 'lucide-react'
 
 export function InstallChart() {
   const { apps } = useAppContext()
+  const { t } = useLang()
   const [anim, setAnim] = useState(false)
 
   useEffect(() => {
-    const t = setTimeout(() => setAnim(true), 100)
-    return () => clearTimeout(t)
+    const timer = setTimeout(() => setAnim(true), 100)
+    return () => clearTimeout(timer)
   }, [])
 
   const withInstalls = apps
@@ -24,8 +26,8 @@ export function InstallChart() {
     <div>
       <h3 className="flex items-center gap-2 text-base font-bold text-foreground mb-4">
         <ArrowDownWideNarrow size={18} className="text-muted-foreground" />
-        Instalações por App
-        <span className="text-xs font-normal text-muted-foreground">· Top 10</span>
+        {t('installChart.title')}
+        <span className="text-xs font-normal text-muted-foreground">{t('installChart.top')}</span>
       </h3>
       <div className="bg-card border border-border rounded-2xl p-5 shadow-sm">
         <div className="space-y-2.5">
@@ -51,7 +53,7 @@ export function InstallChart() {
           })}
         </div>
         {withInstalls.length === 0 && (
-          <div className="text-center text-sm text-muted-foreground py-8">Nenhum app com instalações registradas</div>
+          <div className="text-center text-sm text-muted-foreground py-8">{t('installChart.empty')}</div>
         )}
       </div>
     </div>

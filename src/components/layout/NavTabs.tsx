@@ -1,6 +1,7 @@
 'use client'
 
 import { useAuth } from '@/contexts/AuthContext'
+import { useLang } from '@/contexts/LanguageContext'
 import { ChartPie, Layers, Users } from 'lucide-react'
 
 interface NavTabsProps {
@@ -10,11 +11,12 @@ interface NavTabsProps {
 
 export function NavTabs({ active, onChange }: NavTabsProps) {
   const { isAdmin } = useAuth()
+  const { t } = useLang()
 
   const tabs = [
-    { id: 'dashboard', label: 'Dashboard', icon: ChartPie },
-    { id: 'apps', label: 'Apps', icon: Layers },
-    ...(isAdmin ? [{ id: 'users', label: 'Usuários', icon: Users }] : []),
+    { id: 'dashboard', label: t('nav.dashboard'), icon: ChartPie },
+    { id: 'apps', label: t('nav.apps'), icon: Layers },
+    ...(isAdmin ? [{ id: 'users', label: t('nav.users'), icon: Users }] : []),
   ]
 
   return (

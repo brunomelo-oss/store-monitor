@@ -1,12 +1,14 @@
 'use client'
 
 import { Check } from 'lucide-react'
+import { useLang } from '@/contexts/LanguageContext'
 
 export function PasswordChecklist({ password }: { password: string }) {
+  const { t } = useLang()
   const checks = [
-    { label: 'Mínimo 8 caracteres', ok: password.length >= 8 },
-    { label: 'Pelo menos 1 letra', ok: /[a-zA-Z]/.test(password) },
-    { label: 'Pelo menos 1 caractere especial', ok: /[!@#$%^&*()_+\-=\[\]{}|;':",.\/<>\?`~]/.test(password) },
+    { label: t('passwordChecklist.length'), ok: password.length >= 8 },
+    { label: t('passwordChecklist.letter'), ok: /[a-zA-Z]/.test(password) },
+    { label: t('passwordChecklist.special'), ok: /[!@#$%^&*()_+\-=\[\]{}|;':",.\/<>\?`~]/.test(password) },
   ]
 
   return (

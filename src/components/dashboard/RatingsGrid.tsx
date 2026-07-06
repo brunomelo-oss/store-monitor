@@ -1,10 +1,12 @@
 'use client'
 
 import { useAppContext } from '@/contexts/AppContext'
+import { useLang } from '@/contexts/LanguageContext'
 import { Star } from 'lucide-react'
 
 export function RatingsGrid() {
   const { apps } = useAppContext()
+  const { t } = useLang()
 
   const withRatings = apps.filter(a => a.rating > 0)
 
@@ -13,10 +15,10 @@ export function RatingsGrid() {
       <div>
         <h3 className="flex items-center gap-2 text-base font-bold text-foreground mb-4">
           <Star size={18} className="text-yellow-500" />
-          Avaliação Média
+          {t('ratings.title')}
         </h3>
         <div className="text-center text-sm text-muted-foreground py-12 bg-card border border-border rounded-2xl shadow-sm">
-          Nenhuma avaliação disponível
+          {t('ratings.empty')}
         </div>
       </div>
     )
@@ -26,7 +28,7 @@ export function RatingsGrid() {
     <div>
       <div className="flex items-center gap-2 mb-4">
         <Star size={18} className="text-yellow-500" />
-        <h3 className="text-base font-bold text-foreground">Avaliação Média</h3>
+        <h3 className="text-base font-bold text-foreground">{t('ratings.title')}</h3>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
         {withRatings.map((app, i) => {
@@ -58,7 +60,7 @@ export function RatingsGrid() {
                   <Star key={`e${j}`} size={14} className="text-zinc-300 dark:text-zinc-600" />
                 ))}
               </div>
-              <div className="text-xs text-muted-foreground">/ 5.0</div>
+              <div className="text-xs text-muted-foreground">{t('ratings.scale')}</div>
             </div>
           )
         })}

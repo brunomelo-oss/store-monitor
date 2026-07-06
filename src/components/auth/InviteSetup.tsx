@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { Loader2, ArrowLeft, Eye, EyeOff, Lock } from 'lucide-react'
 import { PasswordChecklist } from './PasswordChecklist'
+import { useLang } from '@/contexts/LanguageContext'
 
 interface InviteSetupProps {
   email: string
@@ -15,6 +16,7 @@ const inputClass = 'w-full px-4 py-3 rounded-lg bg-white/10 border border-white/
 
 export function InviteSetup({ email, onSuccess, onBack }: InviteSetupProps) {
   const { inviteSetup } = useAuth()
+  const { t } = useLang()
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [showPw, setShowPw] = useState(false)
@@ -26,8 +28,8 @@ export function InviteSetup({ email, onSuccess, onBack }: InviteSetupProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-    if (!pwOk) { setError('Senha não atende aos requisitos'); return }
-    if (password !== confirm) { setError('Senhas não conferem'); return }
+    if (!pwOk) { setError(t('invite.error.password')); return }
+    if (password !== confirm) { setError(t('invite.error.match')); return }
     setLoading(true)
     const err = await inviteSetup(email, password)
     setLoading(false)
@@ -39,19 +41,19 @@ export function InviteSetup({ email, onSuccess, onBack }: InviteSetupProps) {
     <div className="space-y-5 animate-in fade-in slide-in-from-bottom-3 duration-300">
       <button onClick={onBack} className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition">
         <ArrowLeft size={14} />
-        Voltar
+        {t('common.back')}
       </button>
 
       <div className="text-center">
         <div className="w-12 h-12 mx-auto rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
           <Lock size={20} className="text-blue-400" />
         </div>
-        <div className="text-lg font-semibold text-white mt-3">Criar Senha</div>
-        <div className="text-sm text-zinc-500 mt-1">Configure sua senha de acesso</div>
+        <div className="text-lg font-semibold text-white mt-3">{t('invite.title')}</div>
+        <div className="text-sm text-zinc-500 mt-1">{t('invite.subtitle')}</div>
       </div>
 
       <div className="p-3 rounded-lg bg-white/[0.04] border border-white/[0.06]">
-        <div className="text-[10px] text-zinc-600 uppercase tracking-wider mb-1">E-mail</div>
+        <div className="text-[10px] text-zinc-600 uppercase tracking-wider mb-1">{t('invite.email')}</div>
         <div className="text-sm text-zinc-300 font-medium">{email}</div>
       </div>
 
@@ -59,7 +61,7 @@ export function InviteSetup({ email, onSuccess, onBack }: InviteSetupProps) {
         <div className="relative">
           <input
             className={`${inputClass} pr-10`}
-            type={showPw ? 'text' : 'password'} placeholder="Crie uma senha"
+            type={showPw ? 'text' : 'password'} placeholder={t('invite.password')}
             value={password} onChange={e => setPassword(e.target.value)}
           />
           <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition" onClick={() => setShowPw(!showPw)}>
@@ -69,7 +71,7 @@ export function InviteSetup({ email, onSuccess, onBack }: InviteSetupProps) {
 
         <input
           className={inputClass}
-          type="password" placeholder="Confirmar senha"
+          type="password" placeholder={t('invite.confirmPassword')}
           value={confirm} onChange={e => setConfirm(e.target.value)}
         />
 
@@ -86,7 +88,7 @@ export function InviteSetup({ email, onSuccess, onBack }: InviteSetupProps) {
           className="w-full py-3 rounded-lg bg-gradient-to-r from-sasi-red to-red-500 text-white font-semibold text-sm hover:opacity-90 disabled:opacity-50 transition flex items-center justify-center gap-2 shadow-lg shadow-sasi-red/20"
         >
           {loading && <Loader2 size={16} className="animate-spin" />}
-          Criar conta
+          {t('invite.submit')}
         </button>
       </form>
     </div>
