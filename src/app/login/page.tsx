@@ -24,6 +24,7 @@ export default function LoginPage() {
     <div className="min-h-screen bg-[#020617] flex items-center justify-center p-4 relative overflow-hidden login-root">
       <div className="login-bg" />
       <div className="login-overlay" />
+      <div className="login-vignette" />
       <div className="login-spotlight" />
 
       <style>{`
@@ -56,8 +57,14 @@ export default function LoginPage() {
 
         .login-overlay {
           position: fixed; inset: 0; z-index: 1;
-          background: linear-gradient(rgba(2,6,23,.78), rgba(2,6,23,.82));
+          background: linear-gradient(rgba(0,0,0,.52), rgba(0,0,0,.65));
           animation: bgFadeIn 1s ease;
+        }
+
+        .login-vignette {
+          position: fixed; inset: 0; z-index: 1;
+          background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.4) 100%);
+          pointer-events: none;
         }
 
         .login-spotlight {
