@@ -79,9 +79,9 @@ export default function LoginPage() {
 
         .login-card {
           position: relative; z-index: 3;
-          background: rgba(10,15,25,.72);
-          backdrop-filter: blur(14px);
-          border: 1px solid rgba(255,255,255,.08);
+          background: rgba(255,255,255,.05);
+          backdrop-filter: blur(12px);
+          border: 1px solid rgba(255,255,255,.10);
           box-shadow: 0 30px 80px rgba(0,0,0,.45);
           border-radius: 24px;
           padding: 2.5rem 2rem;
@@ -90,7 +90,6 @@ export default function LoginPage() {
 
         .login-card img[alt="SASI"] {
           width: 208px;
-          filter: drop-shadow(0 0 12px rgba(220,38,38,.25));
         }
 
         .login-card input {
