@@ -21,23 +21,20 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background blur - mais sutil */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-br from-sasi-red/8 via-sasi-blue/5 to-transparent rounded-full blur-3xl" />
-
-      {/* Geometric shapes flutuantes */}
-      <div className="absolute top-[15%] left-[8%] w-5 h-5 border border-sasi-blue/20 rotate-45 hidden md:block animate-float" />
-      <div className="absolute top-[25%] right-[12%] w-8 h-8 border border-sasi-red/10 rounded-lg hidden md:block animate-float" style={{animationDelay:'1.2s'}} />
-      <div className="absolute bottom-[20%] left-[15%] w-3 h-3 bg-sasi-blue/10 rounded-full hidden md:block animate-float" style={{animationDelay:'2.8s'}} />
-      <div className="absolute bottom-[30%] right-[8%] w-6 h-6 border border-white/5 rotate-12 hidden md:block animate-float" style={{animationDelay:'2s'}} />
-      <div className="absolute top-[60%] left-[5%] w-4 h-4 bg-sasi-red/8 rounded-full hidden md:block animate-float" style={{animationDelay:'3.5s'}} />
+    <div className="min-h-screen bg-[#020617] flex items-center justify-center p-4 relative overflow-hidden login-root">
+      <div className="login-bg" />
+      <div className="login-overlay" />
+      <div className="login-spotlight" />
 
       <style>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          50% { transform: translateY(-14px) rotate(4deg); }
+        @keyframes loginFadeIn {
+          from { opacity: 0; transform: translateY(12px); }
+          to   { opacity: 1; transform: translateY(0); }
         }
-        .animate-float { animation: float 7s ease-in-out infinite; }
+        @keyframes bgFadeIn {
+          from { opacity: 0; }
+          to   { opacity: 1; }
+        }
         @keyframes shake {
           0%, 100% { transform: translateX(0); }
           20% { transform: translateX(-6px); }
@@ -46,9 +43,69 @@ export default function LoginPage() {
           80% { transform: translateX(4px); }
         }
         .animate-shake { animation: shake 0.4s ease-in-out; }
+
+        .login-root { isolation: isolate; }
+
+        .login-bg {
+          position: fixed; inset: 0; z-index: 0;
+          background-image: url('/assets/jungle-backgrounds.png.webp');
+          background-size: cover; background-position: center;
+          background-repeat: no-repeat; background-attachment: fixed;
+          animation: bgFadeIn 1s ease;
+        }
+
+        .login-overlay {
+          position: fixed; inset: 0; z-index: 1;
+          background: linear-gradient(rgba(2,6,23,.78), rgba(2,6,23,.82));
+          animation: bgFadeIn 1s ease;
+        }
+
+        .login-spotlight {
+          position: fixed; top: 50%; left: 50%;
+          transform: translate(-50%,-50%);
+          width: 640px; height: 640px; z-index: 2;
+          background: radial-gradient(circle,rgba(255,255,255,.06),transparent 65%);
+          pointer-events: none;
+        }
+
+        .login-card {
+          position: relative; z-index: 3;
+          background: rgba(10,15,25,.72);
+          backdrop-filter: blur(14px);
+          border: 1px solid rgba(255,255,255,.08);
+          box-shadow: 0 30px 80px rgba(0,0,0,.45);
+          border-radius: 24px;
+          padding: 2.5rem 2rem;
+          animation: loginFadeIn .6s ease .2s both;
+        }
+
+        .login-card img[alt="SASI"] {
+          width: 208px;
+          filter: drop-shadow(0 0 12px rgba(220,38,38,.25));
+        }
+
+        .login-card input {
+          background: rgba(255,255,255,.08) !important;
+          border-color: rgba(255,255,255,.12) !important;
+          transition: all .2s ease;
+        }
+        .login-card input:focus {
+          border-color: #DC2626 !important;
+          box-shadow: 0 0 0 3px rgba(220,38,38,.15);
+        }
+        .login-card input::placeholder {
+          color: rgba(255,255,255,.4) !important;
+        }
+
+        .login-card button[type="submit"] {
+          transition: all .25s ease;
+        }
+        .login-card button[type="submit"]:hover:not(:disabled) {
+          box-shadow: 0 0 24px rgba(220,38,38,.35);
+        }
       `}</style>
 
-      <div className="relative w-full max-w-sm">
+      <div className="login-card relative w-full max-w-sm">
         {step === 'login' && (
           <LoginForm
             onSwitch={(s, data) => {
