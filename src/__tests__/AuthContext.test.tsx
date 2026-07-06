@@ -22,7 +22,7 @@ vi.mock('@/lib/backend-api', () => ({
   },
 }))
 
-import { AuthProvider, useAuth } from '@/contexts/AuthContext'
+import { AuthProvider, useAuth, setRememberSession } from '@/contexts/AuthContext'
 
 function TestConsumer() {
   const auth = useAuth()
@@ -49,6 +49,7 @@ function renderProvider() {
 }
 
 beforeEach(() => {
+  setRememberSession(false)
   vi.clearAllMocks()
   mockMe.mockRejectedValue(new Error('no session'))
   mockRefresh.mockRejectedValue(new Error('no refresh'))
@@ -76,9 +77,17 @@ describe('AuthContext', () => {
     expect(screen.getByTestId('isAdmin').textContent).toBe('true')
   })
 
-  it('falls back to refresh when me() fails', async () => {
-    mockMe.mockRejectedValueOnce(new Error('fail'))
-    mockRefresh.mockResolvedValueOnce({ user: { username: 'refreshed', role: 'user', email: 'r@b.com' } })
+  it('does not call refresh when remember is not set', async () => {
+    renderProvider()
+    await waitFor(() => expect(screen.getByTestId('loading').textContent).toBe('false'))
+    expect(mockRefresh).not.toHaveBeenCalled()
+    expect(screen.getByTestId('user').textContent).toBe('null')
+  })
+
+  it('calls refresh when remember is set and me fails', async () => {
+    setRememberSession(true)
+    mockRefresh.mockReset()
+    mockRefresh.mockResolvedValue({ user: { username: 'refreshed', role: 'user', email: 'r@b.com' } })
 
     renderProvider()
 
@@ -118,7 +127,7 @@ describe('AuthContext', () => {
     mockRegister.mockResolvedValueOnce(undefined)
     renderProvider()
 
-    const result = await screen.getByTestId('register').click()
+    await screen.getByTestId('register').click()
     expect(mockRegister).toHaveBeenCalledWith('test@test.com', 'pass123@')
   })
 

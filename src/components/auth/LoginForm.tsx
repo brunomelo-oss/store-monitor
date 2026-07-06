@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
-import { useAuth } from '@/contexts/AuthContext'
+import { useState, useRef, useEffect, useCallback } from 'react'
+import { useAuth, setRememberSession } from '@/contexts/AuthContext'
 import { backendApi } from '@/lib/backend-api'
-import { Loader2, MailQuestion, Eye, EyeOff, Lock } from 'lucide-react'
+import { Loader2, Eye, EyeOff, MailQuestion } from 'lucide-react'
 
 interface LoginFormProps {
   onSwitch: (step: string, data?: string) => void
@@ -20,6 +20,8 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [attempts, setAttempts] = useState(0)
+  const [shaking, setShaking] = useState(false)
+  const [rememberMe, setRememberMe] = useState(false)
   const [hasInvite, setHasInvite] = useState(false)
   const passRef = useRef<HTMLInputElement>(null)
 
@@ -28,6 +30,11 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
       const saved = parseInt(sessionStorage.getItem('sasi_loginAttempts') || '0', 10)
       setAttempts(saved)
     } catch {}
+  }, [])
+
+  const triggerShake = useCallback(() => {
+    setShaking(true)
+    setTimeout(() => setShaking(false), 500)
   }, [])
 
   const checkInvite = async () => {
@@ -42,33 +49,37 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-    if (!username) { setError('Digite seu usuário ou e-mail'); return }
-    if (!password) { setError('Digite sua senha'); return }
+    if (!username) { setError('Digite seu usuário ou e-mail'); triggerShake(); return }
+    if (!password) { setError('Digite sua senha'); triggerShake(); return }
     setLoading(true)
     const res = await login(username, password)
     setLoading(false)
     if (res.ok) {
       try { sessionStorage.removeItem('sasi_loginAttempts') } catch {}
+      if (rememberMe) {
+        setRememberSession(true)
+        try { localStorage.setItem('sasi_remember', 'true') } catch {}
+      }
       onSuccess()
     } else {
       const next = attempts + 1
       setAttempts(next)
       try { sessionStorage.setItem('sasi_loginAttempts', String(next)) } catch {}
       setError(res.error || 'Erro ao fazer login')
+      triggerShake()
     }
   }
 
   return (
     <div className="space-y-5">
       <div className="text-center">
-        <div className="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-sasi-red to-red-500 flex items-center justify-center shadow-lg shadow-sasi-red/20">
-          <span className="text-2xl font-bold text-white">S</span>
+        <div className="w-[180px] h-[60px] mx-auto mb-4">
+          <img src="/assets/SASI-4.png" alt="SASI" className="w-full h-full object-contain" />
         </div>
-        <div className="text-xl font-bold text-white mt-4 tracking-tight">SASI</div>
-        <div className="text-sm text-zinc-500 mt-0.5">Monitoramento de Apps</div>
+        <div className="text-sm text-zinc-500">Monitoramento de Apps</div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-3">
+      <form onSubmit={handleSubmit} className={`space-y-3 ${shaking ? 'animate-shake' : ''}`}>
         <div className="relative">
           <input
             className={inputClass}
@@ -118,6 +129,16 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
           </div>
         )}
 
+        <label className="flex items-center gap-3 cursor-pointer select-none py-1">
+          <div
+            className={`relative w-[38px] h-[22px] rounded-full transition-colors duration-200 ${rememberMe ? 'bg-sasi-red' : 'bg-zinc-700'}`}
+            onClick={() => setRememberMe(!rememberMe)}
+          >
+            <div className={`absolute top-[2px] left-[2px] w-[18px] h-[18px] rounded-full bg-white shadow-sm transition-transform duration-200 ${rememberMe ? 'translate-x-[16px]' : ''}`} />
+          </div>
+          <span className="text-xs text-zinc-400">Lembrar acesso</span>
+        </label>
+
         <button
           type="submit"
           disabled={loading}
@@ -128,7 +149,7 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
         </button>
       </form>
 
-      {attempts >= 2 && (
+      {attempts >= 3 && (
         <button
           className="w-full text-center text-xs text-zinc-500 hover:text-zinc-300 transition"
           onClick={() => onSwitch('email')}

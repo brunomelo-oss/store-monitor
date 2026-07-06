@@ -21,6 +21,7 @@ const onSuccess = vi.fn()
 beforeEach(() => {
   vi.clearAllMocks()
   sessionStorage.clear()
+  localStorage.clear()
 })
 
 function renderLogin() {
@@ -30,7 +31,7 @@ function renderLogin() {
 describe('LoginForm', () => {
   it('renders logo, inputs and submit button', () => {
     renderLogin()
-    expect(screen.getByText('SASI')).toBeInTheDocument()
+    expect(screen.getByAltText('SASI')).toBeInTheDocument()
     expect(screen.getByPlaceholderText('Usuário ou e-mail')).toBeInTheDocument()
     expect(screen.getByPlaceholderText('Senha')).toBeInTheDocument()
     expect(screen.getByText('Entrar')).toBeInTheDocument()
@@ -76,8 +77,8 @@ describe('LoginForm', () => {
     expect(pwInput).toHaveAttribute('type', 'text')
   })
 
-  it('shows forgot password after 2+ attempts', () => {
-    sessionStorage.setItem('sasi_loginAttempts', '2')
+  it('shows forgot password after 3+ attempts', () => {
+    sessionStorage.setItem('sasi_loginAttempts', '3')
     renderLogin()
     expect(screen.getByText('Esqueci minha senha')).toBeInTheDocument()
   })

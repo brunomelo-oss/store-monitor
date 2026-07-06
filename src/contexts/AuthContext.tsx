@@ -19,15 +19,45 @@ interface AuthState {
 
 const AuthContext = createContext<AuthState>(null!)
 
+let _rememberSession = false
+
+export function setRememberSession(v: boolean) {
+  _rememberSession = v
+  try { localStorage.setItem('sasi_remember', v ? 'true' : 'false') } catch {}
+}
+
+function getRememberSession(): boolean {
+  if (_rememberSession) return true
+  try { return localStorage.getItem('sasi_remember') === 'true' } catch { return false }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthState['user']>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    backendApi.me()
-      .then(({ user }) => setUser(user))
-      .catch(() => backendApi.refresh().then(({ user }) => setUser(user)).catch(() => {}))
-      .finally(() => setLoading(false))
+    let cancelled = false
+
+    async function init() {
+      try {
+        const { user } = await backendApi.me()
+        if (!cancelled) setUser(user)
+        return
+      } catch {}
+
+      if (!getRememberSession()) return
+
+      try {
+        const { user } = await backendApi.refresh()
+        if (!cancelled) setUser(user)
+      } catch {}
+    }
+
+    init().finally(() => {
+      if (!cancelled) setLoading(false)
+    })
+
+    return () => { cancelled = true }
   }, [])
 
   const login = useCallback(async (username: string, password: string) => {
@@ -42,6 +72,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     try { await backendApi.logout() } catch {}
+    try { localStorage.removeItem('sasi_remember') } catch {}
     setUser(null)
   }, [])
 
