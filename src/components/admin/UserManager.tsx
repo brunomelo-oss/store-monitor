@@ -23,6 +23,13 @@ export function UserManager() {
   const [showAdd, setShowAdd] = useState(false)
   const [newUser, setNewUser] = useState({ email: '', password: '', role: 'user' as 'user' | 'admin' })
   const [previewEmail, setPreviewEmail] = useState('')
+  const [shaking, setShaking] = useState(false)
+  const [shakingAdd, setShakingAdd] = useState(false)
+
+  const triggerShake = (setter: (v: boolean) => void) => {
+    setter(true)
+    setTimeout(() => setter(false), 500)
+  }
 
   const load = async () => {
     try {
@@ -40,7 +47,7 @@ export function UserManager() {
 
   const handleInvite = async () => {
     if (!inviteEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inviteEmail)) {
-      show('E-mail inválido', 'error'); return
+      show('E-mail inválido', 'error'); triggerShake(setShaking); return
     }
     try {
       const invite = await backendApi.createInvite(inviteEmail)
@@ -96,8 +103,8 @@ export function UserManager() {
   }
 
   const handleAddUser = async () => {
-    if (!newUser.email) { show('Digite o e-mail', 'error'); return }
-    if (!validatePassword(newUser.password)) { show('Senha não atende aos requisitos', 'error'); return }
+    if (!newUser.email) { show('Digite o e-mail', 'error'); triggerShake(setShakingAdd); return }
+    if (!validatePassword(newUser.password)) { show('Senha não atende aos requisitos', 'error'); triggerShake(setShakingAdd); return }
     try {
       const u = await backendApi.createUser(newUser.email, newUser.password, newUser.role)
       setUsers(prev => [...prev, u])
@@ -117,7 +124,7 @@ export function UserManager() {
           <Mail size={17} className="text-muted-foreground" />
           Convidar Usuário
         </h3>
-        <div className="flex gap-3">
+        <div className={`flex gap-3 ${shaking ? 'animate-shake' : ''}`}>
           <input
             className={inputClass}
             placeholder="E-mail do usuário"
@@ -163,7 +170,7 @@ export function UserManager() {
         </div>
 
         {showAdd && (
-          <div className="mb-4 p-4 bg-zinc-800/40 rounded-xl border border-zinc-700/50 space-y-3">
+          <div className={`mb-4 p-4 bg-zinc-800/40 rounded-xl border border-zinc-700/50 space-y-3 ${shakingAdd ? 'animate-shake' : ''}`}>
             <div className="flex items-center gap-2 mb-1">
               <UserPlus size={14} className="text-zinc-500" />
               <span className="text-xs text-zinc-500">Novo Usuário</span>

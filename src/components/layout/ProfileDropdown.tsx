@@ -4,15 +4,13 @@ import { useState, useRef, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import { ChangePasswordModal } from '@/components/ChangePasswordModal'
-import { UserManager } from '@/components/admin/UserManager'
-import { LogOut, Users, Lock, ChevronDown } from 'lucide-react'
+import { LogOut, Lock, ChevronDown } from 'lucide-react'
 
 export function ProfileDropdown() {
-  const { user, logout, isAdmin } = useAuth()
+  const { user, logout } = useAuth()
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [showPasswordModal, setShowPasswordModal] = useState(false)
-  const [showUserManager, setShowUserManager] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -46,16 +44,6 @@ export function ProfileDropdown() {
         <div className="absolute right-0 top-full mt-2 w-56 bg-card border border-border rounded-xl shadow-xl py-1.5 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
           <div className="px-4 py-2.5 text-xs text-muted-foreground border-b border-border mb-1">{user.email}</div>
 
-          {isAdmin && (
-            <button
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-inset transition"
-              onClick={() => { setOpen(false); setShowUserManager(true) }}
-            >
-              <Users size={15} className="text-muted-foreground" />
-              Gerenciar usuários
-            </button>
-          )}
-
           <button
             className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-inset transition"
             onClick={() => { setOpen(false); setShowPasswordModal(true) }}
@@ -77,18 +65,6 @@ export function ProfileDropdown() {
       )}
 
       {showPasswordModal && <ChangePasswordModal onClose={() => setShowPasswordModal(false)} />}
-
-      {showUserManager && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center pt-10 pb-10 bg-black/60 overflow-y-auto animate-in fade-in duration-150" onClick={e => { if (e.target === e.currentTarget) setShowUserManager(false) }}>
-          <div className="w-full max-w-2xl bg-card border border-border rounded-2xl shadow-2xl p-6 m-4 animate-in slide-in-from-bottom-3 duration-200">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-base font-semibold text-foreground">Gerenciar Usuários</h3>
-              <button onClick={() => setShowUserManager(false)} className="text-sm text-muted-foreground hover:text-foreground transition">Fechar</button>
-            </div>
-            <UserManager />
-          </div>
-        </div>
-      )}
     </div>
   )
 }

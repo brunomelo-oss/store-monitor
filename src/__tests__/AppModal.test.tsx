@@ -88,11 +88,26 @@ describe('AppModal', () => {
       return { ...utils, nameInput }
     }
 
-    it('renders form with region in title', () => {
+    async function selectRegion() {
+      const regionSelect = screen.getAllByRole('combobox')[0]
+      await userEvent.selectOptions(regionSelect, 'Brasil')
+    }
+
+    it('renders form with region selection', () => {
       render(<AppModal app={null} mode="add" region="Internacional" onClose={onClose} />)
-      expect(screen.getByText('Novo App - Internacional')).toBeInTheDocument()
+      expect(screen.getByText('Novo App')).toBeInTheDocument()
+      expect(screen.getByText('Selecione...')).toBeInTheDocument()
       expect(screen.getAllByPlaceholderText('x.y.z').length).toBe(2)
       expect(screen.getByText('Salvar')).toBeInTheDocument()
+    })
+
+    it('validates region is required', async () => {
+      render(<AppModal app={null} mode="add" region="Brasil" onClose={onClose} />)
+      const nameInput = screen.getByPlaceholderText('Ex: App SASI')
+      await userEvent.type(nameInput, 'Test App')
+      await userEvent.click(screen.getByText('Salvar'))
+      expect(await screen.findByText('Selecione a região do app')).toBeInTheDocument()
+      expect(mockAddApp).not.toHaveBeenCalled()
     })
 
     it('validates empty name', async () => {
@@ -105,6 +120,7 @@ describe('AppModal', () => {
     it('validates version format', async () => {
       const { nameInput } = renderAdd()
       await userEvent.type(nameInput, 'Test App')
+      await selectRegion()
       const versionInputs = screen.getAllByPlaceholderText('x.y.z')
       await userEvent.type(versionInputs[0], 'bad-version')
       await userEvent.click(screen.getByText('Salvar'))
@@ -116,12 +132,14 @@ describe('AppModal', () => {
       const { nameInput } = renderAdd()
 
       await userEvent.type(nameInput, 'New App')
+      await selectRegion()
       await userEvent.click(screen.getByText('Salvar'))
 
       await waitFor(() => {
         expect(mockAddApp).toHaveBeenCalled()
         const arg = mockAddApp.mock.calls[0][0]
         expect(arg.name).toBe('New App')
+        expect(arg.region).toBe('Brasil')
         expect(arg.id).toBe(3)
         expect(arg.sortOrder).toBe(4)
       })
@@ -130,7 +148,7 @@ describe('AppModal', () => {
 
     it('closes on backdrop click', async () => {
       render(<AppModal app={null} mode="add" region="Brasil" onClose={onClose} />)
-      const backdrop = screen.getByText('Novo App - Brasil').closest('.fixed')!
+      const backdrop = screen.getByText('Novo App').closest('.fixed')!
       await userEvent.click(backdrop)
       expect(onClose).toHaveBeenCalled()
     })

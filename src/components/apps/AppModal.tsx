@@ -23,6 +23,7 @@ export function AppModal({ app, mode, region, onClose }: AppModalProps) {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [animIn, setAnimIn] = useState(false)
+  const [shaking, setShaking] = useState(false)
 
   useEffect(() => {
     const t = setTimeout(() => setAnimIn(true), 10)
@@ -31,10 +32,9 @@ export function AppModal({ app, mode, region, onClose }: AppModalProps) {
 
   const isDetails = mode === 'details'
   const isAdd = mode === 'add'
-  const title = isAdd ? `Novo App - ${region}` : (isDetails ? app?.name || '' : 'Editar App')
 
   const [name, setName] = useState('')
-  const [appRegion, setAppRegion] = useState(region)
+  const [appRegion, setAppRegion] = useState('')
   const [playStatus, setPlayStatus] = useState<AppStatus>('unpublished')
   const [playVersion, setPlayVersion] = useState('')
   const [playDate, setPlayDate] = useState('')
@@ -51,19 +51,25 @@ export function AppModal({ app, mode, region, onClose }: AppModalProps) {
       setAppStatus(app.appStore.status); setAppVersion(app.appStore.version); setAppDate(app.appStore.lastUpdate)
       setGoogleAccount(app.googleAccount); setAppleAccount(app.appleAccount)
     } else if (isAdd) {
-      setName(''); setAppRegion(region)
+      setName(''); setAppRegion('')
       setPlayStatus('unpublished'); setPlayVersion(''); setPlayDate('')
       setAppStatus('unpublished'); setAppVersion(''); setAppDate('')
       setGoogleAccount('sasiHoldings'); setAppleAccount('sasTech')
     }
   }, [app, isAdd, region])
 
+  const triggerShake = () => {
+    setShaking(true)
+    setTimeout(() => setShaking(false), 500)
+  }
+
   const handleSave = async () => {
     setError('')
     const n = name.trim()
-    if (!n) { setError('O nome do app não pode ficar vazio'); return }
-    if (playVersion && !validateVersion(playVersion)) { setError('Versão Play Store inválida (use x.y.z)'); return }
-    if (appVersion && !validateVersion(appVersion)) { setError('Versão App Store inválida (use x.y.z)'); return }
+    if (!n) { setError('O nome do app não pode ficar vazio'); triggerShake(); return }
+    if (isAdd && !appRegion) { setError('Selecione a região do app'); triggerShake(); return }
+    if (playVersion && !validateVersion(playVersion)) { setError('Versão Play Store inválida (use x.y.z)'); triggerShake(); return }
+    if (appVersion && !validateVersion(appVersion)) { setError('Versão App Store inválida (use x.y.z)'); triggerShake(); return }
 
     setSaving(true)
     const data = {
@@ -91,7 +97,7 @@ export function AppModal({ app, mode, region, onClose }: AppModalProps) {
     >
       <div className={`w-full max-w-lg bg-zinc-900 border border-border rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto transition-all duration-200 ${animIn ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
         <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-          <h3 className="text-base font-semibold text-white">{title}</h3>
+          <h3 className="text-base font-semibold text-white">{isAdd ? `Novo App${appRegion ? ` - ${appRegion}` : ''}` : (isDetails ? app?.name || '' : 'Editar App')}</h3>
           <button onClick={onClose} className="p-1.5 rounded-lg text-zinc-500 hover:text-white hover:bg-zinc-800 transition">
             <X size={16} />
           </button>
@@ -192,9 +198,10 @@ export function AppModal({ app, mode, region, onClose }: AppModalProps) {
                 <input className={inputClass} value={name} onChange={e => setName(e.target.value)} placeholder="Ex: App SASI" />
               </div>
 
-              <div>
-                <label className={labelClass}>Região</label>
+              <div className={shaking ? 'animate-shake' : ''}>
+                <label className={labelClass}>Região <span className="text-red-500">*</span></label>
                 <select className={selectClass} value={appRegion} onChange={e => setAppRegion(e.target.value)}>
+                  {isAdd && <option value="">Selecione...</option>}
                   <option value="Brasil">Brasil</option>
                   <option value="Internacional">Internacional</option>
                 </select>
