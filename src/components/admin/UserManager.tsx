@@ -178,7 +178,7 @@ export function UserManager() {
               <span className="text-xs text-zinc-500">{t('userManager.title.newUser')}</span>
             </div>
             <input className={inputClass} placeholder={t('userManager.placeholder.emailUser')} value={newUser.email} onChange={e => setNewUser({ ...newUser, email: e.target.value })} />
-            <input className={inputClass} type="password" placeholder={t('userManager.placeholder.passwordUser')} value={newUser.password} onChange={e => setNewUser({ ...newUser, password: e.target.value })} />
+            <input className={inputClass} type="password" autoComplete="new-password" placeholder={t('userManager.placeholder.passwordUser')} value={newUser.password} onChange={e => setNewUser({ ...newUser, password: e.target.value })} />
             <select className={inputClass} value={newUser.role} onChange={e => setNewUser({ ...newUser, role: e.target.value as 'user' | 'admin' })}>
               <option value="user">{t('userManager.option.user')}</option>
               <option value="admin">{t('userManager.option.admin')}</option>
@@ -223,7 +223,7 @@ export function UserManager() {
                   <div className="flex items-center gap-2">
                     <input
                       className="w-28 px-2 py-1 rounded bg-zinc-800 border border-zinc-700 text-white text-xs outline-none focus:border-zinc-500"
-                      type="password" placeholder={t('common.newPassword')}
+                      type="password" autoComplete="new-password" placeholder={t('common.newPassword')}
                       value={newPassword}
                       onChange={e => setNewPassword(e.target.value)}
                       onKeyDown={e => e.key === 'Enter' && handlePasswordChange(u.id)}

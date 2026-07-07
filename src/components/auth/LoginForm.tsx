@@ -67,6 +67,11 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
       const next = attempts + 1
       setAttempts(next)
       try { sessionStorage.setItem('sasi_loginAttempts', String(next)) } catch {}
+      if (next >= 5) {
+        try { sessionStorage.removeItem('sasi_loginAttempts') } catch {}
+        onSwitch('email')
+        return
+      }
       setError(res.error || t('login.error.default'))
       triggerShake()
     }
@@ -86,6 +91,7 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
           <input
             className={inputClass}
             type="text"
+            autoComplete="username"
             placeholder={t('login.username')}
             value={username}
             onChange={e => setUsername(e.target.value)}
@@ -99,6 +105,7 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
             ref={passRef}
             className={`${inputClass} pr-10`}
             type={showPw ? 'text' : 'password'}
+            autoComplete="current-password"
             placeholder={t('login.password')}
             value={password}
             onChange={e => setPassword(e.target.value)}
@@ -151,21 +158,12 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
         </button>
       </form>
 
-      {attempts >= 3 && (
-        <button
-          className="w-full text-center text-xs text-zinc-500 hover:text-zinc-300 transition"
-          onClick={() => onSwitch('email')}
-        >
-          {t('login.forgotPassword')}
-        </button>
-      )}
-
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-border" />
+          <div className="w-full border-t border-white/10" />
         </div>
-        <div className="relative flex justify-center text-xs">
-          <span className="bg-transparent px-3 text-zinc-500">{t('login.or')}</span>
+        <div className="relative flex justify-center">
+          <span className="bg-white/5 backdrop-blur-sm px-4 py-1 text-[11px] text-zinc-500 rounded-full border border-white/10">{t('login.or')}</span>
         </div>
       </div>
 

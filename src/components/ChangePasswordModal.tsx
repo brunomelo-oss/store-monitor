@@ -55,14 +55,14 @@ export function ChangePasswordModal({ onClose }: Props) {
           </button>
         </div>
         <div className="p-5 space-y-3">
-          <input className={inputClass} type={showPw ? 'text' : 'password'} placeholder={t('common.currentPassword')} value={current} onChange={e => setCurrent(e.target.value)} />
+          <input className={inputClass} type={showPw ? 'text' : 'password'} autoComplete="current-password" placeholder={t('common.currentPassword')} value={current} onChange={e => setCurrent(e.target.value)} />
           <div className="relative">
-            <input className={`${inputClass} pr-10`} type={showPw ? 'text' : 'password'} placeholder={t('common.newPassword')} value={newPw} onChange={e => setNewPw(e.target.value)} />
+            <input className={`${inputClass} pr-10`} type={showPw ? 'text' : 'password'} autoComplete="new-password" placeholder={t('common.newPassword')} value={newPw} onChange={e => setNewPw(e.target.value)} />
             <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500" onClick={() => setShowPw(!showPw)}>
               {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
           </div>
-          <input className={inputClass} type="password" placeholder={t('common.confirmPassword')} value={confirm} onChange={e => setConfirm(e.target.value)} />
+          <input className={inputClass} type="password" autoComplete="new-password" placeholder={t('common.confirmPassword')} value={confirm} onChange={e => setConfirm(e.target.value)} />
           <div className="space-y-1 text-xs">
             <div className={`${newPw.length >= 8 ? 'text-emerald-400' : 'text-zinc-500'}`}>✓ {t('changePassword.requirement.length')}</div>
             <div className={`${/[a-zA-Z]/.test(newPw) ? 'text-emerald-400' : 'text-zinc-500'}`}>✓ {t('changePassword.requirement.letter')}</div>

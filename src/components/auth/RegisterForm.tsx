@@ -51,14 +51,14 @@ export function RegisterForm({ onSuccess, onBack }: RegisterFormProps) {
       <form onSubmit={handleSubmit} className="space-y-3">
         <input
           className={inputClass}
-          type="email" placeholder={t('register.email')}
+          type="email" autoComplete="email" placeholder={t('register.email')}
           value={email} onChange={e => setEmail(e.target.value)}
         />
 
         <div className="relative">
           <input
             className={`${inputClass} pr-10`}
-            type={showPw ? 'text' : 'password'} placeholder={t('register.password')}
+            type={showPw ? 'text' : 'password'} autoComplete="new-password" placeholder={t('register.password')}
             value={password} onChange={e => setPassword(e.target.value)}
           />
           <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition" onClick={() => setShowPw(!showPw)}>

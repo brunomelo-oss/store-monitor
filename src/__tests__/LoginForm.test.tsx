@@ -77,10 +77,22 @@ describe('LoginForm', () => {
     expect(pwInput).toHaveAttribute('type', 'text')
   })
 
-  it('shows forgot password after 3+ attempts', () => {
-    sessionStorage.setItem('sasi_loginAttempts', '3')
-    renderLogin()
-    expect(screen.getByText('Esqueci minha senha')).toBeInTheDocument()
+  it('redirects to password reset after 5 failed attempts', async () => {
+    mockLogin.mockResolvedValue({ ok: false, error: 'Credenciais inválidas' })
+    const mockOnSwitch = vi.fn()
+    render(<LoginForm onSwitch={mockOnSwitch} onSuccess={onSuccess} />)
+    const usernameInput = screen.getByPlaceholderText('Usuário ou e-mail')
+    const passwordInput = screen.getByPlaceholderText('Senha')
+
+    for (let i = 0; i < 5; i++) {
+      await userEvent.clear(usernameInput)
+      await userEvent.clear(passwordInput)
+      await userEvent.type(usernameInput, 'admin')
+      await userEvent.type(passwordInput, 'wrong')
+      await userEvent.click(screen.getByText('Entrar'))
+    }
+
+    expect(mockOnSwitch).toHaveBeenCalledWith('email')
   })
 
   it('checks invite on email blur', async () => {

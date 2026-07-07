@@ -67,7 +67,7 @@ export function PasswordReset({ onBack, onSuccess }: PasswordResetProps) {
 
         <input
           className={inputClass}
-          type="email" placeholder={t('reset.email')}
+          type="email" autoComplete="email" placeholder={t('reset.email')}
           value={email} onChange={e => setEmail(e.target.value)}
         />
 
@@ -107,7 +107,7 @@ export function PasswordReset({ onBack, onSuccess }: PasswordResetProps) {
         <div className="relative">
           <input
             className={`${inputClass} pr-10`}
-            type={showPw ? 'text' : 'password'} placeholder={t('reset.newPassword')}
+            type={showPw ? 'text' : 'password'} autoComplete="new-password" placeholder={t('reset.newPassword')}
             value={password} onChange={e => setPassword(e.target.value)}
           />
           <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition" onClick={() => setShowPw(!showPw)}>
@@ -117,7 +117,7 @@ export function PasswordReset({ onBack, onSuccess }: PasswordResetProps) {
 
         <input
           className={inputClass}
-          type="password" placeholder={t('reset.confirmPassword')}
+          type="password" autoComplete="new-password" placeholder={t('reset.confirmPassword')}
           value={confirm} onChange={e => setConfirm(e.target.value)}
         />
 
