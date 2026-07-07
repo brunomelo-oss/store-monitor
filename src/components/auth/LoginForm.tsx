@@ -76,7 +76,7 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
     <div className="space-y-5">
       <div className="text-center">
         <div className="w-[180px] h-[60px] mx-auto mb-4">
-          <img src="/assets/SASI-4.png" alt={t('login.altLogo')} className="w-full h-full object-contain" />
+          <img src="/assets/SASI-white.png" alt={t('login.altLogo')} className="w-full h-full object-contain" />
         </div>
         <div className="text-sm text-zinc-500">{t('login.subtitle')}</div>
       </div>
@@ -165,7 +165,7 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
           <div className="w-full border-t border-border" />
         </div>
         <div className="relative flex justify-center text-xs">
-          <span className="bg-black px-3 text-zinc-600">{t('login.or')}</span>
+          <span className="bg-transparent px-3 text-zinc-500">{t('login.or')}</span>
         </div>
       </div>
 
