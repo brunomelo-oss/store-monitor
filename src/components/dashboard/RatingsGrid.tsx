@@ -17,7 +17,7 @@ export function RatingsGrid() {
           <Star size={18} className="text-yellow-500" />
           {t('ratings.title')}
         </h3>
-        <div className="text-center text-sm text-muted-foreground py-12 bg-card border border-border rounded-2xl shadow-sm">
+        <div className="text-center text-sm text-muted-foreground py-12 bg-card border border-border rounded-2xl card-glass shadow-sm">
           {t('ratings.empty')}
         </div>
       </div>
@@ -39,7 +39,7 @@ export function RatingsGrid() {
           return (
             <div
               key={app.id}
-              className="bg-card border border-border rounded-[14px] p-4 text-center transition-all duration-300 hover:shadow-md hover:-translate-y-0.5"
+              className="bg-card border border-border rounded-[14px] p-4 text-center card-glass transition-all duration-300 hover:shadow-md hover:-translate-y-0.5"
               style={{ animationDelay: `${i * 50}ms` }}
             >
               <div className="text-sm font-semibold text-foreground truncate mb-2">{app.name}</div>

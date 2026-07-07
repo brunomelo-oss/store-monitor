@@ -42,7 +42,7 @@ function MetricCard({ icon, label, value, sub, accent }: MetricCardProps) {
   const s = accentStyles[accent]
 
   return (
-    <div className={`relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 ${s.card}`}>
+    <div className={`relative overflow-hidden rounded-2xl border border-border bg-card card-glass p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 ${s.card}`}>
       <div className="flex items-start justify-between mb-4">
         <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</span>
         <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${s.icon}`}>

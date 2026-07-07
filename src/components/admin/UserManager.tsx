@@ -121,7 +121,7 @@ export function UserManager() {
   return (
     <div className="max-w-3xl mx-auto space-y-8">
       {/* Convite Section */}
-      <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
+      <div className="bg-card border border-border rounded-2xl p-6 card-glass shadow-sm">
         <h3 className="text-base font-bold text-foreground mb-4 flex items-center gap-2">
           <Mail size={17} className="text-muted-foreground" />
           {t('userManager.title.invite')}
@@ -159,7 +159,7 @@ export function UserManager() {
       </div>
 
       {/* Usuários Section */}
-      <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
+      <div className="bg-card border border-border rounded-2xl p-6 card-glass shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-base font-bold text-foreground">{t('userManager.title.users')}</h3>
           <button

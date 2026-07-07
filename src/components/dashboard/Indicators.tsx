@@ -33,7 +33,7 @@ export function Indicators() {
       {cards.map((c, i) => (
         <div
           key={i}
-          className="bg-card border border-border rounded-2xl p-5 text-center shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-0.5"
+          className="bg-card border border-border rounded-2xl p-5 text-center card-glass shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-0.5"
         >
           <c.icon size={24} className={`mx-auto mb-2 ${c.accent.icon}`} />
           <div className={`text-2xl font-bold tracking-tight ${c.accent.value}`}>{c.value}</div>

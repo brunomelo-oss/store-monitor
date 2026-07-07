@@ -39,7 +39,7 @@ export function AppCard({ app, onEdit, onDetails, index = 0 }: AppCardProps) {
   return (
     <div
       ref={ref}
-      className={`relative bg-card border border-border rounded-2xl overflow-hidden shadow-sm transition-all duration-300 group hover:shadow-md hover:-translate-y-0.5 ${app.pinned ? 'border-amber-400/50 shadow-amber-400/10 shadow-md' : ''} ${
+      className={`relative bg-card border border-border rounded-2xl overflow-hidden card-glass shadow-sm transition-all duration-300 group hover:shadow-md hover:-translate-y-0.5 ${app.pinned ? 'border-amber-400/50 shadow-amber-400/10 shadow-md' : ''} ${
         visible ? 'opacity-100' : 'opacity-0'
       }`}
     >

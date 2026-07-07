@@ -20,6 +20,7 @@ export const ar: Record<string, string> = {
   'common.currentPassword': 'كلمة المرور الحالية',
 
   'header.logo': 'SASI - التواصل السريع',
+  'header.logoSubtitle': 'التواصل السريع',
   'header.appCount': '{count} تطبيق{s}',
   'header.themeToggle': 'تبديل السمة',
   'header.language': 'اللغة',

@@ -29,7 +29,7 @@ export function InstallChart() {
         {t('installChart.title')}
         <span className="text-xs font-normal text-muted-foreground">{t('installChart.top')}</span>
       </h3>
-      <div className="bg-card border border-border rounded-2xl p-5 shadow-sm">
+      <div className="bg-card border border-border rounded-2xl p-5 card-glass shadow-sm">
         <div className="space-y-2.5">
           {withInstalls.map((app, i) => {
             const pct = Math.round((app.installations / maxInst) * 100)

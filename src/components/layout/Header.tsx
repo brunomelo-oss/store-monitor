@@ -41,10 +41,13 @@ export function Header() {
     <header className={`app-header sticky top-0 z-40 transition-all duration-300 ${scrolled ? 'shadow-sm' : ''}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <div className="w-9 h-9 rounded-lg bg-[url('/assets/SASI-4.png')] bg-center bg-contain bg-no-repeat shrink-0" />
+          <div className="w-9 h-9 rounded-lg bg-[url('/assets/logo-sasi-white.png')] bg-center bg-contain bg-no-repeat shrink-0" />
           <div className="flex flex-col">
             <span className="logo-sasi text-xl font-extrabold tracking-tight select-none leading-none" onDoubleClick={handleReset}>
-              {t('header.logo')}
+              SASI
+            </span>
+            <span className="text-[10px] text-muted-foreground font-medium leading-tight mt-0.5">
+              {t('header.logoSubtitle')}
             </span>
           </div>
         </div>

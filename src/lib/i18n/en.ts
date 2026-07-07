@@ -20,6 +20,7 @@ export const en: Record<string, string> = {
   'common.currentPassword': 'Current password',
 
   'header.logo': 'SASI - Agile Communication',
+  'header.logoSubtitle': 'Agile Communication',
   'header.appCount': '{count} app{s}',
   'header.themeToggle': 'Toggle theme',
   'header.language': 'Language',
