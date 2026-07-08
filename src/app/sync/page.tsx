@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { Header } from '@/components/layout/Header'
 import { useSyncHistory } from '@/features/sync/hooks/useSyncHistory'
 import { useSyncJobs } from '@/features/sync/hooks/useSyncJobs'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { Loader2, CheckCircle, XCircle, Clock, AlertTriangle } from 'lucide-react'
 
 const statusIcon: Record<string, React.ReactNode> = {
@@ -21,8 +22,8 @@ export default function SyncPage() {
 
   if (loading || !user) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <Loader2 size={32} className="animate-spin text-zinc-500" />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 size={32} className="animate-spin text-muted-foreground" />
       </div>
     )
   }
@@ -31,6 +32,7 @@ export default function SyncPage() {
     <div className="min-h-screen bg-background">
       <Header />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+        <ErrorBoundary>
         <div>
           <h1 className="text-2xl font-bold mb-2">Sincronização</h1>
           <p className="text-muted-foreground">Histórico e monitoramento de sincronização com as lojas</p>
@@ -44,8 +46,8 @@ export default function SyncPage() {
               <span>Carregando...</span>
             </div>
           ) : (
-            <div className="border rounded-lg overflow-hidden">
-              <table className="w-full text-sm">
+            <div className="border rounded-lg overflow-x-auto">
+              <table className="w-full text-sm min-w-[600px]">
                 <thead className="bg-muted/50">
                   <tr>
                     <th className="text-left px-4 py-3 font-medium">Status</th>
@@ -90,8 +92,8 @@ export default function SyncPage() {
               <span>Carregando...</span>
             </div>
           ) : (
-            <div className="border rounded-lg overflow-hidden">
-              <table className="w-full text-sm">
+            <div className="border rounded-lg overflow-x-auto">
+              <table className="w-full text-sm min-w-[500px]">
                 <thead className="bg-muted/50">
                   <tr>
                     <th className="text-left px-4 py-3 font-medium">Status</th>
@@ -129,6 +131,7 @@ export default function SyncPage() {
             </div>
           )}
         </section>
+        </ErrorBoundary>
       </main>
     </div>
   )

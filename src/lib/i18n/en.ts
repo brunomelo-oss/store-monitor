@@ -27,6 +27,7 @@ export const en: Record<string, string> = {
   'header.reset': 'Restore default data',
   'header.resetConfirm': 'Restore default dashboard data?',
   'header.resetSuccess': 'Data restored',
+  'header.resetError': 'Failed to restore data',
 
   'header.langEn': 'English',
   'header.langPt': 'Português',

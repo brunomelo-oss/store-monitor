@@ -10,7 +10,7 @@ import { validatePassword } from '@/lib/utils'
 import { X, Plus, Mail, Trash2, Shield, ShieldOff, UserPlus, Loader2 } from 'lucide-react'
 import { EmailPreviewModal } from '@/components/EmailPreviewModal'
 
-const inputClass = 'w-full px-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700 text-white text-sm placeholder-zinc-500 outline-none focus:border-zinc-500 transition'
+const inputClass = 'w-full px-3 py-2 rounded-lg bg-surface border border-border text-foreground text-sm placeholder:text-muted-foreground outline-none focus:border-foreground/30 transition'
 
 export function UserManager() {
   const { isAdmin, user: currentUser } = useAuth()
@@ -172,10 +172,10 @@ export function UserManager() {
         </div>
 
         {showAdd && (
-          <div className={`mb-4 p-4 bg-zinc-800/40 rounded-xl border border-zinc-700/50 space-y-3 ${shakingAdd ? 'animate-shake' : ''}`}>
+          <div className={`mb-4 p-4 bg-surface rounded-xl border border-border space-y-3 ${shakingAdd ? 'animate-shake' : ''}`}>
             <div className="flex items-center gap-2 mb-1">
-              <UserPlus size={14} className="text-zinc-500" />
-              <span className="text-xs text-zinc-500">{t('userManager.title.newUser')}</span>
+              <UserPlus size={14} className="text-muted-foreground" />
+              <span className="text-xs text-muted-foreground">{t('userManager.title.newUser')}</span>
             </div>
             <input className={inputClass} placeholder={t('userManager.placeholder.emailUser')} value={newUser.email} onChange={e => setNewUser({ ...newUser, email: e.target.value })} />
             <input className={inputClass} type="password" autoComplete="new-password" placeholder={t('userManager.placeholder.passwordUser')} value={newUser.password} onChange={e => setNewUser({ ...newUser, password: e.target.value })} />
@@ -187,7 +187,7 @@ export function UserManager() {
               <button onClick={handleAddUser} className="px-4 py-2 rounded-lg bg-sasi-red text-white text-sm font-semibold hover:opacity-90 transition">
                 {t('userManager.button.create')}
               </button>
-              <button onClick={() => setShowAdd(false)} className="px-4 py-2 text-sm text-zinc-400 hover:text-white transition">
+              <button onClick={() => setShowAdd(false)} className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition">
                 {t('common.cancel')}
               </button>
             </div>
@@ -196,7 +196,7 @@ export function UserManager() {
 
         <div className="space-y-2">
           {users.map(u => (
-            <div key={u.id} className="flex items-center justify-between px-4 py-3 rounded-xl bg-surface hover:bg-zinc-200/50 dark:hover:bg-white/[0.03] border border-border hover:border-border transition-all duration-200">
+              <div key={u.id} className="flex items-center justify-between px-4 py-3 rounded-xl bg-surface hover:bg-inset border border-border transition-all duration-200">
               <div className="flex items-center gap-3 min-w-0">
                 <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0 shadow-sm ${
                   u.role === 'admin' ? 'bg-gradient-to-br from-sasi-red to-red-500' : 'bg-zinc-500'
@@ -222,7 +222,7 @@ export function UserManager() {
                 {editingUserId === u.id ? (
                   <div className="flex items-center gap-2">
                     <input
-                      className="w-28 px-2 py-1 rounded bg-zinc-800 border border-zinc-700 text-white text-xs outline-none focus:border-zinc-500"
+                      className="w-28 px-2 py-1 rounded bg-surface border border-border text-foreground text-xs outline-none focus:border-foreground/30"
                       type="password" autoComplete="new-password" placeholder={t('common.newPassword')}
                       value={newPassword}
                       onChange={e => setNewPassword(e.target.value)}

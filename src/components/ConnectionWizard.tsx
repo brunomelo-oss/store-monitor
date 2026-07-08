@@ -107,7 +107,7 @@ export function ConnectionWizard({ store, onClose, onSubmit, initialLabel, initi
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={onClose}>
       <div className="fixed inset-0 bg-black/60" />
-      <div className="relative w-full max-w-lg bg-zinc-900 border rounded-xl shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+      <div className="relative w-full max-w-lg bg-card border rounded-xl shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
         <div className="px-6 py-4 border-b flex items-center gap-3">
           <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${isGoogle ? 'bg-green-500/10' : 'bg-zinc-500/10'}`}>
             {isGoogle ? <Globe size={20} className="text-green-500" /> : <Apple size={20} className="text-zinc-400" />}

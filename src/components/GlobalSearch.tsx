@@ -90,7 +90,7 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-[15vh]" onClick={onClose}>
       <div className="fixed inset-0 bg-black/60" />
       <div
-        className="relative w-full max-w-lg bg-zinc-900 border rounded-xl shadow-2xl overflow-hidden"
+        className="relative w-full max-w-lg bg-card border rounded-xl shadow-2xl overflow-hidden"
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center gap-3 px-4 py-3 border-b">
@@ -117,7 +117,7 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
                 return (
                   <button
                     key={item.id}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-left transition-colors ${selectedIdx === i ? 'bg-zinc-800' : 'hover:bg-zinc-800/50'}`}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-left transition-colors ${selectedIdx === i ? 'bg-surface' : 'hover:bg-surface/50'}`}
                     onClick={() => { router.push(item.id); onClose() }}
                     onMouseEnter={() => setSelectedIdx(i)}
                   >
@@ -139,7 +139,7 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
                 return (
                   <button
                     key={item.id}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-left transition-colors ${selectedIdx === i ? 'bg-zinc-800' : 'hover:bg-zinc-800/50'}`}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-left transition-colors ${selectedIdx === i ? 'bg-surface' : 'hover:bg-surface/50'}`}
                     onClick={() => { if (item.href) { router.push(item.href); onClose() } }}
                     onMouseEnter={() => setSelectedIdx(i)}
                   >
@@ -159,7 +159,7 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
                 return (
                   <button
                     key={app.id}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-left transition-colors ${selectedIdx === i ? 'bg-zinc-800' : 'hover:bg-zinc-800/50'}`}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-left transition-colors ${selectedIdx === i ? 'bg-surface' : 'hover:bg-surface/50'}`}
                     onClick={() => { router.push(`/apps/${app.id}`); onClose() }}
                     onMouseEnter={() => setSelectedIdx(i)}
                   >
@@ -167,7 +167,7 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
                     <span className="flex-1">{app.name}</span>
                     <button
                       onClick={e => { e.stopPropagation(); copyToClipboard(app.name) }}
-                      className="p-1 rounded hover:bg-zinc-700"
+                      className="p-1 rounded hover:bg-surface"
                     >
                       {copied === app.name ? <Check size={12} className="text-green-500" /> : <Copy size={12} className="text-muted-foreground" />}
                     </button>

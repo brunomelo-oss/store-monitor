@@ -27,6 +27,7 @@ export const ar: Record<string, string> = {
   'header.reset': 'استعادة البيانات الافتراضية',
   'header.resetConfirm': 'هل تريد استعادة البيانات الافتراضية للوحة التحكم؟',
   'header.resetSuccess': 'تم استعادة البيانات',
+  'header.resetError': 'فشل استعادة البيانات',
 
   'header.langEn': 'English',
   'header.langPt': 'Português',

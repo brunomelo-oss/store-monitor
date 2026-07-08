@@ -43,7 +43,7 @@ export function Header() {
         await bulkReplaceMutation.mutateAsync(fresh)
         show(t('header.resetSuccess'), 'success')
       } catch {
-        show(t('header.resetConfirm'), 'error')
+        show(t('header.resetError'), 'error')
       }
     }
   }
