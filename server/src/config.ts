@@ -15,11 +15,12 @@ export const config = {
     refreshExpiresIn: '7d' as const,
   },
   encryption: {
-    get key() { return env().CREDENTIAL_ENCRYPTION_KEY },
+    get key() { return env().CREDENTIAL_ENCRYPTION_KEY ?? '' },
     algorithm: 'aes-256-gcm' as const,
   },
   features: {
     get sync() { return env().FEATURE_SYNC_ENABLED },
+    get storeConnections() { return env().FEATURE_STORE_CONNECTIONS_ENABLED },
     get notifications() { return env().FEATURE_NOTIFICATIONS_ENABLED },
     get emailChannel() { return env().FEATURE_EMAIL_CHANNEL_ENABLED },
     get webhookChannel() { return env().FEATURE_WEBHOOK_CHANNEL_ENABLED },

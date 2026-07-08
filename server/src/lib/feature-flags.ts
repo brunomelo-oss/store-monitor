@@ -4,6 +4,9 @@ export const featureFlags = {
   get syncEnabled(): boolean {
     return getEnv().FEATURE_SYNC_ENABLED
   },
+  get storeConnectionsEnabled(): boolean {
+    return getEnv().FEATURE_STORE_CONNECTIONS_ENABLED
+  },
   get notificationsEnabled(): boolean {
     return getEnv().FEATURE_NOTIFICATIONS_ENABLED
   },

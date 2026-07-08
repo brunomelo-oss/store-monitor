@@ -9,16 +9,26 @@ const envSchema = z.object({
   JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters'),
   JWT_REFRESH_SECRET: z.string().min(32, 'JWT_REFRESH_SECRET must be at least 32 characters'),
 
-  // Encryption
-  CREDENTIAL_ENCRYPTION_KEY: z.string().length(64, 'CREDENTIAL_ENCRYPTION_KEY must be exactly 64 hex characters (32 bytes)'),
+  // Encryption — required only when credential-store features are enabled
+  CREDENTIAL_ENCRYPTION_KEY: z.string().length(64).optional(),
 
   // Feature flags
-  FEATURE_SYNC_ENABLED: z.coerce.boolean().default(false),
-  FEATURE_NOTIFICATIONS_ENABLED: z.coerce.boolean().default(true),
-  FEATURE_EMAIL_CHANNEL_ENABLED: z.coerce.boolean().default(false),
-  FEATURE_WEBHOOK_CHANNEL_ENABLED: z.coerce.boolean().default(false),
-  FEATURE_ANALYTICS_ENABLED: z.coerce.boolean().default(false),
-  FEATURE_BACKGROUND_JOBS_ENABLED: z.coerce.boolean().default(false),
+  FEATURE_SYNC_ENABLED: z.string().default('false').transform(v => v === 'true'),
+  FEATURE_STORE_CONNECTIONS_ENABLED: z.string().default('false').transform(v => v === 'true'),
+  FEATURE_NOTIFICATIONS_ENABLED: z.string().default('true').transform(v => v === 'true'),
+  FEATURE_EMAIL_CHANNEL_ENABLED: z.string().default('false').transform(v => v === 'true'),
+  FEATURE_WEBHOOK_CHANNEL_ENABLED: z.string().default('false').transform(v => v === 'true'),
+  FEATURE_ANALYTICS_ENABLED: z.string().default('false').transform(v => v === 'true'),
+  FEATURE_BACKGROUND_JOBS_ENABLED: z.string().default('false').transform(v => v === 'true'),
+}).superRefine((data, ctx) => {
+  const needsEncryption = data.FEATURE_SYNC_ENABLED || data.FEATURE_STORE_CONNECTIONS_ENABLED
+  if (needsEncryption && !data.CREDENTIAL_ENCRYPTION_KEY) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['CREDENTIAL_ENCRYPTION_KEY'],
+      message: 'CREDENTIAL_ENCRYPTION_KEY is required when FEATURE_SYNC_ENABLED or FEATURE_STORE_CONNECTIONS_ENABLED is true',
+    })
+  }
 })
 
 let _env: z.infer<typeof envSchema> | null = null
