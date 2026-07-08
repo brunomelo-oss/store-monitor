@@ -158,6 +158,7 @@ export const ar: Record<string, string> = {
   'userManager.button.invite': 'دعوة',
   'userManager.status.pending': 'معلق',
   'userManager.title.users': 'المستخدمين',
+  'userManager.empty': 'لم يتم العثور على مستخدمين',
   'userManager.button.new': 'جديد',
   'userManager.title.newUser': 'مستخدم جديد',
   'userManager.placeholder.emailUser': 'البريد الإلكتروني',

@@ -63,7 +63,7 @@ export function Header() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2">
           <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface text-xs font-medium text-muted-foreground">
             <span className="font-semibold text-foreground">{apps.length}</span>
             {t('header.appCount', { count: '', s: apps.length !== 1 ? 's' : '' }).replace('{count}', '').trim()}

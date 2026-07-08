@@ -158,6 +158,7 @@ export const pt: Record<string, string> = {
   'userManager.button.invite': 'Convidar',
   'userManager.status.pending': 'Pendente',
   'userManager.title.users': 'Usuários',
+  'userManager.empty': 'Nenhum usuário encontrado',
   'userManager.button.new': 'Novo',
   'userManager.title.newUser': 'Novo Usuário',
   'userManager.placeholder.emailUser': 'E-mail',

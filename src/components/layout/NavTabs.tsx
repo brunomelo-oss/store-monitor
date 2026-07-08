@@ -20,7 +20,7 @@ export function NavTabs({ active, onChange }: NavTabsProps) {
   ]
 
   return (
-    <div className="flex gap-1 bg-card border border-border rounded-2xl p-1 w-fit shadow-sm">
+    <div className="flex gap-1 bg-card border border-border rounded-2xl p-1 w-fit shadow-sm overflow-x-auto">
       {tabs.map(({ id, label, icon: Icon }) => (
         <button
           key={id}

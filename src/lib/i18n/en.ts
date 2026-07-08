@@ -158,6 +158,7 @@ export const en: Record<string, string> = {
   'userManager.button.invite': 'Invite',
   'userManager.status.pending': 'Pending',
   'userManager.title.users': 'Users',
+  'userManager.empty': 'No users found',
   'userManager.button.new': 'New',
   'userManager.title.newUser': 'New User',
   'userManager.placeholder.emailUser': 'Email',

@@ -56,7 +56,7 @@ export function AppCard({ app, mode, onEdit, onDetails, index = 0 }: AppCardProp
         />
       )}
 
-      <div className="relative h-36 bg-gradient-to-b from-zinc-900 to-black overflow-hidden">
+      <div className="relative h-36 bg-gradient-to-b from-card to-inset overflow-hidden">
         {imgSrc && (
           <img
             src={imgSrc}
@@ -78,7 +78,7 @@ export function AppCard({ app, mode, onEdit, onDetails, index = 0 }: AppCardProp
           </div>
         </div>
 
-        <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-sm text-zinc-300 text-[10px] font-medium px-2 py-0.5 rounded-md">
+        <div className="absolute bottom-2 right-2 bg-inset/80 backdrop-blur-sm text-muted-foreground text-[10px] font-medium px-2 py-0.5 rounded-md">
           {daysLabel(app)}
         </div>
       </div>

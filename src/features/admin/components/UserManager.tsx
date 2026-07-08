@@ -7,7 +7,7 @@ import { useLang } from '@/contexts/LanguageContext'
 import { useToast } from '@/components/Toast'
 import { backendApi } from '@/lib/backend-api'
 import { validatePassword } from '@/lib/utils'
-import { X, Plus, Mail, Trash2, Shield, ShieldOff, UserPlus, Loader2 } from 'lucide-react'
+import { X, Plus, Mail, Trash2, Shield, ShieldOff, UserPlus, Users, Loader2 } from 'lucide-react'
 import { EmailPreviewModal } from '@/components/EmailPreviewModal'
 
 const inputClass = 'w-full px-3 py-2 rounded-lg bg-surface border border-border text-foreground text-sm placeholder:text-muted-foreground outline-none focus:border-foreground/30 transition'
@@ -195,6 +195,12 @@ export function UserManager() {
         )}
 
         <div className="space-y-2">
+          {!loading && users.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <Users size={36} className="text-muted-foreground/40 mb-3" />
+              <p className="text-sm text-muted-foreground">{t('userManager.empty')}</p>
+            </div>
+          )}
           {users.map(u => (
               <div key={u.id} className="flex items-center justify-between px-4 py-3 rounded-xl bg-surface hover:bg-inset border border-border transition-all duration-200">
               <div className="flex items-center gap-3 min-w-0">
