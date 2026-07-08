@@ -2,8 +2,12 @@ import { z } from 'zod'
 import { UserRole, Region, StoreType, SyncType } from '@prisma/client'
 
 export const loginSchema = z.object({
-  username: z.string().min(1, 'Usuário é obrigatório'),
+  email: z.string().email('E-mail inválido').optional(),
+  username: z.string().min(1).optional(),
   password: z.string().min(1, 'Senha é obrigatória'),
+}).refine(data => data.email || data.username, {
+  message: 'Email ou username é obrigatório',
+  path: ['email'],
 })
 
 export const registerSchema = z.object({

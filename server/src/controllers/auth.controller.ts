@@ -7,7 +7,7 @@ import { ok, created, fail } from '../lib/response'
 export class AuthController {
   async login(req: Request, res: Response) {
     const data = loginSchema.parse(req.body)
-    const result = await authService.login(data, req.ip)
+    const result = await authService.login({ ...data, username: data.email ?? data.username! }, req.ip)
     setAuthCookies(res, result.accessToken, result.refreshToken)
     ok(res, { user: result.user })
   }
