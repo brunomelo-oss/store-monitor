@@ -9,15 +9,146 @@ datasource db {
   relationMode = "prisma"
 }
 
+// ──────────────────────────────────────
+// ENUMS
+// ──────────────────────────────────────
+
+enum UserRole {
+  OWNER
+  ADMIN
+  MANAGER
+  VIEWER
+}
+
+enum StoreType {
+  GOOGLE
+  APPLE
+}
+
+enum Region {
+  BRASIL
+  INTERNACIONAL
+}
+
+enum VersionStatus {
+  DRAFT
+  REVIEW
+  PUBLISHED
+  REJECTED
+  UNPUBLISHED
+}
+
+enum BuildStatus {
+  PROCESSING
+  APPROVED
+  REJECTED
+  EXPIRED
+}
+
+enum PublicationStatus {
+  SUBMITTED
+  IN_REVIEW
+  APPROVED
+  REJECTED
+  PUBLISHED
+}
+
+enum SyncType {
+  APP_INFO
+  VERSIONS
+  BUILDS
+  REVIEWS
+  RATINGS
+  ANALYTICS
+  PUBLICATIONS
+}
+
+enum SyncStatus {
+  PENDING
+  RUNNING
+  SUCCESS
+  FAILED
+  PARTIAL
+}
+
+enum SyncTriggerType {
+  MANUAL
+  SCHEDULED
+  WEBHOOK
+  RETRY
+}
+
+enum NotificationType {
+  NEW_VERSION
+  BUILD_APPROVED
+  BUILD_REJECTED
+  REVIEW_STARTED
+  REVIEW_COMPLETED
+  REJECTION
+  APP_REMOVED
+  RATING_CHANGED
+  SYNC_FAILURE
+  INFO
+}
+
+enum JobType {
+  SYNC
+  NOTIFICATION
+  ANALYTICS_UPDATE
+  RETRY
+}
+
+enum JobStatus {
+  PENDING
+  RUNNING
+  SUCCESS
+  FAILED
+  IGNORED
+}
+
+// ──────────────────────────────────────
+// MODELS
+// ──────────────────────────────────────
+
+model Organization {
+  id        Int      @id @default(autoincrement())
+  name      String
+  slug      String   @unique
+  settings  Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users           User[]
+  invites         Invite[]
+  apps            App[]
+  storeConnections StoreConnection[]
+  notifications   Notification[]
+  auditLogs       AuditLog[]
+  syncHistories   SyncHistory[]
+  jobs            Job[]
+
+  @@index([slug])
+}
+
 model User {
-  id        Int       @id @default(autoincrement())
-  username  String    @unique
-  email     String    @unique
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  email     String   @unique
   password  String
-  role      String    @default("user") // admin | user
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  sessions  Session[]
+  role      UserRole @default(VIEWER)
+  avatarUrl String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organizationId Int?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+
+  sessions      Session[]
+  notifications Notification[]
+  auditLogs     AuditLog[]
+
+  @@index([role])
+  @@index([organizationId])
 }
 
 model Session {
@@ -26,16 +157,70 @@ model Session {
   token     String   @unique
   expiresAt DateTime
   createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([token])
 }
 
+model Invite {
+  id        Int      @id @default(autoincrement())
+  email     String
+  role      UserRole @default(VIEWER)
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, email])
+  @@index([organizationId])
+  @@index([token])
+}
+
+model StoreConnection {
+  id        Int       @id @default(autoincrement())
+  store     StoreType
+  label     String
+  isActive  Boolean   @default(true)
+  lastSyncAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  apps   App[]
+  config ConnectionConfig?
+
+  @@unique([organizationId, store, label])
+  @@index([organizationId, store, isActive])
+}
+
+model ConnectionConfig {
+  id                Int      @id @default(autoincrement())
+  encryptedData     String
+  iv                String
+  tag               String
+  keyVersion        Int      @default(1)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  storeConnectionId Int              @unique
+  storeConnection   StoreConnection  @relation(fields: [storeConnectionId], references: [id], onDelete: Cascade)
+}
+
 model App {
   id             Int      @id @default(autoincrement())
   name           String
-  region         String   @default("Brasil") // Brasil | Internacional
+  region         Region   @default(BRASIL)
+  icon           String?
+  packageName    String?
+  bundleId       String?
+
+  // Existing flat fields (backward compat, will be migrated to relations)
   googleAccount  String   @default("")
   appleAccount   String   @default("")
   playStatus     String   @default("unpublished")
@@ -46,14 +231,308 @@ model App {
   appLastUpdate  String   @default("")
   installations  Int      @default(0)
   rating         Float    @default(0)
-  pinned         Boolean  @default(false)
-  sortOrder      Int      @default(0)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+
+  pinned    Boolean @default(false)
+  sortOrder Int     @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organizationId    Int
+  organization      Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  storeConnectionId Int?
+  storeConnection   StoreConnection? @relation(fields: [storeConnectionId], references: [id], onDelete: SetNull)
+
+  versions      Version[]
+  builds        Build[]
+  tracks        Track[]
+  publications  Publication[]
+  releases      Release[]
+  analytics     Analytics[]
+  ratings       Rating[]
+  reviews       Review[]
+  rejections    Rejection[]
+  syncHistory   SyncHistory[]
+  notifications Notification[]
+
+  @@index([organizationId, region, pinned, sortOrder])
+  @@index([organizationId])
+  @@index([storeConnectionId])
+  @@index([packageName])
+  @@index([bundleId])
 }
 
-model Invite {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
+model Version {
+  id           Int           @id @default(autoincrement())
+  appId        Int
+  store        StoreType
+  version      String
+  buildNumber  String?
+  status       VersionStatus @default(DRAFT)
+  releaseNotes String?
+  createdAt    DateTime      @default(now())
+
+  app          App           @relation(fields: [appId], references: [id], onDelete: Cascade)
+  builds       Build[]
+  tracks       Track[]
+  publications Publication[]
+  releases     Release[]
+  rejections   Rejection[]
+
+  @@index([appId, store])
+  @@index([appId, store, status])
+  @@index([appId, createdAt])
+}
+
+model Build {
+  id          Int         @id @default(autoincrement())
+  appId       Int
+  store       StoreType
+  buildNumber String
+  versionId   Int?
+  status      BuildStatus @default(PROCESSING)
+  artifactUrl String?
+  createdAt   DateTime    @default(now())
+
+  app      App       @relation(fields: [appId], references: [id], onDelete: Cascade)
+  version  Version?  @relation(fields: [versionId], references: [id], onDelete: SetNull)
+  releases Release[]
+
+  @@index([appId, store])
+  @@index([appId, store, status])
+  @@index([versionId])
+}
+
+model Track {
+  id        Int    @id @default(autoincrement())
+  appId     Int
+  name      String
+  versionId Int?
+  fraction  Float?
+
+  app      App       @relation(fields: [appId], references: [id], onDelete: Cascade)
+  version  Version?  @relation(fields: [versionId], references: [id], onDelete: SetNull)
+  releases Release[]
+
+  @@unique([appId, name])
+  @@index([versionId])
+}
+
+model Release {
+  id               Int               @id @default(autoincrement())
+  store            StoreType
+  status           PublicationStatus @default(SUBMITTED)
+  submittedAt      DateTime          @default(now())
+  publishedAt      DateTime?
+  rejectedAt       DateTime?
+  rejectionReason  String?
+  createdAt        DateTime          @default(now())
+
+  appId     Int
+  app       App      @relation(fields: [appId], references: [id], onDelete: Cascade)
+
+  versionId Int?
+  version   Version? @relation(fields: [versionId], references: [id], onDelete: SetNull)
+
+  buildId   Int?
+  build     Build?   @relation(fields: [buildId], references: [id], onDelete: SetNull)
+
+  trackId   Int?
+  track     Track?   @relation(fields: [trackId], references: [id], onDelete: SetNull)
+
+  @@index([appId, store])
+  @@index([appId, store, status])
+  @@index([appId, createdAt])
+  @@index([versionId])
+  @@index([buildId])
+  @@index([trackId])
+}
+
+model Publication {
+  id               Int               @id @default(autoincrement())
+  appId            Int
+  store            StoreType
+  versionId        Int?
+  status           PublicationStatus @default(SUBMITTED)
+  submittedAt      DateTime          @default(now())
+  publishedAt      DateTime?
+  rejectedAt       DateTime?
+  rejectionReason  String?
+
   createdAt DateTime @default(now())
+
+  app     App      @relation(fields: [appId], references: [id], onDelete: Cascade)
+  version Version? @relation(fields: [versionId], references: [id], onDelete: SetNull)
+
+  @@index([appId, store])
+  @@index([appId, store, status])
+  @@index([appId, createdAt])
+}
+
+model Analytics {
+  id          Int       @id @default(autoincrement())
+  appId       Int
+  store       StoreType
+  date        DateTime
+  downloads   Int       @default(0)
+  installs    Int       @default(0)
+  impressions Int       @default(0)
+  pageViews   Int       @default(0)
+  crashes     Int       @default(0)
+
+  app App @relation(fields: [appId], references: [id], onDelete: Cascade)
+
+  @@unique([appId, store, date])
+  @@index([appId, date])
+  @@index([appId, store, date])
+}
+
+model Rating {
+  id    Int       @id @default(autoincrement())
+  appId Int
+  store StoreType
+  score Float
+  count Int       @default(0)
+  date  DateTime  @default(now())
+
+  app App @relation(fields: [appId], references: [id], onDelete: Cascade)
+
+  @@index([appId, store, date])
+  @@index([appId, store, score])
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  appId     Int
+  store     StoreType
+  reviewId  String   @unique
+  author    String
+  score     Int
+  title     String?
+  content   String?
+  reply     String?
+  createdAt DateTime
+
+  app App @relation(fields: [appId], references: [id], onDelete: Cascade)
+
+  @@index([appId, store])
+  @@index([appId, store, createdAt])
+}
+
+model Rejection {
+  id        Int      @id @default(autoincrement())
+  appId     Int
+  store     StoreType
+  versionId Int?
+  reason    String
+  details   Json?
+
+  createdAt DateTime @default(now())
+
+  app     App      @relation(fields: [appId], references: [id], onDelete: Cascade)
+  version Version? @relation(fields: [versionId], references: [id], onDelete: SetNull)
+
+  @@index([appId, store])
+  @@index([appId, createdAt])
+}
+
+model SyncHistory {
+  id          Int        @id @default(autoincrement())
+  type        SyncType
+  status      SyncStatus @default(PENDING)
+  message     String?
+  details     Json?
+  startedAt   DateTime   @default(now())
+  completedAt DateTime?
+
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  appId Int?
+  app   App?  @relation(fields: [appId], references: [id], onDelete: SetNull)
+
+  store         StoreType?
+  triggerType   SyncTriggerType @default(MANUAL)
+  executionId   String?
+  changesDetected Int           @default(0)
+  warnings      Json?
+
+  @@index([organizationId])
+  @@index([appId, store, type])
+  @@index([status])
+  @@index([startedAt])
+  @@index([executionId])
+}
+
+model Notification {
+  id        Int              @id @default(autoincrement())
+  type      NotificationType
+  title     String
+  message   String
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  userId Int?
+  user   User?  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  appId Int?
+  app   App?   @relation(fields: [appId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([userId, read])
+  @@index([userId, createdAt])
+  @@index([appId])
+}
+
+model AuditLog {
+  id        Int      @id @default(autoincrement())
+  action    String
+  entity    String
+  entityId  Int?
+  metadata  Json?
+  ip        String?
+  createdAt DateTime @default(now())
+
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  userId Int?
+  user   User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId])
+  @@index([userId])
+  @@index([entity, entityId])
+  @@index([createdAt])
+  @@index([action])
+}
+
+model Job {
+  id          Int       @id @default(autoincrement())
+  type        JobType
+  status      JobStatus @default(PENDING)
+  payload     Json?
+  result      Json?
+  scheduledAt DateTime?
+  startedAt   DateTime?
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  retryCount  Int              @default(0)
+  maxRetries  Int              @default(3)
+  lastError   String?
+  stack       String?
+  duration    Int?
+  lastRetryAt DateTime?
+  triggerType SyncTriggerType  @default(MANUAL)
+
+  @@index([organizationId])
+  @@index([organizationId, status, type])
+  @@index([status])
+  @@index([scheduledAt])
 }

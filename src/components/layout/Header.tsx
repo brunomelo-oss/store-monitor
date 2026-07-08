@@ -2,18 +2,24 @@
 
 import { useState, useEffect } from 'react'
 import { useTheme } from '@/contexts/ThemeContext'
-import { useAppContext } from '@/contexts/AppContext'
+import { useApps, useBulkReplace } from '@/hooks/useApps'
 import { useToast } from '@/components/Toast'
 import { useLang } from '@/contexts/LanguageContext'
+import { useSearch } from '@/contexts/SearchContext'
+import { useUnreadCount } from '@/features/notifications/hooks/useNotifications'
 import { ProfileDropdown } from './ProfileDropdown'
-import { Moon, Sun, RotateCcw, Languages } from 'lucide-react'
+import { Moon, Sun, RotateCcw, Languages, Search, Bell } from 'lucide-react'
+import Link from 'next/link'
 import type { LangCode } from '@/lib/i18n'
 
 export function Header() {
   const { isDark, toggle } = useTheme()
-  const { totalApps, resetData } = useAppContext()
+  const { data: apps = [] } = useApps()
+  const bulkReplaceMutation = useBulkReplace()
   const { show } = useToast()
   const { lang, setLang, t } = useLang()
+  const { toggle: toggleSearch } = useSearch()
+  const { data: unread } = useUnreadCount()
   const [scrolled, setScrolled] = useState(false)
   const [langOpen, setLangOpen] = useState(false)
 
@@ -31,9 +37,14 @@ export function Header() {
 
   const handleReset = async () => {
     if (confirm(t('header.resetConfirm'))) {
-      const err = await resetData()
-      if (err) show(err, 'error')
-      else show(t('header.resetSuccess'), 'success')
+      try {
+        const { MOCK_APPS } = await import('@/lib/mock-data')
+        const fresh = JSON.parse(JSON.stringify(MOCK_APPS))
+        await bulkReplaceMutation.mutateAsync(fresh)
+        show(t('header.resetSuccess'), 'success')
+      } catch {
+        show(t('header.resetConfirm'), 'error')
+      }
     }
   }
 
@@ -54,9 +65,30 @@ export function Header() {
 
         <div className="flex items-center gap-2">
           <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface text-xs font-medium text-muted-foreground">
-            <span className="font-semibold text-foreground">{totalApps}</span>
-            {t('header.appCount', { count: '', s: totalApps !== 1 ? 's' : '' }).replace('{count}', '').trim()}
+            <span className="font-semibold text-foreground">{apps.length}</span>
+            {t('header.appCount', { count: '', s: apps.length !== 1 ? 's' : '' }).replace('{count}', '').trim()}
           </div>
+
+          <button
+            onClick={toggleSearch}
+            className="w-[32px] h-[32px] rounded-full border border-border bg-inset text-muted-foreground hover:text-foreground hover:border-border-light hover:bg-card-hover flex items-center justify-center transition-all duration-200 shrink-0"
+            title="Buscar (⌘K)"
+          >
+            <Search size={13} />
+          </button>
+
+          <Link
+            href="/notifications"
+            className="relative w-[32px] h-[32px] rounded-full border border-border bg-inset text-muted-foreground hover:text-foreground hover:border-border-light hover:bg-card-hover flex items-center justify-center transition-all duration-200 shrink-0"
+            title="Notificações"
+          >
+            <Bell size={13} />
+            {(unread?.count || 0) > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-red-500 text-[9px] font-bold flex items-center justify-center text-white">
+                {unread!.count > 9 ? '9+' : unread!.count}
+              </span>
+            )}
+          </Link>
 
           <button
             onClick={toggle}

@@ -3,18 +3,18 @@ import userEvent from '@testing-library/user-event'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { App } from '@/types'
 
-const mockAddApp = vi.hoisted(() => vi.fn())
+const mockCreateApp = vi.hoisted(() => vi.fn())
 const mockUpdateApp = vi.hoisted(() => vi.fn())
 
-vi.mock('@/contexts/AppContext', () => ({
-  useAppContext: () => ({
-    addApp: mockAddApp,
-    updateApp: mockUpdateApp,
-    apps: [
+vi.mock('@/hooks/useApps', () => ({
+  useApps: () => ({
+    data: [
       { id: 1, sortOrder: 1 },
       { id: 2, sortOrder: 3 },
     ],
   }),
+  useCreateApp: () => ({ mutateAsync: mockCreateApp }),
+  useUpdateApp: () => ({ mutateAsync: mockUpdateApp }),
 }))
 
 vi.mock('@/lib/mock-data', () => ({
@@ -37,7 +37,7 @@ vi.mock('@/lib/mock-data', () => ({
   },
 }))
 
-import { AppModal } from '@/components/apps/AppModal'
+import { AppModal } from '@/features/apps/components/AppModal'
 
 const baseApp: App = {
   id: 1,
@@ -107,14 +107,14 @@ describe('AppModal', () => {
       await userEvent.type(nameInput, 'Test App')
       await userEvent.click(screen.getByText('Salvar'))
       expect(await screen.findByText('Selecione a região do app')).toBeInTheDocument()
-      expect(mockAddApp).not.toHaveBeenCalled()
+      expect(mockCreateApp).not.toHaveBeenCalled()
     })
 
     it('validates empty name', async () => {
       render(<AppModal app={null} mode="add" region="Brasil" onClose={onClose} />)
       await userEvent.click(screen.getByText('Salvar'))
       expect(await screen.findByText('O nome do app não pode ficar vazio')).toBeInTheDocument()
-      expect(mockAddApp).not.toHaveBeenCalled()
+      expect(mockCreateApp).not.toHaveBeenCalled()
     })
 
     it('validates version format', async () => {
@@ -127,8 +127,8 @@ describe('AppModal', () => {
       expect(await screen.findByText('Versão Play Store inválida (use x.y.z)')).toBeInTheDocument()
     })
 
-    it('calls addApp and closes on valid submit', async () => {
-      mockAddApp.mockResolvedValueOnce(null)
+    it('calls createApp and closes on valid submit', async () => {
+      mockCreateApp.mockResolvedValueOnce(null)
       const { nameInput } = renderAdd()
 
       await userEvent.type(nameInput, 'New App')
@@ -136,8 +136,8 @@ describe('AppModal', () => {
       await userEvent.click(screen.getByText('Salvar'))
 
       await waitFor(() => {
-        expect(mockAddApp).toHaveBeenCalled()
-        const arg = mockAddApp.mock.calls[0][0]
+        expect(mockCreateApp).toHaveBeenCalled()
+        const arg = mockCreateApp.mock.calls[0][0]
         expect(arg.name).toBe('New App')
         expect(arg.region).toBe('Brasil')
         expect(arg.id).toBe(3)
@@ -172,7 +172,7 @@ describe('AppModal', () => {
       await userEvent.click(screen.getByText('Salvar'))
 
       await waitFor(() => {
-        expect(mockUpdateApp).toHaveBeenCalledWith(1, expect.objectContaining({ name: 'SASI Updated' }))
+        expect(mockUpdateApp).toHaveBeenCalledWith({ id: 1, data: expect.objectContaining({ name: 'SASI Updated' }) })
       })
       expect(onClose).toHaveBeenCalled()
     })

@@ -10,14 +10,29 @@ export interface App {
   id: number
   name: string
   region: 'Brasil' | 'Internacional'
+  icon?: string | null
+  packageName?: string | null
+  bundleId?: string | null
   googleAccount: string
   appleAccount: string
   playStore: StoreInfo
   appStore: StoreInfo
+  playStatus?: string | null
+  playVersion?: string | null
+  playLastUpdate?: string | null
+  appStatus?: string | null
+  appVersion?: string | null
+  appLastUpdate?: string | null
   installations: number
   rating: number
   pinned?: boolean
   sortOrder?: number
+  organizationId?: number
+  storeConnectionId?: number | null
+  lastSyncAt?: string | null
+  lastSyncStatus?: string | null
+  createdAt?: string
+  updatedAt?: string
 }
 
 export interface Account {

@@ -13,7 +13,7 @@ vi.mock('@/lib/backend-api', () => ({
   backendApi: { checkInvite: mockCheckInvite },
 }))
 
-import { LoginForm } from '@/components/auth/LoginForm'
+import { LoginForm } from '@/features/auth/components/LoginForm'
 
 const onSwitch = vi.fn()
 const onSuccess = vi.fn()

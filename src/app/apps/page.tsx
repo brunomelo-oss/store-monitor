@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { Header } from '@/components/layout/Header'
-import { AppsView } from '@/components/apps/AppsView'
+import { AppsView } from '@/features/apps/components/AppsView'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { Loader2 } from 'lucide-react'
 

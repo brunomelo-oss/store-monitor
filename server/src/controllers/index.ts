@@ -1,0 +1,21 @@
+import { AuthController } from './auth.controller'
+import { AppController } from './app.controller'
+import { UserController } from './user.controller'
+import { InviteController } from './invite.controller'
+import { SyncController } from './sync.controller'
+import { StoreConnectionController } from './store-connection.controller'
+import { NotificationsController } from './notifications.controller'
+import { AuditLogController } from './audit-log.controller'
+import { ActivityController } from './activity.controller'
+import { HealthController } from './health.controller'
+
+export const authController = new AuthController()
+export const appController = new AppController()
+export const userController = new UserController()
+export const inviteController = new InviteController()
+export const syncController = new SyncController()
+export const storeConnectionController = new StoreConnectionController()
+export const notificationsController = new NotificationsController()
+export const auditLogController = new AuditLogController()
+export const activityController = new ActivityController()
+export const healthController = new HealthController()

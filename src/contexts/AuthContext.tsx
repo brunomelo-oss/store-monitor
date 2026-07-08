@@ -2,10 +2,10 @@
 
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react'
 import { User } from '@/types'
-import { backendApi } from '@/lib/backend-api'
+import { authService } from '@/services/auth.service'
 
 interface AuthState {
-  user: { username: string; role: string; email: string } | null
+  user: { username: string; role: string; email: string; id?: number } | null
   loading: boolean
   login: (username: string, password: string) => Promise<{ ok: boolean; error?: string }>
   logout: () => void
@@ -15,6 +15,8 @@ interface AuthState {
   doResetPassword: (email: string, code: string, password: string) => Promise<string | null>
   findUserByEmail: (email: string) => User | undefined
   isAdmin: boolean
+  isOwner: boolean
+  isManager: boolean
 }
 
 const AuthContext = createContext<AuthState>(null!)
@@ -40,7 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     async function init() {
       try {
-        const { user } = await backendApi.me()
+        const { user } = await authService.me()
         if (!cancelled) setUser(user)
         return
       } catch {}
@@ -48,7 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!getRememberSession()) return
 
       try {
-        const { user } = await backendApi.refresh()
+        const { user } = await authService.refresh()
         if (!cancelled) setUser(user)
       } catch {}
     }
@@ -62,7 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(async (username: string, password: string) => {
     try {
-      const u = await backendApi.login(username, password)
+      const u = await authService.login(username, password)
       setUser(u)
       return { ok: true }
     } catch (e) {
@@ -71,14 +73,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const logout = useCallback(async () => {
-    try { await backendApi.logout() } catch {}
+    try { await authService.logout() } catch {}
     try { localStorage.removeItem('sasi_remember') } catch {}
     setUser(null)
   }, [])
 
   const register = useCallback(async (email: string, password: string) => {
     try {
-      await backendApi.register(email, password)
+      await authService.register(email, password)
       return null
     } catch (e) {
       return e instanceof Error ? e.message : 'Erro ao registrar'
@@ -87,7 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const inviteSetup = useCallback(async (email: string, password: string) => {
     try {
-      await backendApi.register(email, password)
+      await authService.register(email, password)
       return null
     } catch (e) {
       return e instanceof Error ? e.message : 'Erro ao configurar conta'
@@ -96,7 +98,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const sendResetEmail = useCallback(async (email: string) => {
     try {
-      const { registered } = await backendApi.checkEmail(email)
+      const { registered } = await authService.checkEmail(email)
       if (!registered) return 'E-mail não encontrado'
       return null
     } catch (e) {
@@ -106,7 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const doResetPassword = useCallback(async (email: string, _code: string, password: string) => {
     try {
-      await backendApi.resetPassword(email, password)
+      await authService.resetPassword(email, password)
       return null
     } catch (e) {
       return e instanceof Error ? e.message : 'Erro ao redefinir senha'
@@ -117,11 +119,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return undefined
   }, [])
 
+  const role = user?.role?.toUpperCase()
+  const isAdmin = role === 'ADMIN' || role === 'OWNER'
+  const isOwner = role === 'OWNER'
+  const isManager = role === 'MANAGER' || isAdmin
+
   return (
     <AuthContext.Provider value={{
       user, loading,
       login, logout, register, inviteSetup, sendResetEmail, doResetPassword, findUserByEmail,
-      isAdmin: user?.role === 'admin',
+      isAdmin, isOwner, isManager,
     }}>
       {children}
     </AuthContext.Provider>

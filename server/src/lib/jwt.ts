@@ -4,14 +4,17 @@ import { Request, Response } from 'express'
 
 export interface JwtPayload {
   userId: number
+  organizationId: number
   role: string
 }
 
-const COOKIE_OPTIONS = {
-  httpOnly: true,
-  secure: config.nodeEnv === 'production',
-  sameSite: config.nodeEnv === 'production' ? 'strict' as const : 'lax' as const,
-  path: '/',
+function getCookieOptions() {
+  return {
+    httpOnly: true,
+    secure: config.nodeEnv === 'production',
+    sameSite: 'strict' as const,
+    path: '/',
+  }
 }
 
 export function signAccessToken(payload: JwtPayload): string {
@@ -31,19 +34,15 @@ export function verifyRefreshToken(token: string): JwtPayload {
 }
 
 export function setAuthCookies(res: Response, accessToken: string, refreshToken: string) {
-  res.cookie('access_token', accessToken, {
-    ...COOKIE_OPTIONS,
-    maxAge: 15 * 60 * 1000, // 15 minutes
-  })
-  res.cookie('refresh_token', refreshToken, {
-    ...COOKIE_OPTIONS,
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-  })
+  const opts = getCookieOptions()
+  res.cookie('access_token', accessToken, { ...opts, maxAge: 15 * 60 * 1000 })
+  res.cookie('refresh_token', refreshToken, { ...opts, maxAge: 7 * 24 * 60 * 60 * 1000 })
 }
 
 export function clearAuthCookies(res: Response) {
-  res.clearCookie('access_token', COOKIE_OPTIONS)
-  res.clearCookie('refresh_token', COOKIE_OPTIONS)
+  const opts = getCookieOptions()
+  res.clearCookie('access_token', opts)
+  res.clearCookie('refresh_token', opts)
 }
 
 export function getAccessToken(req: Request): string | null {

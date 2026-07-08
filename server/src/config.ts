@@ -1,14 +1,29 @@
-import dotenv from 'dotenv'
-dotenv.config()
+import { getEnv } from './lib/env'
+
+function env() {
+  return getEnv()
+}
 
 export const config = {
-  port: parseInt(process.env.PORT || '3001', 10),
-  nodeEnv: process.env.NODE_ENV || 'development',
-  frontendUrl: process.env.FRONTEND_URL || 'http://localhost:3000',
+  get port() { return env().PORT },
+  get nodeEnv() { return env().NODE_ENV },
+  get frontendUrl() { return env().FRONTEND_URL },
   jwt: {
-    secret: process.env.JWT_SECRET || 'dev-secret',
-    refreshSecret: process.env.JWT_REFRESH_SECRET || 'dev-refresh-secret',
-    accessExpiresIn: '15m',
-    refreshExpiresIn: '7d',
+    get secret() { return env().JWT_SECRET },
+    get refreshSecret() { return env().JWT_REFRESH_SECRET },
+    accessExpiresIn: '15m' as const,
+    refreshExpiresIn: '7d' as const,
+  },
+  encryption: {
+    get key() { return env().CREDENTIAL_ENCRYPTION_KEY },
+    algorithm: 'aes-256-gcm' as const,
+  },
+  features: {
+    get sync() { return env().FEATURE_SYNC_ENABLED },
+    get notifications() { return env().FEATURE_NOTIFICATIONS_ENABLED },
+    get emailChannel() { return env().FEATURE_EMAIL_CHANNEL_ENABLED },
+    get webhookChannel() { return env().FEATURE_WEBHOOK_CHANNEL_ENABLED },
+    get analytics() { return env().FEATURE_ANALYTICS_ENABLED },
+    get backgroundJobs() { return env().FEATURE_BACKGROUND_JOBS_ENABLED },
   },
 }

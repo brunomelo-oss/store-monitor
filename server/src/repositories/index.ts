@@ -1,0 +1,27 @@
+import { AppRepository } from './app.repository'
+import { UserRepository } from './user.repository'
+import { SessionRepository } from './session.repository'
+import { InviteRepository } from './invite.repository'
+import { VersionRepository } from './version.repository'
+import { SyncHistoryRepository } from './sync-history.repository'
+import { NotificationRepository } from './notification.repository'
+import { AuditLogRepository } from './audit-log.repository'
+import { JobRepository } from './job.repository'
+import { OrganizationRepository } from './organization.repository'
+import { StoreConnectionRepository } from './store-connection.repository'
+import { ConnectionConfigRepository } from './connection-config.repository'
+import { ReleaseRepository } from './release.repository'
+
+export const appRepository = new AppRepository()
+export const userRepository = new UserRepository()
+export const sessionRepository = new SessionRepository()
+export const inviteRepository = new InviteRepository()
+export const versionRepository = new VersionRepository()
+export const syncHistoryRepository = new SyncHistoryRepository()
+export const notificationRepository = new NotificationRepository()
+export const auditLogRepository = new AuditLogRepository()
+export const jobRepository = new JobRepository()
+export const organizationRepository = new OrganizationRepository()
+export const storeConnectionRepository = new StoreConnectionRepository()
+export const connectionConfigRepository = new ConnectionConfigRepository()
+export const releaseRepository = new ReleaseRepository()

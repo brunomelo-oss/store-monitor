@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { Header } from '@/components/layout/Header'
-import { DashboardView } from '@/components/dashboard/DashboardView'
+import { DashboardView } from '@/features/dashboard/components/DashboardView'
 import { Loader2 } from 'lucide-react'
 
 export default function Home() {

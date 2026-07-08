@@ -10,8 +10,8 @@ const mockMe = vi.hoisted(() => vi.fn())
 const mockCheckEmail = vi.hoisted(() => vi.fn())
 const mockResetPassword = vi.hoisted(() => vi.fn())
 
-vi.mock('@/lib/backend-api', () => ({
-  backendApi: {
+vi.mock('@/services/auth.service', () => ({
+  authService: {
     login: mockLogin,
     logout: mockLogout,
     refresh: mockRefresh,

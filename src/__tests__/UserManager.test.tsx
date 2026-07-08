@@ -46,7 +46,7 @@ vi.mock('@/components/Toast', () => ({
   useToast: () => ({ show: mockShow }),
 }))
 
-import { UserManager } from '@/components/admin/UserManager'
+import { UserManager } from '@/features/admin/components/UserManager'
 
 const mockUsers = [
   { id: 1, username: 'bruno', email: 'bruno@sasi.com.br', role: 'admin', createdAt: '2025-01-01' },

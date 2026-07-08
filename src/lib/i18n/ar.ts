@@ -111,6 +111,8 @@ export const ar: Record<string, string> = {
   'appCard.removeConfirm': 'إزالة "{name}" من لوحة التحكم؟',
   'appCard.playStore': 'Google Play',
   'appCard.appStore': 'App Store',
+  'appCard.syncTriggered': 'تم تشغيل المزامنة!',
+  'appCard.syncTooltip': 'تشغيل المزامنة',
 
   'search.placeholder': 'بحث عن تطبيق...',
 

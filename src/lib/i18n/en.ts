@@ -111,6 +111,8 @@ export const en: Record<string, string> = {
   'appCard.removeConfirm': 'Remove "{name}" from dashboard?',
   'appCard.playStore': 'Google Play',
   'appCard.appStore': 'App Store',
+  'appCard.syncTriggered': 'Sync triggered!',
+  'appCard.syncTooltip': 'Trigger sync',
 
   'search.placeholder': 'Search app...',
 

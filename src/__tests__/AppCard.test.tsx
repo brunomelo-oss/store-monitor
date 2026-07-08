@@ -5,14 +5,14 @@ import { App } from '@/types'
 
 const mockTogglePin = vi.fn()
 const mockMoveApp = vi.fn()
-const mockRemoveApp = vi.fn()
+const mockDeleteApp = vi.fn()
 const mockShow = vi.fn()
-
-const mockUseAppContext = vi.fn()
 const mockUseAuth = vi.fn()
 
-vi.mock('@/contexts/AppContext', () => ({
-  useAppContext: () => mockUseAppContext(),
+vi.mock('@/hooks/useApps', () => ({
+  useTogglePin: () => ({ mutateAsync: mockTogglePin }),
+  useMoveApp: () => ({ mutate: mockMoveApp }),
+  useDeleteApp: () => ({ mutate: mockDeleteApp }),
 }))
 
 vi.mock('@/contexts/AuthContext', () => ({
@@ -23,7 +23,7 @@ vi.mock('@/components/Toast', () => ({
   useToast: () => ({ show: mockShow }),
 }))
 
-import { AppCard } from '@/components/apps/AppCard'
+import { AppCard } from '@/features/apps/components/AppCard'
 
 const baseApp: App = {
   id: 1,
@@ -42,17 +42,11 @@ const onDetails = vi.fn()
 
 beforeEach(() => {
   vi.clearAllMocks()
-  mockUseAppContext.mockReturnValue({
-    mode: 'view',
-    togglePin: mockTogglePin,
-    moveApp: mockMoveApp,
-    removeApp: mockRemoveApp,
-  })
   mockUseAuth.mockReturnValue({ isAdmin: true })
 })
 
-function renderCard(app = baseApp) {
-  return render(<AppCard app={app} onEdit={onEdit} onDetails={onDetails} />)
+function renderCard(app = baseApp, mode: 'view' | 'edit' = 'view') {
+  return render(<AppCard app={app} mode={mode} onEdit={onEdit} onDetails={onDetails} />)
 }
 
 describe('AppCard', () => {
@@ -63,13 +57,7 @@ describe('AppCard', () => {
   })
 
   it('shows edit button when in edit mode', () => {
-    mockUseAppContext.mockReturnValue({
-      mode: 'edit',
-      togglePin: mockTogglePin,
-      moveApp: mockMoveApp,
-      removeApp: mockRemoveApp,
-    })
-    renderCard()
+    renderCard(baseApp, 'edit')
     expect(screen.getByText('Editar')).toBeInTheDocument()
   })
 
@@ -90,13 +78,7 @@ describe('AppCard', () => {
   })
 
   it('calls onEdit when clicking Editar in edit mode', async () => {
-    mockUseAppContext.mockReturnValue({
-      mode: 'edit',
-      togglePin: mockTogglePin,
-      moveApp: mockMoveApp,
-      removeApp: mockRemoveApp,
-    })
-    renderCard()
+    renderCard(baseApp, 'edit')
     await userEvent.click(screen.getByText('Editar'))
     expect(onEdit).toHaveBeenCalledWith(baseApp)
   })

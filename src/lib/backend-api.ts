@@ -1,152 +1,110 @@
-import { App, User, Invite } from '@/types'
+// Backward compatibility wrapper
+// New code should import from '@/services/*' directly
 
-const BASE = '/api'
-
-async function api<T>(path: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(`${BASE}${path}`, {
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    ...options,
-  })
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({ error: 'Erro de conexão' }))
-    throw new Error(body.error || `Erro ${res.status}`)
-  }
-  return res.json()
-}
+import { authService } from '@/services/auth.service'
+import { appsService } from '@/services/apps.service'
+import { usersService } from '@/services/users.service'
+import { App, Invite } from '@/types'
 
 export const backendApi = {
   // Auth
   async login(username: string, password: string) {
-    const data = await api<{ user: { username: string; email: string; role: string } }>('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ username, password }),
-    })
-    return data.user
+    const user = await authService.login(username, password)
+    return { user }
   },
 
   async logout() {
-    await api('/auth/logout', { method: 'POST' })
+    await authService.logout()
   },
 
   async register(email: string, password: string) {
-    await api('/auth/register', {
-      method: 'POST',
-      body: JSON.stringify({ email, password }),
-    })
+    await authService.register(email, password)
   },
 
   async me() {
-    return api<{ user: { username: string; email: string; role: string } }>('/auth/me')
+    return authService.me()
   },
 
   async refresh() {
-    return api<{ user: { username: string; email: string; role: string } }>('/auth/refresh', { method: 'POST' })
+    return authService.refresh()
   },
 
   async changePassword(currentPassword: string, newPassword: string) {
-    await api('/auth/change-password', {
-      method: 'POST',
-      body: JSON.stringify({ currentPassword, newPassword }),
-    })
+    await authService.changePassword(currentPassword, newPassword)
   },
 
-  async checkEmail(email: string): Promise<{ registered: boolean }> {
-    return api<{ registered: boolean }>('/auth/check-email', {
-      method: 'POST',
-      body: JSON.stringify({ email }),
-    })
+  async checkEmail(email: string) {
+    return authService.checkEmail(email)
   },
 
   async resetPassword(email: string, password: string) {
-    await api('/auth/reset-password', {
-      method: 'POST',
-      body: JSON.stringify({ email, password }),
-    })
+    await authService.resetPassword(email, password)
   },
 
   // Apps
   async getApps(): Promise<App[]> {
-    return api<App[]>('/apps')
+    return appsService.list()
   },
 
   async createApp(app: Partial<App>): Promise<App> {
-    return api<App>('/apps', { method: 'POST', body: JSON.stringify(app) })
+    return appsService.create(app)
   },
 
   async updateApp(id: number, data: Partial<App>): Promise<App> {
-    return api<App>(`/apps/${id}`, { method: 'PUT', body: JSON.stringify(data) })
+    return appsService.update(id, data)
   },
 
   async deleteApp(id: number): Promise<void> {
-    await api(`/apps/${id}`, { method: 'DELETE' })
+    await appsService.delete(id)
   },
 
   async togglePin(id: number): Promise<App> {
-    return api<App>(`/apps/${id}/pin`, { method: 'PATCH' })
+    return appsService.togglePin(id)
   },
 
   async moveApp(id: number, direction: 1 | -1): Promise<App[]> {
-    return api<App[]>(`/apps/${id}/move`, {
-      method: 'PATCH',
-      body: JSON.stringify({ direction }),
-    })
+    return appsService.move(id, direction)
   },
 
   async bulkReplace(apps: Partial<App>[]): Promise<App[]> {
-    return api<App[]>('/apps/bulk', {
-      method: 'PUT',
-      body: JSON.stringify({ apps }),
-    })
+    return appsService.bulkReplace(apps)
   },
 
   // Users (admin)
-  async getUsers(): Promise<{ id: number; username: string; email: string; role: string; createdAt: string }[]> {
-    return api('/users')
+  async getUsers() {
+    return usersService.list()
   },
 
-  async createUser(email: string, password: string, role: string): Promise<{ id: number; username: string; email: string; role: string }> {
-    return api('/users', {
-      method: 'POST',
-      body: JSON.stringify({ email, password, role }),
-    })
+  async createUser(email: string, password: string, role: string) {
+    return usersService.create(email, password, role)
   },
 
-  async updateUserRole(id: number, role: string): Promise<{ id: number; username: string; email: string; role: string; createdAt?: string }> {
-    return api(`/users/${id}/role`, {
-      method: 'PATCH',
-      body: JSON.stringify({ role }),
-    })
+  async updateUserRole(id: number, role: string) {
+    return usersService.updateRole(id, role)
   },
 
-  async updateUserPassword(id: number, password: string): Promise<void> {
-    await api(`/users/${id}/password`, {
-      method: 'PATCH',
-      body: JSON.stringify({ password }),
-    })
+  async updateUserPassword(id: number, password: string) {
+    await usersService.updatePassword(id, password)
   },
 
-  async deleteUser(id: number): Promise<void> {
-    await api(`/users/${id}`, { method: 'DELETE' })
+  async deleteUser(id: number) {
+    await usersService.delete(id)
   },
 
   // Invites (admin)
   async getInvites(): Promise<Invite[]> {
-    return api<Invite[]>('/invites')
+    return usersService.getInvites()
   },
 
   async createInvite(email: string): Promise<Invite> {
-    return api<Invite>('/invites', {
-      method: 'POST',
-      body: JSON.stringify({ email }),
-    })
+    return usersService.createInvite(email)
   },
 
   async deleteInvite(id: number): Promise<void> {
-    await api(`/invites/${id}`, { method: 'DELETE' })
+    await usersService.deleteInvite(id)
   },
 
-  async checkInvite(email: string): Promise<{ invited: boolean }> {
-    return api<{ invited: boolean }>(`/invites/check/${encodeURIComponent(email)}`)
+  async checkInvite(email: string) {
+    return usersService.checkInvite(email)
   },
 }

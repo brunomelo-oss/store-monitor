@@ -1,0 +1,23 @@
+import { AuthService } from './auth.service'
+import { AppService } from './app.service'
+import { UserService } from './user.service'
+import { InviteService } from './invite.service'
+import { SyncEngineService } from './sync-engine.service'
+import { NotificationService } from './notification.service'
+import { AuditService } from './audit.service'
+import { JobService } from './job.service'
+import { StoreConnectionService } from './store-connection.service'
+import { ActivityService } from './activity.service'
+import { HealthService } from './health.service'
+
+export const authService = new AuthService()
+export const appService = new AppService()
+export const userService = new UserService()
+export const inviteService = new InviteService()
+export const syncEngineService = new SyncEngineService()
+export const notificationService = new NotificationService()
+export const auditService = new AuditService()
+export const jobService = new JobService()
+export const storeConnectionService = new StoreConnectionService()
+export const activityService = new ActivityService()
+export const healthService = new HealthService()
