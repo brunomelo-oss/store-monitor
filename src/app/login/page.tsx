@@ -128,7 +128,7 @@ export default function LoginPage() {
               if (s === 'email') setStep('email')
               if (s === 'register') setStep('register')
             }}
-            onSuccess={() => router.push('/')}
+            onSuccess={() => {}}
           />
         )}
         {step === 'register' && (
