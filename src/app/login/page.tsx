@@ -11,11 +11,13 @@ import { SuccessScreen } from '@/components/ui/primitives'
 import { useLang } from '@/contexts/LanguageContext'
 
 export default function LoginPage() {
-  const { user } = useAuth()
+  const { user, loading } = useAuth()
   const { t } = useLang()
   const router = useRouter()
   const [step, setStep] = useState<string>('login')
   const [inviteEmail, setInviteEmail] = useState('')
+
+  if (loading) return null
 
   if (user) {
     router.push('/')

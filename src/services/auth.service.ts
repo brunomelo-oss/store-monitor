@@ -15,7 +15,7 @@ export const authService = {
   async login(username: string, password: string) {
     const data = await apiClient<AuthResponse>('/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ email: username, password }),
     })
     return data.user
   },
