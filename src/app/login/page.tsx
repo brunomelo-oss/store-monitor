@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { LoginForm } from '@/features/auth/components/LoginForm'
@@ -17,12 +17,11 @@ export default function LoginPage() {
   const [step, setStep] = useState<string>('login')
   const [inviteEmail, setInviteEmail] = useState('')
 
-  if (loading) return null
+  useEffect(() => {
+    if (user) router.push('/')
+  }, [user, router])
 
-  if (user) {
-    router.push('/')
-    return null
-  }
+  if (loading) return null
 
   return (
     <div className="min-h-screen bg-[#020617] flex items-center justify-center p-4 relative overflow-hidden login-root">
