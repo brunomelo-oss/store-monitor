@@ -122,7 +122,7 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
         {error && (
           <div className="flex items-center gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
             <div className="w-1.5 h-1.5 rounded-full bg-red-400 shrink-0" />
-            <p className="text-red-400 text-xs">{error}</p>
+            <p className="text-red-400 text-xs">{typeof error === 'string' ? error : 'Erro inesperado'}</p>
           </div>
         )}
 

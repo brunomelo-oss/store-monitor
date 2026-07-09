@@ -10,6 +10,17 @@ export class ApiError extends Error {
   }
 }
 
+export function extractError(e: unknown): string {
+  if (e instanceof ApiError) return e.message
+  if (e instanceof Error) return e.message
+  if (typeof e === 'string') return e
+  if (e && typeof e === 'object') {
+    if ('message' in e && typeof (e as any).message === 'string') return (e as any).message
+    if ('error' in e && typeof (e as any).error === 'string') return (e as any).error
+  }
+  return 'Erro inesperado'
+}
+
 export async function apiClient<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
     credentials: 'include',

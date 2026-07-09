@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react'
 import { User } from '@/types'
 import { authService } from '@/services/auth.service'
+import { extractError } from '@/services/api-client'
 
 interface AuthState {
   user: { username: string; role: string; email: string; id?: number } | null
@@ -68,7 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(u)
       return { ok: true }
     } catch (e) {
-      return { ok: false, error: e instanceof Error ? e.message : 'Erro ao fazer login' }
+      return { ok: false, error: extractError(e) }
     }
   }, [])
 

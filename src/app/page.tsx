@@ -12,16 +12,18 @@ export default function Home() {
   const router = useRouter()
 
   useEffect(() => {
-    if (!loading && !user) router.push('/login')
+    if (!loading && !user) router.replace('/login')
   }, [user, loading, router])
 
-  if (loading || !user) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <Loader2 size={32} className="animate-spin text-zinc-500" />
       </div>
     )
   }
+
+  if (!user) return null
 
   return (
     <div className="min-h-screen bg-background">
