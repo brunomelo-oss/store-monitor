@@ -33,5 +33,16 @@ export async function apiClient<T>(path: string, options?: RequestInit): Promise
     throw new ApiError(body.error || `Erro ${res.status}`, res.status)
   }
 
-  return res.json()
+  if (res.status === 204) return undefined as T
+
+  const body = await res.json()
+
+  if (body && typeof body === 'object' && 'success' in body) {
+    if (body.success === true && 'data' in body) {
+      return body.data as T
+    }
+    throw new ApiError(body.error?.message || 'Erro inesperado', res.status)
+  }
+
+  return body as T
 }
