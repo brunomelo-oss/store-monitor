@@ -5,10 +5,9 @@ import { useTheme } from '@/contexts/ThemeContext'
 import { useApps, useBulkReplace } from '@/hooks/useApps'
 import { useToast } from '@/components/Toast'
 import { useLang } from '@/contexts/LanguageContext'
-import { useSearch } from '@/contexts/SearchContext'
 import { useUnreadCount } from '@/features/notifications/hooks/useNotifications'
 import { ProfileDropdown } from './ProfileDropdown'
-import { Moon, Sun, RotateCcw, Languages, Search, Bell } from 'lucide-react'
+import { Moon, Sun, RotateCcw, Languages, Bell } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import type { LangCode } from '@/lib/i18n'
@@ -19,7 +18,6 @@ export function Header() {
   const bulkReplaceMutation = useBulkReplace()
   const { show } = useToast()
   const { lang, setLang, t } = useLang()
-  const { toggle: toggleSearch } = useSearch()
   const { data: unread } = useUnreadCount()
   const [scrolled, setScrolled] = useState(false)
   const [langOpen, setLangOpen] = useState(false)
@@ -80,14 +78,6 @@ export function Header() {
             <span className="font-semibold text-foreground">{apps.length}</span>
             {t('header.appCount', { count: '', s: apps.length !== 1 ? 's' : '' }).replace('{count}', '').trim()}
           </div>
-
-          <button
-            onClick={toggleSearch}
-            className="w-[32px] h-[32px] rounded-full border border-border bg-inset text-muted-foreground hover:text-foreground hover:border-border-light hover:bg-card-hover flex items-center justify-center transition-all duration-200 shrink-0"
-            title="Buscar (⌘K)"
-          >
-            <Search size={13} />
-          </button>
 
           <button
             onClick={handleNotifications}

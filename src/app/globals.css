@@ -160,6 +160,31 @@ body::before {
   border: 1px solid rgba(255,255,255,.08);
 }
 
+/* Card glass hover lift */
+.card-glass-hover {
+  transition: all 0.2s ease;
+}
+.card-glass-hover:hover {
+  background: rgba(255,255,255,.07);
+  border-color: rgba(255,255,255,.16);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0,0,0,.12);
+}
+
+/* Glassmorphism search dropdown */
+.glass-dropdown {
+  background: rgba(15,23,42,.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,.10);
+  box-shadow: 0 20px 60px rgba(0,0,0,.35);
+}
+
+:root:not(.dark) .glass-dropdown {
+  background: rgba(255,255,255,.90);
+  border: 1px solid rgba(0,0,0,.08);
+}
+
 /* Metric glow effects */
 .metric-glow-green {
   color: #00FFA3;
