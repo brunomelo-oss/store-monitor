@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react'
 import { User } from '@/types'
 import { authService } from '@/services/auth.service'
-import { extractError } from '@/services/api-client'
+import { getErrorMessage } from '@/services/api-client'
 
 interface AuthState {
   user: { username: string; role: string; email: string; id?: number } | null
@@ -69,7 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(u)
       return { ok: true }
     } catch (e) {
-      return { ok: false, error: extractError(e) }
+      return { ok: false, error: getErrorMessage(e) }
     }
   }, [])
 
@@ -84,7 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await authService.register(email, password)
       return null
     } catch (e) {
-      return e instanceof Error ? e.message : 'Erro ao registrar'
+      return getErrorMessage(e)
     }
   }, [])
 
@@ -93,7 +93,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await authService.register(email, password)
       return null
     } catch (e) {
-      return e instanceof Error ? e.message : 'Erro ao configurar conta'
+      return getErrorMessage(e)
     }
   }, [])
 
@@ -103,7 +103,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!registered) return 'E-mail não encontrado'
       return null
     } catch (e) {
-      return e instanceof Error ? e.message : 'Erro ao verificar e-mail'
+      return getErrorMessage(e)
     }
   }, [])
 
@@ -112,7 +112,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await authService.resetPassword(email, password)
       return null
     } catch (e) {
-      return e instanceof Error ? e.message : 'Erro ao redefinir senha'
+      return getErrorMessage(e)
     }
   }, [])
 

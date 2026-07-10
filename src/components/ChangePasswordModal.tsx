@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useLang } from '@/contexts/LanguageContext'
 import { useToast } from '@/components/Toast'
+import { getErrorMessage } from '@/services/api-client'
 import { validatePassword } from '@/lib/utils'
 import { backendApi } from '@/lib/backend-api'
 import { X, Eye, EyeOff, Loader2 } from 'lucide-react'
@@ -37,8 +38,8 @@ export function ChangePasswordModal({ onClose }: Props) {
       setLoading(false)
       show(t('changePassword.success'), 'success')
       onClose()
-    } catch (e: any) {
-      setError(e.message)
+    } catch (e) {
+      setError(getErrorMessage(e))
       setLoading(false)
     }
   }

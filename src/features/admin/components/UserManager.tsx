@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { Invite } from '@/types'
 import { useAuth } from '@/contexts/AuthContext'
 import { useLang } from '@/contexts/LanguageContext'
+import { getErrorMessage } from '@/services/api-client'
 import { useToast } from '@/components/Toast'
 import { backendApi } from '@/lib/backend-api'
 import { validatePassword } from '@/lib/utils'
@@ -57,7 +58,7 @@ export function UserManager() {
       setPreviewEmail(inviteEmail)
       setInviteEmail('')
     } catch (e) {
-      show(e instanceof Error ? e.message : t('userManager.error.invite'), 'error')
+      show(getErrorMessage(e), 'error')
     }
   }
 
@@ -67,7 +68,7 @@ export function UserManager() {
       setInvites(prev => prev.filter(i => i.id !== id))
       show(t('userManager.success.inviteRemoved'), 'success')
     } catch (e) {
-      show(e instanceof Error ? e.message : t('userManager.error.inviteRemoved'), 'error')
+      show(getErrorMessage(e), 'error')
     }
   }
 
@@ -78,7 +79,7 @@ export function UserManager() {
       setUsers(prev => prev.filter(u => u.id !== id))
       show(t('userManager.success.userRemoved'), 'success')
     } catch (e) {
-      show(e instanceof Error ? e.message : t('userManager.error.userRemoved'), 'error')
+      show(getErrorMessage(e), 'error')
     }
   }
 
@@ -89,7 +90,7 @@ export function UserManager() {
       setUsers(prev => prev.map(x => x.id === u.id ? updated : x))
       show(t('userManager.success.roleChanged', { role: newRole === 'admin' ? t('userManager.role.admin') : t('userManager.role.user') }), 'success')
     } catch (e) {
-      show(e instanceof Error ? e.message : t('userManager.error.roleChanged'), 'error')
+      show(getErrorMessage(e), 'error')
     }
   }
 
@@ -100,7 +101,7 @@ export function UserManager() {
       setEditingUserId(null); setNewPassword('')
       show(t('userManager.success.passwordChanged'), 'success')
     } catch (e) {
-      show(e instanceof Error ? e.message : t('userManager.error.passwordChanged'), 'error')
+      show(getErrorMessage(e), 'error')
     }
   }
 
@@ -114,7 +115,7 @@ export function UserManager() {
       setNewUser({ email: '', password: '', role: 'user' })
       show(t('userManager.success.userCreated'), 'success')
     } catch (e) {
-      show(e instanceof Error ? e.message : t('userManager.error.userCreated'), 'error')
+      show(getErrorMessage(e), 'error')
     }
   }
 

@@ -10,6 +10,7 @@ import { Spinner } from '@/components/LoadingSkeleton'
 import { EmptyState } from '@/components/EmptyState'
 import { ErrorState } from '@/components/ErrorState'
 import { Loader2, Globe, Apple, CheckCircle, XCircle, Plus, Trash2, RefreshCw, ExternalLink } from 'lucide-react'
+import { getErrorMessage } from '@/services/api-client'
 import { useToast } from '@/components/Toast'
 
 export default function ConnectionsPage() {
@@ -50,8 +51,7 @@ export default function ConnectionsPage() {
       show('Conexão excluída', 'success')
       setDeleteConfirm(null)
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Erro ao excluir conexão'
-      show(message, 'error')
+      show(getErrorMessage(err), 'error')
     }
   }
 
