@@ -41,7 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     async function init() {
       try {
-        const { user } = await authService.me()
+        const user = await authService.me()
         if (!cancelled) setUser(user)
         return
       } catch {}
@@ -49,7 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!getRememberSession()) return
 
       try {
-        const { user } = await authService.refresh()
+        const user = await authService.refresh()
         if (!cancelled) setUser(user)
       } catch {}
     }

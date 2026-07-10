@@ -11,13 +11,17 @@ interface AuthResponse {
   user: AuthUser
 }
 
+function extractUser(data: AuthResponse | AuthUser): AuthUser {
+  return 'user' in data ? data.user : data
+}
+
 export const authService = {
   async login(username: string, password: string) {
-    const data = await apiClient<AuthResponse>('/auth/login', {
+    const data = await apiClient<AuthResponse | AuthUser>('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email: username, password }),
     })
-    return data.user
+    return extractUser(data)
   },
 
   async logout() {
@@ -32,11 +36,13 @@ export const authService = {
   },
 
   async me() {
-    return apiClient<AuthResponse>('/auth/me')
+    const data = await apiClient<AuthResponse | AuthUser>('/auth/me')
+    return extractUser(data)
   },
 
   async refresh() {
-    return apiClient<AuthResponse>('/auth/refresh', { method: 'POST' })
+    const data = await apiClient<AuthResponse | AuthUser>('/auth/refresh', { method: 'POST' })
+    return extractUser(data)
   },
 
   async changePassword(currentPassword: string, newPassword: string) {
