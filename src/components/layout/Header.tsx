@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useApps, useBulkReplace } from '@/hooks/useApps'
 import { useToast } from '@/components/Toast'
@@ -10,6 +10,7 @@ import { useUnreadCount } from '@/features/notifications/hooks/useNotifications'
 import { ProfileDropdown } from './ProfileDropdown'
 import { Moon, Sun, RotateCcw, Languages, Search, Bell } from 'lucide-react'
 import Link from 'next/link'
+import { usePathname, useRouter } from 'next/navigation'
 import type { LangCode } from '@/lib/i18n'
 
 export function Header() {
@@ -22,6 +23,17 @@ export function Header() {
   const { data: unread } = useUnreadCount()
   const [scrolled, setScrolled] = useState(false)
   const [langOpen, setLangOpen] = useState(false)
+
+  const pathname = usePathname()
+  const router = useRouter()
+
+  const handleNotifications = useCallback(() => {
+    if (pathname === '/notifications') {
+      router.push('/')
+    } else {
+      router.push('/notifications')
+    }
+  }, [pathname, router])
 
   const languages: { code: LangCode; label: string }[] = [
     { code: 'en', label: t('header.langEn') },
@@ -77,8 +89,8 @@ export function Header() {
             <Search size={13} />
           </button>
 
-          <Link
-            href="/notifications"
+          <button
+            onClick={handleNotifications}
             className="relative w-[32px] h-[32px] rounded-full border border-border bg-inset text-muted-foreground hover:text-foreground hover:border-border-light hover:bg-card-hover flex items-center justify-center transition-all duration-200 shrink-0"
             title="Notificações"
           >
@@ -88,7 +100,7 @@ export function Header() {
                 {unread!.count > 9 ? '9+' : unread!.count}
               </span>
             )}
-          </Link>
+          </button>
 
           <button
             onClick={toggle}

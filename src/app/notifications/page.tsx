@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Bell, CheckCheck, Filter, Search, AlertTriangle, Info, Star, RefreshCw, XCircle, CheckCircle } from 'lucide-react'
+import { Bell, CheckCheck, Filter, Search, AlertTriangle, Info, Star, RefreshCw, XCircle, CheckCircle, ArrowLeft, Home } from 'lucide-react'
+import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import { Header } from '@/components/layout/Header'
 import { useNotifications, useMarkAsRead, useMarkAllAsRead } from '@/features/notifications/hooks/useNotifications'
@@ -71,10 +72,25 @@ export default function NotificationsPage() {
     <div className="min-h-screen bg-background">
       <Header />
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Link href="/" className="hover:text-foreground transition-colors"><Home size={14} /></Link>
+          <span className="text-muted-foreground/40">/</span>
+          <span className="text-foreground">Notificações</span>
+        </div>
+
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold">Central de Notificações</h1>
-            <p className="text-muted-foreground mt-1">Acompanhe todas as notificações do sistema</p>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/"
+              className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <ArrowLeft size={16} />
+              Voltar
+            </Link>
+            <div>
+              <h1 className="text-2xl font-bold">Central de Notificações</h1>
+              <p className="text-muted-foreground mt-1">Acompanhe todas as notificações do sistema</p>
+            </div>
           </div>
           <button
             onClick={() => markAllAsRead.mutate()}
