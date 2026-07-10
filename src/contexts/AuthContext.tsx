@@ -16,8 +16,6 @@ interface AuthState {
   doResetPassword: (email: string, code: string, password: string) => Promise<string | null>
   findUserByEmail: (email: string) => User | undefined
   isAdmin: boolean
-  isOwner: boolean
-  isManager: boolean
 }
 
 const AuthContext = createContext<AuthState>(null!)
@@ -120,16 +118,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return undefined
   }, [])
 
-  const role = user?.role?.toUpperCase()
-  const isAdmin = role === 'ADMIN' || role === 'OWNER'
-  const isOwner = role === 'OWNER'
-  const isManager = role === 'MANAGER' || isAdmin
+  const isAdmin = user?.role?.toUpperCase() === 'ADMIN' || user?.role?.toUpperCase() === 'OWNER'
 
   return (
     <AuthContext.Provider value={{
       user, loading,
       login, logout, register, inviteSetup, sendResetEmail, doResetPassword, findUserByEmail,
-      isAdmin, isOwner, isManager,
+      isAdmin,
     }}>
       {children}
     </AuthContext.Provider>

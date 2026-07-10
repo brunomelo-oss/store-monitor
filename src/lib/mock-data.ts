@@ -40,7 +40,7 @@ export const MOCK_APPS: App[] = [
 ]
 
 export const DEFAULT_USERS: User[] = [
-  { username: 'admin', password: 'Admin123@', email: 'bruno.melo@sasi.com.br', role: 'admin' },
+  { username: 'admin', password: 'Admin123@', email: 'bruno.melo@sasi.com.br', role: 'ADMIN' },
 ]
 
 export const APP_IMAGES: Record<string, string> = {

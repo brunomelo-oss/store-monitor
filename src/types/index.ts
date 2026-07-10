@@ -50,7 +50,7 @@ export interface User {
   username: string
   password: string
   email: string
-  role: 'admin' | 'user'
+  role: 'OWNER' | 'ADMIN' | 'MANAGER' | 'VIEWER'
 }
 
 export interface Invite {

@@ -8,7 +8,7 @@ import { getErrorMessage } from '@/services/api-client'
 import { useToast } from '@/components/Toast'
 import { backendApi } from '@/lib/backend-api'
 import { validatePassword } from '@/lib/utils'
-import { X, Plus, Mail, Trash2, Shield, ShieldOff, UserPlus, Users, Loader2 } from 'lucide-react'
+import { X, Plus, Mail, Trash2, UserPlus, Users, Loader2 } from 'lucide-react'
 import { EmailPreviewModal } from '@/components/EmailPreviewModal'
 
 const inputClass = 'w-full px-3 py-2 rounded-lg bg-surface border border-border text-foreground text-sm placeholder:text-muted-foreground outline-none focus:border-foreground/30 transition'
@@ -24,7 +24,7 @@ export function UserManager() {
   const [newPassword, setNewPassword] = useState('')
   const [inviteEmail, setInviteEmail] = useState('')
   const [showAdd, setShowAdd] = useState(false)
-  const [newUser, setNewUser] = useState({ email: '', password: '', role: 'user' as 'user' | 'admin' })
+  const [newUser, setNewUser] = useState({ email: '', password: '', role: 'VIEWER' })
   const [previewEmail, setPreviewEmail] = useState('')
   const [shaking, setShaking] = useState(false)
   const [shakingAdd, setShakingAdd] = useState(false)
@@ -83,16 +83,34 @@ export function UserManager() {
     }
   }
 
-  const handleToggleRole = async (u: { id: number; role: string; email?: string }) => {
-    const newRole = u.role === 'admin' ? 'user' : 'admin'
+  const handleUpdateRole = async (userId: number, newRole: string) => {
     try {
-      const updated = await backendApi.updateUserRole(u.id, newRole)
-      setUsers(prev => prev.map(x => x.id === u.id ? updated : x))
-      show(t('userManager.success.roleChanged', { role: newRole === 'admin' ? t('userManager.role.admin') : t('userManager.role.user') }), 'success')
+      const updated = await backendApi.updateUserRole(userId, newRole)
+      setUsers(prev => prev.map(x => x.id === userId ? updated : x))
+      show(t('userManager.success.roleChanged', { role: t(`userManager.role.${newRole.toLowerCase()}`) }), 'success')
     } catch (e) {
       show(getErrorMessage(e), 'error')
     }
   }
+
+  const roleBadge = (role: string) => {
+    const r = role.toUpperCase()
+    const colors: Record<string, string> = {
+      OWNER: 'bg-amber-500/10 text-amber-400',
+      ADMIN: 'bg-sasi-red/10 text-red-500 dark:text-red-400',
+      MANAGER: 'bg-blue-500/10 text-blue-400',
+      VIEWER: 'bg-zinc-200 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400',
+    }
+    const labels: Record<string, string> = {
+      OWNER: t('userManager.role.owner'),
+      ADMIN: t('userManager.role.admin'),
+      MANAGER: t('userManager.role.manager'),
+      VIEWER: t('userManager.role.viewer'),
+    }
+    return { color: colors[r] || colors.VIEWER, label: labels[r] || r }
+  }
+
+  const ROLE_OPTIONS = ['OWNER', 'ADMIN', 'MANAGER', 'VIEWER'] as const
 
   const handlePasswordChange = async (userId: number) => {
     if (!validatePassword(newPassword)) { show(t('userManager.error.passwordReq'), 'error'); return }
@@ -112,7 +130,7 @@ export function UserManager() {
       const u = await backendApi.createUser(newUser.email, newUser.password, newUser.role)
       setUsers(prev => [...prev, u])
       setShowAdd(false)
-      setNewUser({ email: '', password: '', role: 'user' })
+      setNewUser({ email: '', password: '', role: 'VIEWER' })
       show(t('userManager.success.userCreated'), 'success')
     } catch (e) {
       show(getErrorMessage(e), 'error')
@@ -180,9 +198,10 @@ export function UserManager() {
             </div>
             <input className={inputClass} placeholder={t('userManager.placeholder.emailUser')} value={newUser.email} onChange={e => setNewUser({ ...newUser, email: e.target.value })} />
             <input className={inputClass} type="password" autoComplete="new-password" placeholder={t('userManager.placeholder.passwordUser')} value={newUser.password} onChange={e => setNewUser({ ...newUser, password: e.target.value })} />
-            <select className={inputClass} value={newUser.role} onChange={e => setNewUser({ ...newUser, role: e.target.value as 'user' | 'admin' })}>
-              <option value="user">{t('userManager.option.user')}</option>
-              <option value="admin">{t('userManager.option.admin')}</option>
+            <select className={inputClass} value={newUser.role} onChange={e => setNewUser({ ...newUser, role: e.target.value })}>
+              {ROLE_OPTIONS.map(r => (
+                <option key={r} value={r}>{t(`userManager.option.${r.toLowerCase()}`)}</option>
+              ))}
             </select>
             <div className="flex gap-2 pt-1">
               <button onClick={handleAddUser} className="px-4 py-2 rounded-lg bg-sasi-red text-white text-sm font-semibold hover:opacity-90 transition">
@@ -206,17 +225,18 @@ export function UserManager() {
               <div key={u.id} className="flex items-center justify-between px-4 py-3 rounded-xl bg-surface hover:bg-inset border border-border transition-all duration-200">
               <div className="flex items-center gap-3 min-w-0">
                 <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0 shadow-sm ${
-                  u.role === 'admin' ? 'bg-gradient-to-br from-sasi-red to-red-500' : 'bg-zinc-500'
+                  u.role === 'OWNER' ? 'bg-gradient-to-br from-amber-500 to-yellow-600' :
+                  u.role === 'ADMIN' ? 'bg-gradient-to-br from-sasi-red to-red-500' :
+                  u.role === 'MANAGER' ? 'bg-gradient-to-br from-blue-500 to-indigo-600' :
+                  'bg-zinc-500'
                 }`}>
                   {u.email.charAt(0).toUpperCase()}
                 </div>
                 <div className="min-w-0">
                   <div className="text-sm font-medium text-foreground truncate">{u.email}</div>
                   <div className="flex items-center gap-1.5 mt-0.5">
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-                      u.role === 'admin' ? 'bg-sasi-red/10 text-red-500 dark:text-red-400' : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400'
-                    }`}>
-                      {u.role === 'admin' ? t('userManager.role.admin') : t('userManager.role.user')}
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${roleBadge(u.role).color}`}>
+                      {roleBadge(u.role).label}
                     </span>
                     {u.email === currentUser?.email && (
                       <span className="text-[10px] text-muted-foreground">{t('userManager.you')}</span>
@@ -240,13 +260,15 @@ export function UserManager() {
                   </div>
                 ) : (
                   <>
-                    <button
-                      onClick={() => handleToggleRole(u)}
-                      className="flex items-center gap-1 px-2 py-1 rounded text-xs text-muted-foreground hover:text-yellow-500 hover:bg-yellow-500/10 transition"
-                      title={u.role === 'admin' ? t('userManager.action.demote') : t('userManager.action.promote')}
+                    <select
+                      value={u.role}
+                      onChange={e => handleUpdateRole(u.id, e.target.value)}
+                      className="px-1.5 py-0.5 rounded text-[10px] bg-surface border border-border text-muted-foreground outline-none cursor-pointer hover:border-foreground/30 transition"
                     >
-                      {u.role === 'admin' ? <ShieldOff size={12} /> : <Shield size={12} />}
-                    </button>
+                      {ROLE_OPTIONS.map(r => (
+                        <option key={r} value={r}>{t(`userManager.role.${r.toLowerCase()}`)}</option>
+                      ))}
+                    </select>
                     <button onClick={() => setEditingUserId(u.id)} className="text-xs text-yellow-500 hover:underline">{t('userManager.action.password')}</button>
                     {u.email !== currentUser?.email && (
                       <button onClick={() => handleDeleteUser(u.id, u.email)} className="text-xs text-muted-foreground hover:text-red-400 transition">{t('common.remove')}</button>

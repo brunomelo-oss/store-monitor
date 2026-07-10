@@ -14,7 +14,7 @@ import { getErrorMessage } from '@/services/api-client'
 import { useToast } from '@/components/Toast'
 
 export default function ConnectionsPage() {
-  const { user, loading } = useAuth()
+  const { user, loading, isAdmin } = useAuth()
   const { data: connections, isLoading, error, refetch } = useStoreConnections()
   const createMutation = useCreateConnection()
   const deleteMutation = useDeleteConnection()
@@ -29,6 +29,14 @@ export default function ConnectionsPage() {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <Loader2 size={32} className="animate-spin text-zinc-500" />
+      </div>
+    )
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <p className="text-sm text-zinc-500">Acesso restrito a administradores</p>
       </div>
     )
   }
