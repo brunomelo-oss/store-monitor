@@ -4,7 +4,7 @@ import { jwtVerify } from 'jose'
 
 const ADMIN_ROLES = ['ADMIN', 'OWNER']
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
   const secret = process.env.JWT_SECRET
   if (!secret) return NextResponse.next()
