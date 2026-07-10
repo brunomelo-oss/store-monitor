@@ -144,20 +144,22 @@ body::before {
   100% { background-position: 0% 50%; }
 }
 
-/* Glassmorphism card surface (light mode) */
+/* Glassmorphism card surface — light mode */
 .card-glass {
-  background: rgba(255,255,255,.04);
+  background: rgba(255,255,255,.7);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(0,0,0,.06);
+  border: 1px solid rgba(0,0,0,.08);
+  box-shadow: 0 1px 3px rgba(0,0,0,.04);
 }
 
-/* Glassmorphism card surface (dark mode) */
+/* Glassmorphism card surface — dark mode */
 .dark .card-glass {
   background: rgba(15,23,42,.72);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255,255,255,.08);
+  box-shadow: none;
 }
 
 /* Card glass hover lift */
@@ -165,13 +167,18 @@ body::before {
   transition: all 0.2s ease;
 }
 .card-glass-hover:hover {
+  background: rgba(255,255,255,.82);
+  border-color: rgba(0,0,0,.12);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,.08);
+}
+.dark .card-glass-hover:hover {
   background: rgba(255,255,255,.07);
   border-color: rgba(255,255,255,.16);
-  transform: translateY(-2px);
   box-shadow: 0 8px 30px rgba(0,0,0,.12);
 }
 
-/* Glassmorphism search dropdown */
+/* Glassmorphism search dropdown — dark */
 .glass-dropdown {
   background: rgba(15,23,42,.85);
   backdrop-filter: blur(20px);
@@ -180,9 +187,11 @@ body::before {
   box-shadow: 0 20px 60px rgba(0,0,0,.35);
 }
 
+/* Glassmorphism search dropdown — light */
 :root:not(.dark) .glass-dropdown {
-  background: rgba(255,255,255,.90);
-  border: 1px solid rgba(0,0,0,.08);
+  background: rgba(255,255,255,.95);
+  border: 1px solid rgba(203,213,225,.8);
+  box-shadow: 0 8px 30px rgba(0,0,0,.1);
 }
 
 /* Metric glow effects */

@@ -28,7 +28,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+      <main className="max-w-[1440px] mx-auto px-4 sm:px-6 py-8">
         <DashboardView />
       </main>
     </div>

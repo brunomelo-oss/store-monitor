@@ -3,6 +3,7 @@
 import { Suspense, useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { MetricCard } from '@/components/MetricCard'
+import { NavTabs } from '@/components/layout/NavTabs'
 import { useApps } from '@/hooks/useApps'
 import { useSyncHistory } from '@/features/sync/hooks/useSyncHistory'
 import { useActivity } from '@/features/activity/hooks/useActivity'
@@ -16,8 +17,7 @@ import {
   ChevronRight, Lock, User,
 } from 'lucide-react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { useAuth } from '@/contexts/AuthContext'
+import { useRouter, usePathname } from 'next/navigation'
 
 export function DashboardView() {
   return (
@@ -33,11 +33,11 @@ function DashboardSkeleton() {
   return (
     <div className="space-y-8 animate-pulse">
       <div className="grid gap-4 md:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-28 rounded-xl bg-white/[0.04]" />)}
+        {Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-28 rounded-xl bg-muted" />)}
       </div>
       <div className="grid gap-6 md:grid-cols-2">
-        <div className="h-64 rounded-xl bg-white/[0.04]" />
-        <div className="h-64 rounded-xl bg-white/[0.04]" />
+        <div className="h-64 rounded-xl bg-muted" />
+        <div className="h-64 rounded-xl bg-muted" />
       </div>
     </div>
   )
@@ -74,6 +74,19 @@ const searchSettings = [
   { id: 'change-password', label: 'Trocar senha', icon: Lock, href: '/admin' },
   { id: 'edit-profile', label: 'Editar perfil', icon: User, href: '/admin' },
 ]
+
+const searchInputClass = 'flex items-center gap-2 bg-white/80 dark:bg-white/[0.04] backdrop-blur-xl border border-slate-200/80 dark:border-white/10 rounded-xl px-3 py-1.5 transition-all duration-200 focus-within:border-slate-300 dark:focus-within:border-white/20 focus-within:bg-white dark:focus-within:bg-white/[0.07] w-48 focus-within:w-72'
+
+const searchInputFieldClass = 'flex-1 bg-transparent outline-none text-sm text-foreground placeholder:text-muted-foreground/50 min-w-0'
+
+const searchKbdClass = 'hidden sm:inline-flex items-center gap-0.5 px-1 py-0.5 text-[10px] rounded border border-slate-200 dark:border-white/10 text-muted-foreground/40'
+
+const dropdownItemClass = (selected: boolean) =>
+  `w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-left transition-colors ${
+    selected
+      ? 'bg-slate-100 dark:bg-white/[0.08] text-foreground'
+      : 'text-muted-foreground hover:bg-slate-50 dark:hover:bg-white/[0.04] hover:text-foreground'
+  }`
 
 function SearchBar() {
   const router = useRouter()
@@ -170,17 +183,17 @@ function SearchBar() {
 
   return (
     <div className="relative">
-      <div className="flex items-center gap-2 bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-xl px-3 py-1.5 transition-all duration-200 focus-within:border-white/20 focus-within:bg-white/[0.07] w-48 focus-within:w-72">
-        <Search size={14} className="text-white/40 shrink-0" />
+      <div className={searchInputClass}>
+        <Search size={14} className="text-muted-foreground/40 shrink-0" />
         <input
           ref={inputRef}
           value={query}
           onChange={e => setQuery(e.target.value)}
           onFocus={() => setFocused(true)}
           placeholder="Buscar..."
-          className="flex-1 bg-transparent outline-none text-sm text-white placeholder-white/40 min-w-0"
+          className={searchInputFieldClass}
         />
-        <kbd className="hidden sm:inline-flex items-center gap-0.5 px-1 py-0.5 text-[10px] rounded border border-white/10 text-white/30">
+        <kbd className={searchKbdClass}>
           <Command size={10} />K
         </kbd>
       </div>
@@ -192,8 +205,8 @@ function SearchBar() {
         >
           <div className="max-h-80 overflow-y-auto p-1.5 space-y-0.5">
             {results.length === 0 && (
-              <div className="text-center py-6 text-sm text-white/40">
-                Nenhum resultado para "<span className="text-white/60">{query}</span>"
+              <div className="text-center py-6 text-sm text-muted-foreground/60">
+                Nenhum resultado para "<span className="text-foreground/80">{query}</span>"
               </div>
             )}
 
@@ -202,22 +215,18 @@ function SearchBar() {
               return (
                 <button
                   key={`${item.type}-${item.id}`}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-left transition-colors ${
-                    selectedIdx === idx
-                      ? 'bg-white/[0.08] text-white'
-                      : 'text-white/70 hover:bg-white/[0.04] hover:text-white'
-                  }`}
+                  className={dropdownItemClass(selectedIdx === idx)}
                   onClick={() => execute(item)}
                   onMouseEnter={() => setSelectedIdx(idx)}
                 >
-                  <Icon size={15} className="shrink-0 text-white/40" />
+                  <Icon size={15} className="shrink-0 text-muted-foreground/40" />
                   <span className="flex-1 truncate">{item.label}</span>
                   {item.badge && (
-                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/10 text-white/50">
+                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground/60">
                       {item.badge}
                     </span>
                   )}
-                  <ChevronRight size={13} className="shrink-0 text-white/20" />
+                  <ChevronRight size={13} className="shrink-0 text-muted-foreground/20" />
                 </button>
               )
             })}
@@ -229,9 +238,13 @@ function SearchBar() {
 }
 
 function CommandCenter() {
+  const router = useRouter()
+  const pathname = usePathname()
   const { data: apps = [] } = useApps()
   const { data: syncHistory = [] } = useSyncHistory()
   const { data: activity = [] } = useActivity(10)
+
+  const activeTab = pathname === '/' ? 'dashboard' : pathname === '/apps' ? 'apps' : pathname === '/admin' ? 'users' : 'dashboard'
 
   const totalApps = apps.length
   const publishedApps = apps.filter(a => a.playStatus === 'PUBLISHED' || a.appStatus === 'PUBLISHED').length
@@ -249,57 +262,43 @@ function CommandCenter() {
   const lastAppleSync = getLastSync('APPLE')
 
   const statusCards = [
-    {
-      label: 'Publicados',
-      value: `${publishedApps} de ${totalApps}`,
-      icon: Smartphone,
-      variant: 'success' as const,
-      filter: 'PUBLISHED',
-    },
-    {
-      label: 'Em Revisão',
-      value: inReviewApps,
-      icon: Clock,
-      variant: 'warning' as const,
-      filter: 'REVIEW',
-    },
-    {
-      label: 'Rejeitados',
-      value: rejectedApps,
-      icon: XCircle,
-      variant: rejectedApps > 0 ? ('danger' as const) : ('default' as const),
-      filter: 'REJECTED',
-    },
-    {
-      label: 'Taxa Aprovação',
-      value: `${approvalRate}%`,
-      icon: CheckCircle,
-      variant: 'info' as const,
-    },
+    { label: 'Publicados', value: `${publishedApps} de ${totalApps}`, icon: Smartphone, variant: 'success' as const, filter: 'PUBLISHED' },
+    { label: 'Em Revisão', value: inReviewApps, icon: Clock, variant: 'warning' as const, filter: 'REVIEW' },
+    { label: 'Rejeitados', value: rejectedApps, icon: XCircle, variant: rejectedApps > 0 ? ('danger' as const) : ('default' as const), filter: 'REJECTED' },
+    { label: 'Taxa Aprovação', value: `${approvalRate}%`, icon: CheckCircle, variant: 'info' as const },
   ]
 
   const activityIcon = (action: string) => {
     const a = action.toUpperCase()
-    if (a.includes('BUILD_APPROVED') || a.includes('SUCCESS')) return { icon: CheckCircle, color: 'text-emerald-400' }
-    if (a.includes('BUILD_REJECTED') || a.includes('REJECT')) return { icon: XCircle, color: 'text-red-400' }
-    if (a.includes('APP_EDITED') || a.includes('UPDATE')) return { icon: Edit, color: 'text-blue-400' }
-    if (a.includes('SYNC_OK') || a.includes('SYNC') || a.includes('RUNNING')) return { icon: RefreshCw, color: 'text-emerald-400' }
-    return { icon: RefreshCw, color: 'text-zinc-400' }
+    if (a.includes('BUILD_APPROVED') || a.includes('SUCCESS')) return { icon: CheckCircle, color: 'text-green-600 dark:text-emerald-400' }
+    if (a.includes('BUILD_REJECTED') || a.includes('REJECT')) return { icon: XCircle, color: 'text-red-600 dark:text-red-400' }
+    if (a.includes('APP_EDITED') || a.includes('UPDATE')) return { icon: Edit, color: 'text-blue-600 dark:text-blue-400' }
+    if (a.includes('SYNC_OK') || a.includes('SYNC') || a.includes('RUNNING')) return { icon: RefreshCw, color: 'text-green-600 dark:text-emerald-400' }
+    return { icon: RefreshCw, color: 'text-muted-foreground' }
   }
 
   if (!apps.length && !syncHistory.length) return <Spinner />
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-semibold text-white">Command Center</h2>
-          <p className="text-sm text-white/50">O que precisa de atenção hoje?</p>
-        </div>
+        <NavTabs
+          active={activeTab}
+          onChange={(tab) => {
+            if (tab === 'dashboard') router.push('/')
+            else if (tab === 'apps') router.push('/apps')
+            else if (tab === 'users') router.push('/admin')
+          }}
+        />
         <SearchBar />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-4">
+      <div>
+        <h2 className="text-lg font-semibold text-foreground">Command Center</h2>
+        <p className="text-sm text-muted-foreground">O que precisa de atenção hoje?</p>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 2xl:grid-cols-6">
         {statusCards.map(card => (
           <Link key={card.label} href={card.filter ? `/apps?status=${card.filter}` : '#'}>
             <MetricCard
@@ -312,90 +311,64 @@ function CommandCenter() {
         ))}
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <div className="rounded-xl border border-white/10 bg-white/[0.04] backdrop-blur-xl p-5 transition-all duration-200 hover:bg-white/[0.06]">
-          <h3 className="font-semibold text-white mb-4">Últimas Atividades</h3>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <div className="rounded-xl border border-slate-200/80 dark:border-white/10 bg-white/70 dark:bg-white/[0.04] backdrop-blur-xl p-5 transition-all duration-200 hover:bg-slate-100/60 dark:hover:bg-white/[0.06] shadow-sm dark:shadow-none">
+          <h3 className="font-semibold text-foreground mb-4">Últimas Atividades</h3>
           <div className="space-y-3">
             {activity.slice(0, 5).map(a => {
               const { icon: Icon, color } = activityIcon(a.action)
               return (
                 <div key={a.id} className="flex items-start gap-3 text-sm">
-                  <div className={`w-6 h-6 rounded-full bg-white/10 flex items-center justify-center shrink-0 mt-0.5 ${color}`}>
+                  <div className={`w-6 h-6 rounded-full bg-muted flex items-center justify-center shrink-0 mt-0.5 ${color}`}>
                     <Icon size={12} />
                   </div>
                   <div className="min-w-0">
-                    <p className="truncate text-white/80">{a.description}</p>
-                    <p className="text-xs text-white/40">{new Date(a.createdAt).toLocaleString('pt-BR')}</p>
+                    <p className="truncate text-foreground/80">{a.description}</p>
+                    <p className="text-xs text-muted-foreground">{new Date(a.createdAt).toLocaleString('pt-BR')}</p>
                   </div>
                 </div>
               )
             })}
-            <Link href="/activity" className="flex items-center gap-1 text-sm text-blue-400 hover:underline pt-1">
+            <Link href="/activity" className="flex items-center gap-1 text-sm text-blue-600 dark:text-blue-400 hover:underline pt-1">
               Ver todas <ArrowRight size={14} />
             </Link>
           </div>
         </div>
 
-        <div className="rounded-xl border border-white/10 bg-white/[0.04] backdrop-blur-xl p-5 transition-all duration-200 hover:bg-white/[0.06]">
-          <h3 className="font-semibold text-white mb-4">Status de Sincronização</h3>
+        <div className="rounded-xl border border-slate-200/80 dark:border-white/10 bg-white/70 dark:bg-white/[0.04] backdrop-blur-xl p-5 transition-all duration-200 hover:bg-slate-100/60 dark:hover:bg-white/[0.06] shadow-sm dark:shadow-none">
+          <h3 className="font-semibold text-foreground mb-4">Status de Sincronização</h3>
           <div className="space-y-4">
-            <div className="flex items-center justify-between p-3 rounded-lg bg-white/[0.04] border border-white/10">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-                  <Globe size={16} className="text-emerald-400" />
+            {[
+              { store: lastGoogleSync, name: 'Google Play', icon: Globe, iconBg: 'bg-emerald-500/10', iconColor: 'text-emerald-600 dark:text-emerald-400' },
+              { store: lastAppleSync, name: 'App Store', icon: Apple, iconBg: 'bg-blue-500/10', iconColor: 'text-blue-600 dark:text-blue-400' },
+            ].map(({ store, name, icon: Icon, iconBg, iconColor }) => (
+              <div key={name} className="flex items-center justify-between p-3 rounded-lg bg-white/50 dark:bg-white/[0.04] border border-slate-200/60 dark:border-white/10">
+                <div className="flex items-center gap-3">
+                  <div className={`w-8 h-8 rounded-lg ${iconBg} flex items-center justify-center`}>
+                    <Icon size={16} className={iconColor} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">{name}</p>
+                    {store ? (
+                      <p className="text-xs text-muted-foreground">Último sync: {new Date(store.startedAt).toLocaleString('pt-BR')}</p>
+                    ) : (
+                      <p className="text-xs text-muted-foreground">Nenhum sync realizado</p>
+                    )}
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-white">Google Play</p>
-                  {lastGoogleSync ? (
-                    <p className="text-xs text-white/40">
-                      Último sync: {new Date(lastGoogleSync.startedAt).toLocaleString('pt-BR')}
-                    </p>
-                  ) : (
-                    <p className="text-xs text-white/40">Nenhum sync realizado</p>
-                  )}
-                </div>
+                {store ? (
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${
+                    store.status === 'SUCCESS' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' :
+                    store.status === 'FAILED' ? 'bg-red-500/10 text-red-600 dark:text-red-400' :
+                    'bg-amber-500/10 text-amber-600 dark:text-amber-400'
+                  }`}>
+                    {store.status === 'SUCCESS' ? 'OK' : store.status === 'FAILED' ? 'Erro' : store.status}
+                  </span>
+                ) : (
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground/50">—</span>
+                )}
               </div>
-              {lastGoogleSync ? (
-                <span className={`text-xs px-2 py-0.5 rounded-full ${
-                  lastGoogleSync.status === 'SUCCESS' ? 'bg-emerald-500/10 text-emerald-400' :
-                  lastGoogleSync.status === 'FAILED' ? 'bg-red-500/10 text-red-400' :
-                  'bg-amber-500/10 text-amber-400'
-                }`}>
-                  {lastGoogleSync.status === 'SUCCESS' ? 'OK' : lastGoogleSync.status === 'FAILED' ? 'Erro' : lastGoogleSync.status}
-                </span>
-              ) : (
-                <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-white/30">—</span>
-              )}
-            </div>
-
-            <div className="flex items-center justify-between p-3 rounded-lg bg-white/[0.04] border border-white/10">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                  <Apple size={16} className="text-blue-400" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-white">App Store</p>
-                  {lastAppleSync ? (
-                    <p className="text-xs text-white/40">
-                      Último sync: {new Date(lastAppleSync.startedAt).toLocaleString('pt-BR')}
-                    </p>
-                  ) : (
-                    <p className="text-xs text-white/40">Nenhum sync realizado</p>
-                  )}
-                </div>
-              </div>
-              {lastAppleSync ? (
-                <span className={`text-xs px-2 py-0.5 rounded-full ${
-                  lastAppleSync.status === 'SUCCESS' ? 'bg-emerald-500/10 text-emerald-400' :
-                  lastAppleSync.status === 'FAILED' ? 'bg-red-500/10 text-red-400' :
-                  'bg-amber-500/10 text-amber-400'
-                }`}>
-                  {lastAppleSync.status === 'SUCCESS' ? 'OK' : lastAppleSync.status === 'FAILED' ? 'Erro' : lastAppleSync.status}
-                </span>
-              ) : (
-                <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-white/30">—</span>
-              )}
-            </div>
+            ))}
           </div>
         </div>
       </div>
