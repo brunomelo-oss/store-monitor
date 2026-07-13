@@ -9,7 +9,7 @@ import { overallStatus, daysLabel, statusColor, statusBgColor, formatDate, appIm
 import { StatusBadge } from '@/components/StatusBadge'
 import { useTriggerSync } from '@/features/sync/hooks/useTriggerSync'
 import { Pin, Edit, Trash2, Eye, ChevronUp, ChevronDown, Star, Download, RefreshCw } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useMemo } from 'react'
 
 interface AppCardProps {
   app: App
@@ -36,6 +36,14 @@ export function AppCard({ app, mode, onEdit, onDetails, index = 0 }: AppCardProp
   const imgSrc = appImagePath(app.name)
   const [visible, setVisible] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
+  const placeholderColor = useMemo(() => {
+    let hash = 0
+    for (let i = 0; i < app.name.length; i++) {
+      hash = app.name.charCodeAt(i) + ((hash << 5) - hash)
+    }
+    const h = Math.abs(hash) % 360
+    return { from: `hsl(${h}, 45%, 35%)`, to: `hsl(${(h + 40) % 360}, 40%, 25%)` }
+  }, [app.name])
 
   useEffect(() => {
     const timer = setTimeout(() => setVisible(true), Math.min(index * 60, 300))
@@ -49,20 +57,28 @@ export function AppCard({ app, mode, onEdit, onDetails, index = 0 }: AppCardProp
         visible ? 'opacity-100' : 'opacity-0'
       }`}
     >
-      {imgSrc && (
-        <div
-          className="app-card-bg"
-          style={{ backgroundImage: `url('${imgSrc}')` }}
-        />
-      )}
+      <div
+        className="app-card-bg"
+        style={imgSrc ? { backgroundImage: `url('${imgSrc}')` } : {
+          background: `linear-gradient(135deg, ${placeholderColor.from}, ${placeholderColor.to})`
+        }}
+      />
 
-      <div className="relative h-36 bg-gradient-to-b from-card to-inset overflow-hidden">
-        {imgSrc && (
+      <div className="relative h-36 overflow-hidden" style={imgSrc ? {} : {
+        background: `linear-gradient(135deg, ${placeholderColor.from}, ${placeholderColor.to})`
+      }}>
+        {imgSrc ? (
           <img
             src={imgSrc}
             alt={app.name}
             className="w-full h-full object-cover opacity-50 group-hover:opacity-70 transition duration-500"
           />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <span className="text-5xl font-bold text-white/20 select-none">
+              {app.name.charAt(0)}
+            </span>
+          </div>
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
 

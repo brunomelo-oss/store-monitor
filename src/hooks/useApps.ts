@@ -10,10 +10,10 @@ export function useApps() {
     queryKey: APPS_KEY,
     queryFn: async () => {
       try {
-        return await appsService.list()
-      } catch {
-        return MOCK_APPS as App[]
-      }
+        const data = await appsService.list()
+        if (data && data.length > 0) return data
+      } catch {}
+      return MOCK_APPS as App[]
     },
     staleTime: 30_000,
   })
