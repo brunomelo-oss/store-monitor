@@ -138,8 +138,8 @@ export function AppLayout({ children }: AppLayoutProps) {
                 : 'text-muted-foreground hover:text-foreground hover:bg-surface'
             }`}
           >
-            <div className="w-8 h-8 rounded-lg bg-[url('/assets/logo-sasi-white.png')] bg-center bg-contain bg-no-repeat shrink-0" />
-            <span>Dashboard</span>
+            <div className="w-7 h-7 rounded-lg bg-[url('/assets/logo-sasi-white.png')] bg-center bg-contain bg-no-repeat shrink-0" />
+            <span className="font-semibold">Dashboard</span>
           </Link>
 
           {navItems.map(item => {

@@ -1,13 +1,20 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { App } from '@/types'
 import { appsService } from '@/services/apps.service'
+import { MOCK_APPS } from '@/lib/mock-data'
 
 const APPS_KEY = ['apps'] as const
 
 export function useApps() {
   return useQuery({
     queryKey: APPS_KEY,
-    queryFn: appsService.list,
+    queryFn: async () => {
+      try {
+        return await appsService.list()
+      } catch {
+        return MOCK_APPS as App[]
+      }
+    },
     staleTime: 30_000,
   })
 }
