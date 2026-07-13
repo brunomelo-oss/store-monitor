@@ -1,20 +1,21 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useApps } from '@/hooks/useApps'
+import { useLang } from '@/contexts/LanguageContext'
 import { useUnreadCount, useNotifications, useMarkAllAsRead } from '@/features/notifications/hooks/useNotifications'
-import { ProfileDropdown } from './ProfileDropdown'
 import { GlobalSearch } from './GlobalSearch'
-import { Tooltip } from '@/components/Tooltip'
+import { ChangePasswordModal } from '@/components/ChangePasswordModal'
 import {
-  ChartPie, Layers, Users, Bell, Moon, Sun, Smartphone, Shield,
+  Layers, Users, Bell, Moon, Sun, Smartphone, Shield,
   CheckCheck, XCircle, CheckCircle, MessageSquare, RefreshCw,
-  PanelLeftOpen, PanelLeftClose,
+  Languages, Settings, LogOut, Lock, ChevronDown,
 } from 'lucide-react'
+import type { LangCode } from '@/lib/i18n'
 
 interface AppLayoutProps {
   children: React.ReactNode
@@ -22,23 +23,20 @@ interface AppLayoutProps {
 
 export function AppLayout({ children }: AppLayoutProps) {
   const pathname = usePathname()
-  const { user } = useAuth()
+  const router = useRouter()
+  const { user, logout } = useAuth()
   const { isDark, toggle } = useTheme()
   const { data: apps = [] } = useApps()
+  const { lang, setLang } = useLang()
   const { data: unread } = useUnreadCount()
   const { data: notifList = [] } = useNotifications(5)
   const markAllMutation = useMarkAllAsRead()
   const [notifOpen, setNotifOpen] = useState(false)
   const notifRef = useRef<HTMLDivElement>(null)
-  const [expanded, setExpanded] = useState(() => {
-    if (typeof window !== 'undefined')
-      return localStorage.getItem('sidebar-expanded') === 'true'
-    return false
-  })
-
-  useEffect(() => {
-    localStorage.setItem('sidebar-expanded', String(expanded))
-  }, [expanded])
+  const [profileOpen, setProfileOpen] = useState(false)
+  const profileRef = useRef<HTMLDivElement>(null)
+  const [showPasswordModal, setShowPasswordModal] = useState(false)
+  const [langOpen, setLangOpen] = useState(false)
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -48,9 +46,16 @@ export function AppLayout({ children }: AppLayoutProps) {
     return () => document.removeEventListener('mousedown', handler)
   }, [notifOpen])
 
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) setProfileOpen(false)
+    }
+    document.addEventListener('click', handler)
+    return () => document.removeEventListener('click', handler)
+  }, [])
+
   const isAdmin = user?.role === 'OWNER' || user?.role === 'ADMIN'
   const navItems = [
-    { id: '/', label: 'Dashboard', icon: ChartPie },
     { id: '/apps', label: 'Apps', icon: Layers },
     { id: '/admin', label: 'Usuários', icon: Users },
     ...(isAdmin ? [{ id: '/admin/connections', label: 'Sistema', icon: Shield }] : []),
@@ -71,32 +76,75 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   if (!user) return <>{children}</>
 
-  const sidebarW = expanded ? 'ml-48' : 'ml-16'
+  const initial = user.email.charAt(0).toUpperCase()
+  const [local, domain] = user.email.split('@')
+  const display = local.length > 14 ? local.slice(0, 12) + '…@' + domain : user.email
+
+  const languages: { code: LangCode; label: string }[] = [
+    { code: 'en', label: 'English' },
+    { code: 'pt', label: 'Português' },
+    { code: 'ar', label: 'العربية' },
+  ]
 
   return (
     <div className="min-h-screen bg-background">
       {/* Sidebar */}
-      <aside className={`fixed left-0 top-0 h-full z-30 border-r border-border bg-background transition-all duration-300 ${expanded ? 'w-48' : 'w-16'}`}>
-        {/* Toggle */}
-        <div className="flex items-center h-14 px-3 border-b border-border">
+      <aside className="fixed left-0 top-0 h-full w-48 z-30 border-r border-border bg-background flex flex-col">
+        {/* Profile */}
+        <div ref={profileRef} className="relative shrink-0">
           <button
-            onClick={() => setExpanded(!expanded)}
-            className="w-8 h-8 rounded-lg hover:bg-surface flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+            onClick={() => setProfileOpen(!profileOpen)}
+            className="flex items-center gap-3 w-full px-3 h-14 border-b border-border hover:bg-surface transition-colors"
           >
-            {expanded ? <PanelLeftClose size={16} /> : <PanelLeftOpen size={16} />}
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-700 to-emerald-600 flex items-center justify-center text-xs font-bold text-white shadow-sm shrink-0">
+              {initial}
+            </div>
+            <div className="flex flex-col min-w-0 text-left flex-1">
+              <span className="text-xs text-foreground font-medium truncate">{display}</span>
+              <span className="text-[10px] text-muted-foreground capitalize">{user.role?.toLowerCase()}</span>
+            </div>
+            <ChevronDown size={12} className={`text-zinc-500 shrink-0 transition-transform duration-200 ${profileOpen ? 'rotate-180' : ''}`} />
           </button>
-        </div>
 
-        {/* Logo */}
-        <div className="px-3 py-3">
-          <div className="w-7 h-7 rounded-lg bg-[url('/assets/logo-sasi-white.png')] bg-center bg-contain bg-no-repeat" />
+          {profileOpen && (
+            <div className="absolute left-2 right-2 top-full mt-1 bg-card border border-border rounded-xl shadow-xl py-1.5 z-50">
+              <button
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-inset transition"
+                onClick={() => { setProfileOpen(false); setShowPasswordModal(true) }}
+              >
+                <Lock size={15} className="text-muted-foreground" />
+                Alterar senha
+              </button>
+              <div className="h-px bg-border mx-3 my-1" />
+              <button
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition"
+                onClick={() => { setProfileOpen(false); logout(); router.push('/login') }}
+              >
+                <LogOut size={15} />
+                Sair
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Nav */}
-        <nav className="px-2 mt-2 space-y-0.5">
+        <nav className="flex-1 px-2 pt-3 space-y-0.5 overflow-y-auto">
+          {/* Dashboard with logo */}
+          <Link
+            href="/"
+            className={`flex items-center gap-3 px-2.5 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+              isActive('/')
+                ? 'bg-inset text-foreground'
+                : 'text-muted-foreground hover:text-foreground hover:bg-surface'
+            }`}
+          >
+            <div className="w-8 h-8 rounded-lg bg-[url('/assets/logo-sasi-white.png')] bg-center bg-contain bg-no-repeat shrink-0" />
+            <span>Dashboard</span>
+          </Link>
+
           {navItems.map(item => {
             const Icon = item.icon
-            const link = (
+            return (
               <Link
                 key={item.id}
                 href={item.id}
@@ -107,23 +155,26 @@ export function AppLayout({ children }: AppLayoutProps) {
                 }`}
               >
                 <Icon size={20} />
-                {expanded && <span>{item.label}</span>}
+                <span>{item.label}</span>
               </Link>
             )
-            if (!expanded) {
-              return (
-                <Tooltip key={item.id} content={item.label} side="right">
-                  {link}
-                </Tooltip>
-              )
-            }
-            return link
           })}
         </nav>
+
+        {/* Settings */}
+        <div className="shrink-0 p-2 border-t border-border">
+          <Link
+            href="/admin"
+            className="flex items-center gap-3 px-2.5 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
+          >
+            <Settings size={20} />
+            <span>Configurações</span>
+          </Link>
+        </div>
       </aside>
 
       {/* Header */}
-      <header className={`sticky top-0 z-20 border-b border-border bg-background/95 backdrop-blur-md transition-all duration-300 ${sidebarW}`}>
+      <header className="sticky top-0 z-20 border-b border-border bg-background/95 backdrop-blur-md ml-48">
         <div className="flex items-center justify-end h-14 px-4 sm:px-6 gap-1 sm:gap-1.5">
           {/* Search */}
           <div className="hidden sm:flex items-center mr-auto">
@@ -220,17 +271,43 @@ export function AppLayout({ children }: AppLayoutProps) {
             </div>
           </button>
 
-          {/* Profile */}
-          <ProfileDropdown />
+          {/* Language toggle */}
+          <div className="relative">
+            <button
+              onClick={() => setLangOpen(!langOpen)}
+              className="w-[32px] h-[32px] rounded-full border border-border bg-inset text-muted-foreground hover:text-foreground hover:border-border-light hover:bg-card-hover flex items-center justify-center transition-all duration-200 shrink-0"
+            >
+              <Languages size={14} />
+            </button>
+            {langOpen && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setLangOpen(false)} />
+                <div className="absolute right-0 top-full mt-2 w-40 bg-card border border-border rounded-xl shadow-xl py-1.5 z-50 transition-all duration-150">
+                  {languages.map(l => (
+                    <button
+                      key={l.code}
+                      onClick={() => { setLang(l.code); setLangOpen(false) }}
+                      className={`w-full h-10 px-4 text-left text-sm flex items-center justify-between transition-colors ${lang === l.code ? 'text-foreground font-medium' : 'text-muted-foreground hover:text-foreground hover:bg-inset'}`}
+                    >
+                      {l.label}
+                      {lang === l.code && <span className="w-1.5 h-1.5 rounded-full bg-sasi-red" />}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </header>
 
       {/* Main content */}
-      <main className={`transition-all duration-300 ${sidebarW}`}>
+      <main className="ml-48">
         <div className="max-w-[1440px] px-4 sm:px-6 py-6">
           {children}
         </div>
       </main>
+
+      {showPasswordModal && <ChangePasswordModal onClose={() => setShowPasswordModal(false)} />}
     </div>
   )
 }

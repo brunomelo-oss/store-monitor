@@ -35,7 +35,7 @@ export function ProfileDropdown() {
         onClick={() => setOpen(!open)}
         className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-border bg-card text-foreground text-sm hover:shadow-sm transition-all duration-200"
       >
-        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-sasi-red to-red-500 flex items-center justify-center text-xs font-bold text-white shadow-sm">
+        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-green-700 to-emerald-600 flex items-center justify-center text-xs font-bold text-white shadow-sm">
           {initial}
         </div>
         <span className="hidden sm:inline text-xs text-zinc-400">{display}</span>

@@ -9,6 +9,8 @@ import { SearchBar } from './SearchBar'
 import { ModeToggle } from './ModeToggle'
 import { AppGrid } from './AppGrid'
 import { AppModal } from './AppModal'
+import Link from 'next/link'
+import { Plus } from 'lucide-react'
 
 export function AppsView() {
   const { t } = useLang()
@@ -34,6 +36,12 @@ export function AppsView() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <SearchBar value={search} onChange={setSearch} />
         <div className="flex items-center gap-3">
+          <Link
+            href="/apps/new"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 shadow-sm transition-all"
+          >
+            <Plus size={15} /> Novo aplicativo
+          </Link>
           <ModeToggle mode={mode} onChange={setMode} show={isAdmin} />
         </div>
       </div>
