@@ -24,6 +24,8 @@ export class AppService {
       icon: app.icon,
       packageName: app.packageName,
       bundleId: app.bundleId,
+      city: app.city,
+      state: app.state,
       googleAccount: app.googleAccount,
       appleAccount: app.appleAccount,
       playStore: {
@@ -55,6 +57,8 @@ export class AppService {
     if (data.icon !== undefined) db.icon = data.icon
     if (data.packageName !== undefined) db.packageName = data.packageName
     if (data.bundleId !== undefined) db.bundleId = data.bundleId
+    if (data.city !== undefined) db.city = data.city
+    if (data.state !== undefined) db.state = data.state
     if (data.googleAccount !== undefined) db.googleAccount = data.googleAccount
     if (data.appleAccount !== undefined) db.appleAccount = data.appleAccount
     if (data.installations !== undefined) db.installations = data.installations

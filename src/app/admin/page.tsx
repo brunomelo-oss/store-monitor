@@ -4,11 +4,10 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { AppLayout } from '@/components/layout/AppLayout'
-import { AppsView } from '@/features/apps/components/AppsView'
-import { ErrorBoundary } from '@/components/ErrorBoundary'
+import { UserManager } from '@/features/admin/components/UserManager'
 import { Loader2 } from 'lucide-react'
 
-export default function AppsPage() {
+export default function AdminPage() {
   const { user, loading } = useAuth()
   const router = useRouter()
 
@@ -18,7 +17,7 @@ export default function AppsPage() {
 
   if (loading || !user) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-black flex items-center justify-center">
         <Loader2 size={32} className="animate-spin text-zinc-500" />
       </div>
     )
@@ -26,9 +25,7 @@ export default function AppsPage() {
 
   return (
     <AppLayout>
-      <ErrorBoundary>
-        <AppsView />
-      </ErrorBoundary>
+      <UserManager />
     </AppLayout>
   )
 }

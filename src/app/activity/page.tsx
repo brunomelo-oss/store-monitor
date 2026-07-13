@@ -1,7 +1,7 @@
 'use client'
 
 import { useAuth } from '@/contexts/AuthContext'
-import { Header } from '@/components/layout/Header'
+import { AppLayout } from '@/components/layout/AppLayout'
 import { useActivity } from '@/features/activity/hooks/useActivity'
 import { Timeline } from '@/components/Timeline'
 import { Spinner } from '@/components/LoadingSkeleton'
@@ -44,9 +44,8 @@ export default function ActivityPage() {
   }))
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+    <AppLayout>
+      <div className="max-w-4xl mx-auto space-y-6">
         <div>
           <h1 className="text-2xl font-bold">Feed de Atividade</h1>
           <p className="text-muted-foreground mt-1">Todas as ações, sincronizações e eventos do sistema</p>
@@ -70,7 +69,7 @@ export default function ActivityPage() {
         ) : (
           <Timeline events={timelineEvents} />
         )}
-      </main>
-    </div>
+      </div>
+    </AppLayout>
   )
 }

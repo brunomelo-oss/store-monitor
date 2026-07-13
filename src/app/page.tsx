@@ -3,7 +3,7 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
-import { Header } from '@/components/layout/Header'
+import { AppLayout } from '@/components/layout/AppLayout'
 import { DashboardView } from '@/features/dashboard/components/DashboardView'
 import { Loader2 } from 'lucide-react'
 
@@ -26,11 +26,8 @@ export default function Home() {
   if (!user) return null
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main className="max-w-[1440px] mx-auto px-4 sm:px-6 py-8">
-        <DashboardView />
-      </main>
-    </div>
+    <AppLayout>
+      <DashboardView />
+    </AppLayout>
   )
 }

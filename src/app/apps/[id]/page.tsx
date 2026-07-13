@@ -1,7 +1,7 @@
 'use client'
 
 import { useAuth } from '@/contexts/AuthContext'
-import { Header } from '@/components/layout/Header'
+import { AppLayout } from '@/components/layout/AppLayout'
 import { useAppDetail } from '@/features/apps/hooks/useAppDetail'
 import { useSyncHistory } from '@/features/sync/hooks/useSyncHistory'
 import { useTriggerSync } from '@/features/sync/hooks/useTriggerSync'
@@ -65,12 +65,9 @@ export default function AppDetailPage({ params }: { params: { id: string } }) {
 
   if (!app) {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-          <EmptyState icon={AlertTriangle} title="App não encontrado" description="O aplicativo solicitado não foi encontrado" />
-        </main>
-      </div>
+      <AppLayout>
+        <EmptyState icon={AlertTriangle} title="App não encontrado" description="O aplicativo solicitado não foi encontrado" />
+      </AppLayout>
     )
   }
 
@@ -125,9 +122,8 @@ export default function AppDetailPage({ params }: { params: { id: string } }) {
     : 'DRAFT'
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+    <AppLayout>
+      <div className="space-y-6">
         <div className="flex items-center gap-4">
           <Link href="/apps" className="p-2 rounded-lg hover:bg-muted/50 transition-colors">
             <ArrowLeft size={20} />
@@ -159,7 +155,7 @@ export default function AppDetailPage({ params }: { params: { id: string } }) {
           </div>
         </div>
 
-        <div className="flex gap-1 overflow-x-auto pb-2 border-b sticky top-16 bg-background z-30 -mx-4 sm:mx-0 px-4 sm:px-0">
+        <div className="flex gap-1 overflow-x-auto pb-2 border-b sticky top-14 bg-background z-30 -mx-4 sm:mx-0 px-4 sm:px-0">
           {tabs.map(tab => {
             const Icon = tab.icon
             return (
@@ -189,8 +185,8 @@ export default function AppDetailPage({ params }: { params: { id: string } }) {
         {activeTab === 'notifications' && <NotificationsTab appId={appId} />}
         {activeTab === 'audit' && <AuditTab auditLogs={appAuditLogs} />}
         {activeTab === 'timeline' && <TimelineTab events={timelineEvents} />}
-      </main>
-    </div>
+      </div>
+    </AppLayout>
   )
 }
 

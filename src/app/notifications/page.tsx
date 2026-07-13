@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Bell, CheckCheck, Filter, Search, AlertTriangle, Info, Star, RefreshCw, XCircle, CheckCircle, ArrowLeft, Home } from 'lucide-react'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
-import { Header } from '@/components/layout/Header'
+import { AppLayout } from '@/components/layout/AppLayout'
 import { useNotifications, useMarkAsRead, useMarkAllAsRead } from '@/features/notifications/hooks/useNotifications'
 import { Spinner } from '@/components/LoadingSkeleton'
 import { EmptyState } from '@/components/EmptyState'
@@ -69,9 +69,8 @@ export default function NotificationsPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+    <AppLayout>
+      <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Link href="/" className="hover:text-foreground transition-colors"><Home size={14} /></Link>
           <span className="text-muted-foreground/40">/</span>
@@ -157,7 +156,7 @@ export default function NotificationsPage() {
             })}
           </div>
         )}
-      </main>
-    </div>
+      </div>
+    </AppLayout>
   )
 }

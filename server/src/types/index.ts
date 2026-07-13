@@ -54,6 +54,8 @@ export interface AppResponse {
   icon: string | null
   packageName: string | null
   bundleId: string | null
+  city: string | null
+  state: string | null
   googleAccount: string
   appleAccount: string
   playStore: AppStoreInfo
@@ -75,6 +77,8 @@ export interface CreateAppRequest {
   icon?: string
   packageName?: string
   bundleId?: string
+  city?: string
+  state?: string
   googleAccount?: string
   appleAccount?: string
   playStore?: AppStoreInfo
@@ -90,6 +94,8 @@ export interface UpdateAppRequest {
   icon?: string
   packageName?: string
   bundleId?: string
+  city?: string
+  state?: string
   googleAccount?: string
   appleAccount?: string
   playStore?: AppStoreInfo

@@ -219,8 +219,10 @@ model App {
   icon           String?
   packageName    String?
   bundleId       String?
+  city           String?
+  state          String?
 
-  // Existing flat fields (backward compat, will be migrated to relations)
+  // Flat fields as denormalized cache (synced via triggers/application layer)
   googleAccount  String   @default("")
   appleAccount   String   @default("")
   playStatus     String   @default("unpublished")
@@ -260,6 +262,14 @@ model App {
   @@index([storeConnectionId])
   @@index([packageName])
   @@index([bundleId])
+  @@index([playStatus])
+  @@index([appStatus])
+  @@index([updatedAt])
+  @@index([organizationId, playStatus])
+  @@index([organizationId, appStatus])
+  @@index([organizationId, updatedAt])
+  @@index([city])
+  @@index([state])
 }
 
 model Version {
@@ -271,6 +281,7 @@ model Version {
   status       VersionStatus @default(DRAFT)
   releaseNotes String?
   createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 
   app          App           @relation(fields: [appId], references: [id], onDelete: Cascade)
   builds       Build[]
@@ -293,6 +304,7 @@ model Build {
   status      BuildStatus @default(PROCESSING)
   artifactUrl String?
   createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 
   app      App       @relation(fields: [appId], references: [id], onDelete: Cascade)
   version  Version?  @relation(fields: [versionId], references: [id], onDelete: SetNull)
@@ -301,14 +313,18 @@ model Build {
   @@index([appId, store])
   @@index([appId, store, status])
   @@index([versionId])
+  @@index([status])
+  @@index([createdAt])
 }
 
 model Track {
-  id        Int    @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   appId     Int
   name      String
   versionId Int?
   fraction  Float?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   app      App       @relation(fields: [appId], references: [id], onDelete: Cascade)
   version  Version?  @relation(fields: [versionId], references: [id], onDelete: SetNull)
@@ -346,6 +362,8 @@ model Release {
   @@index([versionId])
   @@index([buildId])
   @@index([trackId])
+  @@index([submittedAt])
+  @@index([publishedAt])
 }
 
 model Publication {
@@ -360,6 +378,7 @@ model Publication {
   rejectionReason  String?
 
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   app     App      @relation(fields: [appId], references: [id], onDelete: Cascade)
   version Version? @relation(fields: [versionId], references: [id], onDelete: SetNull)
@@ -458,6 +477,8 @@ model SyncHistory {
   warnings      Json?
 
   @@index([organizationId])
+  @@index([organizationId, status])
+  @@index([organizationId, startedAt])
   @@index([appId, store, type])
   @@index([status])
   @@index([startedAt])
@@ -507,6 +528,9 @@ model AuditLog {
   @@index([entity, entityId])
   @@index([createdAt])
   @@index([action])
+  @@index([organizationId, action])
+  @@index([organizationId, createdAt])
+  @@index([organizationId, action, createdAt])
 }
 
 model Job {

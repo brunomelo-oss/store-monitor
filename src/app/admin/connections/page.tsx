@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
-import { Header } from '@/components/layout/Header'
+import { AppLayout } from '@/components/layout/AppLayout'
 import { useStoreConnections, useTestConnection, useCreateConnection, useDeleteConnection } from '@/features/store-connections/hooks/useStoreConnections'
 import { useUpdateConnection } from '@/features/store-connections/hooks/useUpdateConnection'
 import { ConnectionWizard } from '@/components/ConnectionWizard'
@@ -81,9 +81,8 @@ export default function ConnectionsPage() {
   const hasApple = connections?.some(c => c.store === 'APPLE') ?? false
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+    <AppLayout>
+      <div className="max-w-4xl mx-auto space-y-8">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold">Conexões com Lojas</h1>
@@ -218,7 +217,7 @@ export default function ConnectionsPage() {
             description="Configure as credenciais do Google Play Console e App Store Connect para começar a sincronizar automaticamente."
           />
         )}
-      </main>
+      </div>
 
       {wizard && (
         <ConnectionWizard
@@ -236,6 +235,6 @@ export default function ConnectionsPage() {
           onSubmit={(label, credentials) => handleUpdate(editing.id, label, credentials)}
         />
       )}
-    </div>
+    </AppLayout>
   )
 }

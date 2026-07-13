@@ -13,6 +13,8 @@ export interface App {
   icon?: string | null
   packageName?: string | null
   bundleId?: string | null
+  city?: string | null
+  state?: string | null
   googleAccount: string
   appleAccount: string
   playStore: StoreInfo

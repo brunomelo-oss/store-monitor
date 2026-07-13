@@ -1,7 +1,7 @@
 'use client'
 
 import { useAuth } from '@/contexts/AuthContext'
-import { Header } from '@/components/layout/Header'
+import { AppLayout } from '@/components/layout/AppLayout'
 import { useSyncHistory } from '@/features/sync/hooks/useSyncHistory'
 import { useSyncJobs } from '@/features/sync/hooks/useSyncJobs'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
@@ -29,9 +29,8 @@ export default function SyncPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+    <AppLayout>
+      <div className="space-y-8">
         <ErrorBoundary>
         <div>
           <h1 className="text-2xl font-bold mb-2">Sincronização</h1>
@@ -132,7 +131,7 @@ export default function SyncPage() {
           )}
         </section>
         </ErrorBoundary>
-      </main>
-    </div>
+      </div>
+    </AppLayout>
   )
 }

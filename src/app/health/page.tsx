@@ -1,7 +1,7 @@
 'use client'
 
 import { useAuth } from '@/contexts/AuthContext'
-import { Header } from '@/components/layout/Header'
+import { AppLayout } from '@/components/layout/AppLayout'
 import { useHealth } from '@/features/health/hooks/useHealth'
 import { Spinner, LoadingSkeleton } from '@/components/LoadingSkeleton'
 import { ErrorState } from '@/components/ErrorState'
@@ -23,9 +23,8 @@ export default function HealthPage() {
   if (!health) return <LoadingSkeleton />
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+    <AppLayout>
+      <div className="max-w-5xl mx-auto space-y-8">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold">Saúde do Sistema</h1>
@@ -101,7 +100,7 @@ export default function HealthPage() {
             <MetricCard title="Falhas (24h)" value={health.metrics.failedJobs24h} variant={health.metrics.failedJobs24h > 0 ? 'danger' : 'default'} icon={<XCircle size={16} />} />
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </AppLayout>
   )
 }
