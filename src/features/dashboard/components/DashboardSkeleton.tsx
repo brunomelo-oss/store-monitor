@@ -1,37 +1,26 @@
 export function DashboardSkeleton() {
+  const s = 'rounded-xl bg-muted animate-pulse'
+
   return (
     <div className="space-y-8 animate-pulse">
-      {/* Bento metrics skeleton */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {[1, 2, 3].map(i => (
-          <div key={i} className="h-28 bg-zinc-800/50 rounded-xl" />
-        ))}
+      <div className={`h-12 w-64 ${s}`} />
+      <div className="flex gap-2">
+        <div className={`h-10 w-32 ${s}`} />
+        <div className={`h-10 w-32 ${s}`} />
+        <div className={`h-10 w-32 ${s}`} />
       </div>
-
-      {/* Install chart skeleton */}
-      <div className="space-y-3">
-        <div className="h-5 w-48 bg-zinc-800/50 rounded" />
-        {[1, 2, 3, 4, 5].map(i => (
-          <div key={i} className="h-8 bg-zinc-800/30 rounded-lg" />
-        ))}
+      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6">
+        {Array.from({ length: 6 }).map((_, i) => <div key={i} className={`h-28 ${s}`} />)}
       </div>
-
-      {/* Ratings skeleton */}
-      <div className="space-y-3">
-        <div className="h-5 w-40 bg-zinc-800/50 rounded" />
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {[1, 2, 3, 4].map(i => (
-            <div key={i} className="h-24 bg-zinc-800/30 rounded-xl" />
-          ))}
-        </div>
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className={`h-80 lg:col-span-2 ${s}`} />
+        <div className={`h-80 ${s}`} />
       </div>
-
-      {/* Indicators skeleton */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        {[1, 2, 3].map(i => (
-          <div key={i} className="h-20 bg-zinc-800/30 rounded-xl" />
-        ))}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <div className={`h-64 ${s}`} />
+        <div className={`h-64 ${s}`} />
       </div>
+      <div className={`h-48 ${s}`} />
     </div>
   )
 }

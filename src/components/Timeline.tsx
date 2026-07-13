@@ -10,6 +10,8 @@ interface TimelineEvent {
   metadata?: Record<string, unknown> | null
 }
 
+const LOGIN_EVENTS = new Set(['SIGN_IN', 'SIGN_OUT'])
+
 const actionIcons: Record<string, LucideIcon> = {
   'CREATE_APP': FileText,
   'UPDATE_APP': FileText,
@@ -17,8 +19,6 @@ const actionIcons: Record<string, LucideIcon> = {
   'TOGGLE_PIN_APP': Star,
   'MOVE_APP': RefreshCw,
   'BULK_REPLACE_APPS': RefreshCw,
-  'SIGN_IN': LogIn,
-  'SIGN_OUT': LogOut,
   'CHANGE_PASSWORD': Key,
   'INVITE_USER': UserPlus,
   'CREATE_USER': UserPlus,
@@ -29,6 +29,9 @@ const actionIcons: Record<string, LucideIcon> = {
   'sync.pending': Clock,
   'sync.running': RefreshCw,
   'notification.new_version': Bell,
+  'notification.new_approval': CheckCircle,
+  'notification.new_rejection': XCircle,
+  'notification.new_comment': MessageSquare,
   'notification.review_completed': MessageSquare,
   'notification.rejection': XCircle,
   'notification.sync_failure': XCircle,
@@ -65,7 +68,9 @@ function formatTimeAgo(dateStr: string): string {
 }
 
 export function Timeline({ events }: { events: TimelineEvent[] }) {
-  if (!events.length) {
+  const filtered = events.filter(e => !LOGIN_EVENTS.has(e.type))
+
+  if (!filtered.length) {
     return (
       <div className="text-center py-12 text-muted-foreground">
         Nenhum evento registrado
@@ -77,13 +82,13 @@ export function Timeline({ events }: { events: TimelineEvent[] }) {
     <div className="relative">
       <div className="absolute left-4 top-0 bottom-0 w-px bg-border" />
       <div className="space-y-0">
-        {events.map((event, idx) => {
+        {filtered.map((event, idx) => {
           const Icon = getIcon(event.type)
           const color = typeColors[event.type] || 'border-l-zinc-500'
 
           return (
             <Fragment key={event.id}>
-              {idx > 0 && new Date(event.timestamp).toDateString() !== new Date(events[idx - 1].timestamp).toDateString() && (
+              {idx > 0 && new Date(event.timestamp).toDateString() !== new Date(filtered[idx - 1].timestamp).toDateString() && (
                 <div className="relative pl-10 py-2">
                   <span className="text-xs text-muted-foreground bg-background px-2">
                     {new Date(event.timestamp).toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
