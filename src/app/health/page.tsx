@@ -97,7 +97,7 @@ export default function HealthPage() {
             <MetricCard title="Latência de Sync" value={health.metrics.syncLatency ? `${(health.metrics.syncLatency.value / 1000).toFixed(1)}s` : '—'} icon={<Clock size={16} />} />
             <MetricCard title="Duração Média Jobs" value={health.metrics.averageJobDuration ? `${(health.metrics.averageJobDuration.value / 1000).toFixed(1)}s` : '—'} icon={<Clock size={16} />} />
             <MetricCard title="Jobs Pendentes" value={health.metrics.pendingJobs} variant={health.metrics.pendingJobs > 0 ? 'warning' : 'default'} icon={<Activity size={16} />} />
-            <MetricCard title="Falhas (24h)" value={health.metrics.failedJobs24h} variant={health.metrics.failedJobs24h > 0 ? 'danger' : 'default'} icon={<XCircle size={16} />} />
+            <MetricCard title="Falhas (24h)" value={health.metrics.failedJobs24h} variant={health.metrics.failedJobs24h > 0 ? 'rejected' : 'default'} icon={<XCircle size={16} />} />
           </div>
         </div>
       </div>

@@ -88,9 +88,9 @@ export function AppLayout({ children }: AppLayoutProps) {
   return (
     <div className="min-h-screen bg-background">
       {/* Sidebar */}
-      <aside className="fixed left-0 top-0 h-full w-48 z-30 border-r border-border bg-background flex flex-col">
+      <aside className="fixed left-0 top-0 h-full w-48 z-30 sasi-sidebar flex flex-col">
         {/* SASI Logo */}
-        <div className="flex items-center justify-center h-16 shrink-0 border-b border-border">
+        <div className="flex items-center justify-center h-16 shrink-0 border-b border-[rgba(255,255,255,0.08)]">
           <div className="w-32 h-10 bg-[url('/assets/logo-sasi-white.png')] bg-center bg-contain bg-no-repeat" />
         </div>
 
@@ -98,13 +98,9 @@ export function AppLayout({ children }: AppLayoutProps) {
         <nav className="flex-1 px-2 pt-3 space-y-0.5 overflow-y-auto">
           <Link
             href="/"
-            className={`sasi-card rounded-lg flex items-center gap-3 px-2.5 py-2.5 text-sm font-medium transition-all ${
-              isActive('/')
-                ? 'text-[#10b981] border-[rgba(16,185,129,0.3)]'
-                : 'text-[#888888]'
-            }`}
+            className={`sasi-nav-item ${isActive('/') ? 'active' : ''}`}
           >
-            <div className="w-7 h-7 rounded-lg bg-[url('/assets/logo-sasi-white.png')] bg-center bg-contain bg-no-repeat shrink-0" />
+            <div className="w-7 h-7 rounded-lg bg-[url('/assets/logo-sasi-white.png')] bg-center bg-contain bg-no-repeat shrink-0 opacity-70" />
             <span className="font-semibold">Dashboard</span>
           </Link>
 
@@ -114,11 +110,7 @@ export function AppLayout({ children }: AppLayoutProps) {
               <Link
                 key={item.id}
                 href={item.id}
-                className={`sasi-card rounded-lg flex items-center gap-3 px-2.5 py-2.5 text-sm font-medium transition-all ${
-                  isActive(item.id)
-                    ? 'text-[#10b981] border-[rgba(16,185,129,0.3)]'
-                    : 'text-[#888888]'
-                }`}
+                className={`sasi-nav-item ${isActive(item.id) ? 'active' : ''}`}
               >
                 <Icon size={20} />
                 <span>{item.label}</span>
@@ -128,14 +120,10 @@ export function AppLayout({ children }: AppLayoutProps) {
         </nav>
 
         {/* Settings */}
-        <div className="shrink-0 p-2 border-t border-border">
+        <div className="shrink-0 p-2 border-t border-[rgba(255,255,255,0.08)]">
           <Link
             href="/admin"
-            className={`sasi-card rounded-lg flex items-center gap-3 px-2.5 py-2.5 text-sm font-medium transition-all ${
-              pathname.startsWith('/admin')
-                ? 'text-[#10b981] border-[rgba(16,185,129,0.3)]'
-                : 'text-[#888888]'
-            }`}
+            className={`sasi-nav-item ${pathname.startsWith('/admin') ? 'active' : ''}`}
           >
             <Settings size={20} />
             <span>Configurações</span>

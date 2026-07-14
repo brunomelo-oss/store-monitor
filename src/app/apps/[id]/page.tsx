@@ -198,7 +198,7 @@ function OverviewTab({ app, syncHistory }: { app: any; syncHistory: any[] }) {
   return (
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-4">
-        <MetricCard title="Status" value={app.playStatus === 'PUBLISHED' || app.appStatus === 'PUBLISHED' ? 'Published' : app.playStatus === 'REJECTED' || app.appStatus === 'REJECTED' ? 'Rejected' : 'In Review'} variant={app.playStatus === 'PUBLISHED' || app.appStatus === 'PUBLISHED' ? 'success' : app.playStatus === 'REJECTED' || app.appStatus === 'REJECTED' ? 'danger' : 'warning'} icon={<Smartphone size={16} />} />
+        <MetricCard title="Status" value={app.playStatus === 'PUBLISHED' || app.appStatus === 'PUBLISHED' ? 'Published' : app.playStatus === 'REJECTED' || app.appStatus === 'REJECTED' ? 'Rejected' : 'In Review'} variant={app.playStatus === 'PUBLISHED' || app.appStatus === 'PUBLISHED' ? 'success' : app.playStatus === 'REJECTED' || app.appStatus === 'REJECTED' ? 'rejected' : 'warning'} icon={<Smartphone size={16} />} />
         <MetricCard title="Rating" value={app.rating ? `${app.rating.toFixed(1)}` : '—'} subtitle={app.rating ? 'de 5.0' : undefined} icon={<Star size={16} />} />
         <MetricCard title="Instalações" value={app.installations?.toLocaleString() || '—'} icon={<Smartphone size={16} />} />
         <MetricCard title="Sincronizações" value={`${successSyncs}/${syncHistory.length}`} subtitle={lastSync ? `Última: ${new Date(lastSync.startedAt).toLocaleDateString('pt-BR')}` : 'Nunca'} icon={<RefreshCw size={16} />} />

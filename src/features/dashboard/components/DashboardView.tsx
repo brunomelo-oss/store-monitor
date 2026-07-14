@@ -87,10 +87,10 @@ function CommandCenter() {
   const kpiCards = [
     { label: 'Publicados', value: publishedApps, icon: Smartphone, variant: 'success' as const, subtitle: `${totalApps} no total` },
     { label: 'Em Revisão', value: inReviewApps, icon: Clock, variant: 'warning' as const },
-    { label: 'Precisam de Atenção', value: needsAttentionApps, icon: AlertTriangle, variant: needsAttentionApps > 0 ? 'danger' as const : 'default' as const },
-    { label: 'Rejeitados', value: rejectedApps, icon: XCircle, variant: rejectedApps > 0 ? 'danger' as const : 'default' as const },
-    { label: 'Builds Pendentes', value: pendingBuilds, icon: Hourglass, variant: 'info' as const },
-    { label: 'Taxa Aprovação', value: `${approvalRate}%`, icon: TrendingUp, variant: 'info' as const },
+    { label: 'Precisam de Atenção', value: needsAttentionApps, icon: AlertTriangle, variant: 'attention' as const },
+    { label: 'Rejeitados', value: rejectedApps, icon: XCircle, variant: 'rejected' as const },
+    { label: 'Builds Pendentes', value: pendingBuilds, icon: Hourglass, variant: 'pending' as const },
+    { label: 'Taxa Aprovação', value: `${approvalRate}%`, icon: TrendingUp, variant: 'rate' as const },
   ]
 
   const statusDistribution = [

@@ -76,7 +76,7 @@ body {
   100% { background-position: 0% 50%; }
 }
 
-/* ─── SASI Card (glass preto, sem borda) ─── */
+/* ─── SASI Card (glass preto, sem borda padrão, hover verde) ─── */
 .sasi-card {
   background: rgba(255,255,255,0.03);
   backdrop-filter: blur(12px);
@@ -89,17 +89,45 @@ body {
   box-shadow: 0 0 0 1px rgba(16,185,129,0.08);
 }
 
-/* ─── SASI Card com hover ─── */
+/* ─── Big card (borda cinza visível, hover verde) ─── */
 .sasi-card-hover {
-  background: rgba(255,255,255,0.03);
+  background: rgba(0,0,0,0.4);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.05);
+  border: 1.5px solid #4b5563;
   transition: border-color 200ms ease-in-out, box-shadow 200ms ease-in-out;
 }
 .sasi-card-hover:hover {
-  border-color: rgba(16,185,129,0.3);
+  border-color: rgba(16,185,129,0.5);
   box-shadow: 0 0 0 1px rgba(16,185,129,0.08);
+}
+
+/* ─── Sidebar glass ─── */
+.sasi-sidebar {
+  background: rgba(15,15,15,0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-right: 1px solid rgba(255,255,255,0.1);
+}
+
+/* ─── Sidebar nav item ─── */
+.sasi-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.625rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #c0c0c0;
+  transition: background 200ms ease, color 200ms ease;
+}
+.sasi-nav-item:hover {
+  background: rgba(16,185,129,0.15);
+  color: #e0e0e0;
+}
+.sasi-nav-item.active {
+  color: #10b981;
 }
 
 /* ─── Botão primário SASI ─── */
@@ -156,16 +184,13 @@ body {
   box-shadow: 0 8px 32px rgba(0,0,0,0.6);
 }
 
-/* Glassmorphism card surface — light mode */
+/* Card glass (dark) — kept for components that still reference it */
 .card-glass {
-  background: rgba(255,255,255,.7);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(0,0,0,.08);
-  box-shadow: 0 1px 3px rgba(0,0,0,.04);
+  background: rgba(255,255,255,0.03) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
-/* Card glass hover lift (deprecated — use .sasi-card instead) */
 .card-glass-hover {
   transition: all 0.2s ease;
 }
