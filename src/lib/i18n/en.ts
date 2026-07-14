@@ -36,6 +36,23 @@ export const en: Record<string, string> = {
   'nav.dashboard': 'Dashboard',
   'nav.apps': 'Apps',
   'nav.users': 'Users',
+  'nav.system': 'System',
+  'nav.settings': 'Settings',
+
+  'notifications.title': 'Notifications',
+  'notifications.markAllRead': 'Mark all read',
+  'notifications.empty': 'No notifications',
+  'notifications.viewAll': 'View all notifications',
+
+  'search.noResults': 'No results for',
+  'search.dashboard': 'Dashboard',
+  'search.activities': 'Activity',
+  'search.connections': 'Connections',
+  'search.newApp': 'New app',
+  'search.newUser': 'Create user',
+  'search.exportData': 'Export data',
+  'search.manageUsers': 'Manage users',
+  'search.activityLog': 'Activity log',
 
   'profile.changePassword': 'Change password',
   'profile.logout': 'Logout',

@@ -591,7 +591,7 @@ body {
 ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
 
 /* Focus ring */
-*:focus-visible { outline: 2px solid rgba(16,185,129,0.5); outline-offset: 2px; }
+*:focus-visible { outline: 2px solid rgba(255,255,255,0.3); outline-offset: 2px; }
 
 /* Shimmer loading */
 .shimmer-bg {

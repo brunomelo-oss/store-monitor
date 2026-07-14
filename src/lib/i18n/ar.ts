@@ -36,6 +36,23 @@ export const ar: Record<string, string> = {
   'nav.dashboard': 'لوحة التحكم',
   'nav.apps': 'التطبيقات',
   'nav.users': 'المستخدمين',
+  'nav.system': 'النظام',
+  'nav.settings': 'الإعدادات',
+
+  'notifications.title': 'الإشعارات',
+  'notifications.markAllRead': 'تحديد الكل مقروء',
+  'notifications.empty': 'لا توجد إشعارات',
+  'notifications.viewAll': 'عرض جميع الإشعارات',
+
+  'search.noResults': 'لا توجد نتائج لـ',
+  'search.dashboard': 'لوحة التحكم',
+  'search.activities': 'النشاطات',
+  'search.connections': 'الاتصالات',
+  'search.newApp': 'تطبيق جديد',
+  'search.newUser': 'إنشاء مستخدم',
+  'search.exportData': 'تصدير البيانات',
+  'search.manageUsers': 'إدارة المستخدمين',
+  'search.activityLog': 'سجل النشاطات',
 
   'profile.changePassword': 'تغيير كلمة المرور',
   'profile.logout': 'تسجيل الخروج',

@@ -11,7 +11,7 @@ import { useUnreadCount, useNotifications, useMarkAllAsRead } from '@/features/n
 import { GlobalSearch } from './GlobalSearch'
 import { ChangePasswordModal } from '@/components/ChangePasswordModal'
 import {
-  Layers, Users, Bell, Moon, Sun, Smartphone, Shield,
+  Layers, Users, Bell, Moon, Sun, Smartphone, Shield, LayoutDashboard,
   CheckCheck, XCircle, CheckCircle, MessageSquare, RefreshCw,
   Languages, Settings, LogOut, Lock, ChevronDown, User,
 } from 'lucide-react'
@@ -27,7 +27,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { user, logout } = useAuth()
   const { isDark, toggle } = useTheme()
   const { data: apps = [] } = useApps()
-  const { lang, setLang } = useLang()
+  const { lang, setLang, t } = useLang()
   const { data: unread } = useUnreadCount()
   const { data: notifList = [] } = useNotifications(5)
   const markAllMutation = useMarkAllAsRead()
@@ -56,9 +56,9 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   const isAdmin = user?.role === 'OWNER' || user?.role === 'ADMIN'
   const navItems = [
-    { id: '/apps', label: 'Apps', icon: Layers },
-    { id: '/admin', label: 'Usuários', icon: Users },
-    ...(isAdmin ? [{ id: '/admin/connections', label: 'Sistema', icon: Shield }] : []),
+    { id: '/apps', label: t('nav.apps'), icon: Layers },
+    { id: '/admin', label: t('nav.users'), icon: Users },
+    ...(isAdmin ? [{ id: '/admin/connections', label: t('nav.system'), icon: Shield }] : []),
   ]
 
   const isActive = (href: string) => {
@@ -91,7 +91,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       <aside className="fixed left-0 top-0 h-full w-48 z-30 sasi-sidebar flex flex-col">
         {/* SASI Logo */}
         <div className="flex items-center justify-center h-16 shrink-0 border-b border-[rgba(255,255,255,0.08)]">
-          <div className="w-32 h-10 bg-[url('/assets/logo-sasi-white.png')] bg-center bg-contain bg-no-repeat" />
+          <div className="w-32 h-10 bg-[url('/assets/logo-white.png')] bg-center bg-contain bg-no-repeat" />
         </div>
 
         {/* Nav */}
@@ -100,8 +100,8 @@ export function AppLayout({ children }: AppLayoutProps) {
             href="/"
             className={`sasi-nav-item ${isActive('/') ? 'active' : ''}`}
           >
-            <div className="w-7 h-7 rounded-lg bg-[url('/assets/logo-sasi-white.png')] bg-center bg-contain bg-no-repeat shrink-0 opacity-70" />
-            <span className="font-semibold">Dashboard</span>
+            <LayoutDashboard size={20} className="shrink-0 opacity-70" />
+            <span className="font-semibold">{t('nav.dashboard')}</span>
           </Link>
 
           {navItems.map(item => {
@@ -126,7 +126,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             className={`sasi-nav-item ${pathname.startsWith('/admin') ? 'active' : ''}`}
           >
             <Settings size={20} />
-            <span>Configurações</span>
+            <span>{t('nav.settings')}</span>
           </Link>
         </div>
       </aside>
@@ -163,14 +163,14 @@ export function AppLayout({ children }: AppLayoutProps) {
               {notifOpen && (
                 <div className="absolute right-0 top-full mt-2 w-80 glass-dropdown rounded-xl overflow-hidden z-50 animate-dropdownIn">
                   <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
-                    <span className="text-sm font-medium text-foreground">Notificações</span>
+                    <span className="text-sm font-medium text-foreground">{t('notifications.title')}</span>
                     <div className="flex items-center gap-2">
                       {(unread?.count || 0) > 0 && (
                         <button
                           onClick={() => markAllMutation.mutate()}
                           className="text-xs text-blue-400 hover:underline flex items-center gap-1"
                         >
-                          <CheckCheck size={12} /> Ler todas
+                          <CheckCheck size={12} /> {t('notifications.markAllRead')}
                         </button>
                       )}
                       <Link
@@ -185,7 +185,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                   <div className="max-h-72 overflow-y-auto">
                     {notifList.length === 0 ? (
                       <div className="text-center py-8 text-sm text-muted-foreground/60">
-                        Nenhuma notificação
+                        {t('notifications.empty')}
                       </div>
                     ) : (
                       notifList.map(n => {
@@ -200,7 +200,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                             <NIcon size={15} className={`shrink-0 mt-0.5 ${color}`} />
                             <div className="min-w-0 flex-1">
                               <p className="text-sm text-foreground/90 truncate">{n.title}</p>
-                              <p className="text-xs text-muted-foreground/70 mt-0.5">{new Date(n.createdAt).toLocaleString('pt-BR')}</p>
+                              <p className="text-xs text-muted-foreground/70 mt-0.5">{new Date(n.createdAt).toLocaleString(lang === 'ar' ? 'ar-SA' : lang === 'en' ? 'en-US' : 'pt-BR')}</p>
                             </div>
                             {!n.read && <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0 mt-1.5" />}
                           </Link>
@@ -214,7 +214,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                       onClick={() => setNotifOpen(false)}
                       className="block text-center text-xs text-blue-400 py-3 border-t border-white/10 hover:bg-white/[0.04]"
                     >
-                      Ver todas as notificações
+                      {t('notifications.viewAll')}
                     </Link>
                   )}
                 </div>
@@ -273,7 +273,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                     onClick={() => { setProfileOpen(false); setShowPasswordModal(true) }}
                   >
                     <Lock size={15} className="text-muted-foreground" />
-                    Alterar senha
+                    {t('profile.changePassword')}
                   </button>
                   <div className="h-px bg-border mx-3 my-1" />
                   <button
@@ -281,7 +281,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                     onClick={() => { setProfileOpen(false); logout(); router.push('/login') }}
                   >
                     <LogOut size={15} />
-                    Sair
+                    {t('profile.logout')}
                   </button>
                 </div>
               )}

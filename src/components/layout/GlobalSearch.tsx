@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useApps } from '@/hooks/useApps'
+import { useLang } from '@/contexts/LanguageContext'
 import { Search, Command, ChevronRight, FileText, BarChart3, Layers, Activity, Bell, Settings, Plus, UserPlus, Download, Users, Globe, type LucideIcon } from 'lucide-react'
 
 interface SearchResult {
@@ -14,34 +15,35 @@ interface SearchResult {
   badge?: string
 }
 
-const searchPages: Omit<SearchResult, 'badge'>[] = [
-  { id: '/', label: 'Dashboard', icon: BarChart3, type: 'page' },
-  { id: '/apps', label: 'Apps', icon: Layers, type: 'page' },
-  { id: '/activity', label: 'Atividade', icon: Activity, type: 'page' },
-  { id: '/notifications', label: 'Notificações', icon: Bell, type: 'page' },
-  { id: '/admin/connections', label: 'Conexões', icon: Settings, type: 'page' },
-]
-
-const searchActions: Omit<SearchResult, 'badge'>[] = [
-  { id: 'create-app', label: 'Novo aplicativo', icon: Plus, type: 'action' },
-  { id: 'create-user', label: 'Criar usuário', icon: UserPlus, type: 'action' },
-  { id: 'export', label: 'Exportar dados', icon: Download, type: 'action' },
-]
-
-const searchSettings: Omit<SearchResult, 'badge'>[] = [
-  { id: 'manage-users', label: 'Gerenciar usuários', icon: Users, type: 'settings' },
-  { id: 'connections', label: 'Conexões', icon: Globe, type: 'settings' },
-  { id: 'activity', label: 'Registro de atividade', icon: Activity, type: 'settings' },
-]
-
 export function GlobalSearch() {
   const router = useRouter()
+  const { t } = useLang()
   const { data: apps = [] } = useApps()
   const inputRef = useRef<HTMLInputElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const [query, setQuery] = useState('')
   const [focused, setFocused] = useState(false)
   const [selectedIdx, setSelectedIdx] = useState(0)
+
+  const searchPages: Omit<SearchResult, 'badge'>[] = [
+    { id: '/', label: t('search.dashboard'), icon: BarChart3, type: 'page' },
+    { id: '/apps', label: t('nav.apps'), icon: Layers, type: 'page' },
+    { id: '/activity', label: t('search.activities'), icon: Activity, type: 'page' },
+    { id: '/notifications', label: t('notifications.title'), icon: Bell, type: 'page' },
+    { id: '/admin/connections', label: t('search.connections'), icon: Settings, type: 'page' },
+  ]
+
+  const searchActions: Omit<SearchResult, 'badge'>[] = [
+    { id: 'create-app', label: t('search.newApp'), icon: Plus, type: 'action' },
+    { id: 'create-user', label: t('search.newUser'), icon: UserPlus, type: 'action' },
+    { id: 'export', label: t('search.exportData'), icon: Download, type: 'action' },
+  ]
+
+  const searchSettings: Omit<SearchResult, 'badge'>[] = [
+    { id: 'manage-users', label: t('search.manageUsers'), icon: Users, type: 'settings' },
+    { id: 'connections', label: t('search.connections'), icon: Globe, type: 'settings' },
+    { id: 'activity', label: t('search.activityLog'), icon: Activity, type: 'settings' },
+  ]
 
   const q = query.toLowerCase().trim()
 
@@ -131,14 +133,14 @@ export function GlobalSearch() {
 
   return (
     <div className="relative w-full max-w-[340px] xl:max-w-[420px]">
-      <div className="flex items-center gap-2 bg-white/80 dark:bg-white/[0.04] backdrop-blur-xl border border-border rounded-xl px-3 py-1.5 transition-all duration-200 focus-within:border-foreground/20 focus-within:bg-white dark:focus-within:bg-white/[0.07]">
+      <div className="flex items-center gap-2 bg-white/[0.04] backdrop-blur-xl border border-border rounded-xl px-3 py-1.5 transition-all duration-200 focus-within:border-foreground/20 focus-within:bg-white/[0.07]">
         <Search size={14} className="text-muted-foreground/40 shrink-0" />
         <input
           ref={inputRef}
           value={query}
           onChange={e => setQuery(e.target.value)}
           onFocus={() => setFocused(true)}
-          placeholder="Buscar aplicativos, usuários, builds..."
+          placeholder={t('search.placeholder')}
           className="flex-1 bg-transparent outline-none text-sm text-foreground placeholder:text-muted-foreground/50 min-w-0"
         />
         <kbd className="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] rounded border border-border text-muted-foreground/40">
@@ -154,7 +156,7 @@ export function GlobalSearch() {
           <div className="max-h-80 overflow-y-auto p-1.5 space-y-0.5">
             {results.length === 0 && (
               <div className="text-center py-6 text-sm text-muted-foreground/60">
-                Nenhum resultado para &ldquo;<span className="text-foreground/80">{query}</span>&rdquo;
+                {t('search.noResults')} &ldquo;<span className="text-foreground/80">{query}</span>&rdquo;
               </div>
             )}
 
@@ -165,8 +167,8 @@ export function GlobalSearch() {
                   key={`${item.type}-${item.id}`}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-left transition-colors ${
                     selectedIdx === idx
-                      ? 'bg-slate-100 dark:bg-white/[0.08] text-foreground'
-                      : 'text-muted-foreground hover:bg-slate-50 dark:hover:bg-white/[0.04] hover:text-foreground'
+                      ? 'bg-white/[0.08] text-foreground'
+                      : 'text-muted-foreground hover:bg-white/[0.04] hover:text-foreground'
                   }`}
                   onClick={() => execute(item)}
                   onMouseEnter={() => setSelectedIdx(idx)}
