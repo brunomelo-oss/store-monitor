@@ -13,7 +13,7 @@ import { ChangePasswordModal } from '@/components/ChangePasswordModal'
 import {
   Layers, Users, Bell, Moon, Sun, Smartphone, Shield,
   CheckCheck, XCircle, CheckCircle, MessageSquare, RefreshCw,
-  Languages, Settings, LogOut, Lock, ChevronDown,
+  Languages, Settings, LogOut, Lock, ChevronDown, User,
 } from 'lucide-react'
 import type { LangCode } from '@/lib/i18n'
 
@@ -76,7 +76,6 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   if (!user) return <>{children}</>
 
-  const initial = user.email.charAt(0).toUpperCase()
   const [local, domain] = user.email.split('@')
   const display = local.length > 14 ? local.slice(0, 12) + '…@' + domain : user.email
 
@@ -90,52 +89,19 @@ export function AppLayout({ children }: AppLayoutProps) {
     <div className="min-h-screen bg-background">
       {/* Sidebar */}
       <aside className="fixed left-0 top-0 h-full w-48 z-30 border-r border-border bg-background flex flex-col">
-        {/* Profile */}
-        <div ref={profileRef} className="relative shrink-0">
-          <button
-            onClick={() => setProfileOpen(!profileOpen)}
-            className="flex items-center gap-3 w-full px-3 h-14 border-b border-border hover:bg-surface transition-colors"
-          >
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-700 to-emerald-600 flex items-center justify-center text-xs font-bold text-white shadow-sm shrink-0">
-              {initial}
-            </div>
-            <div className="flex flex-col min-w-0 text-left flex-1">
-              <span className="text-xs text-foreground font-medium truncate">{display}</span>
-              <span className="text-[10px] text-muted-foreground capitalize">{user.role?.toLowerCase()}</span>
-            </div>
-            <ChevronDown size={12} className={`text-zinc-500 shrink-0 transition-transform duration-200 ${profileOpen ? 'rotate-180' : ''}`} />
-          </button>
-
-          {profileOpen && (
-            <div className="absolute left-2 right-2 top-full mt-1 bg-card border border-border rounded-xl shadow-xl py-1.5 z-50">
-              <button
-                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-inset transition"
-                onClick={() => { setProfileOpen(false); setShowPasswordModal(true) }}
-              >
-                <Lock size={15} className="text-muted-foreground" />
-                Alterar senha
-              </button>
-              <div className="h-px bg-border mx-3 my-1" />
-              <button
-                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition"
-                onClick={() => { setProfileOpen(false); logout(); router.push('/login') }}
-              >
-                <LogOut size={15} />
-                Sair
-              </button>
-            </div>
-          )}
+        {/* SASI Logo */}
+        <div className="flex items-center justify-center h-16 shrink-0 border-b border-border">
+          <div className="w-32 h-10 bg-[url('/assets/logo-sasi-white.png')] bg-center bg-contain bg-no-repeat" />
         </div>
 
         {/* Nav */}
         <nav className="flex-1 px-2 pt-3 space-y-0.5 overflow-y-auto">
-          {/* Dashboard with logo */}
           <Link
             href="/"
-            className={`flex items-center gap-3 px-2.5 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+            className={`sasi-card rounded-lg flex items-center gap-3 px-2.5 py-2.5 text-sm font-medium transition-all ${
               isActive('/')
-                ? 'text-[#10b981]'
-                : 'text-[#888888] hover:text-[#10b981] hover:bg-[rgba(16,185,129,0.1)]'
+                ? 'text-[#10b981] border-[rgba(16,185,129,0.3)]'
+                : 'text-[#888888]'
             }`}
           >
             <div className="w-7 h-7 rounded-lg bg-[url('/assets/logo-sasi-white.png')] bg-center bg-contain bg-no-repeat shrink-0" />
@@ -148,10 +114,10 @@ export function AppLayout({ children }: AppLayoutProps) {
               <Link
                 key={item.id}
                 href={item.id}
-                className={`flex items-center gap-3 px-2.5 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                className={`sasi-card rounded-lg flex items-center gap-3 px-2.5 py-2.5 text-sm font-medium transition-all ${
                   isActive(item.id)
-                    ? 'text-[#10b981]'
-                    : 'text-[#888888] hover:text-[#10b981] hover:bg-[rgba(16,185,129,0.1)]'
+                    ? 'text-[#10b981] border-[rgba(16,185,129,0.3)]'
+                    : 'text-[#888888]'
                 }`}
               >
                 <Icon size={20} />
@@ -165,10 +131,10 @@ export function AppLayout({ children }: AppLayoutProps) {
         <div className="shrink-0 p-2 border-t border-border">
           <Link
             href="/admin"
-            className={`flex items-center gap-3 px-2.5 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-              isActive('/admin')
-                ? 'text-[#10b981]'
-                : 'text-[#888888] hover:text-[#10b981] hover:bg-[rgba(16,185,129,0.1)]'
+            className={`sasi-card rounded-lg flex items-center gap-3 px-2.5 py-2.5 text-sm font-medium transition-all ${
+              pathname.startsWith('/admin')
+                ? 'text-[#10b981] border-[rgba(16,185,129,0.3)]'
+                : 'text-[#888888]'
             }`}
           >
             <Settings size={20} />
@@ -179,127 +145,164 @@ export function AppLayout({ children }: AppLayoutProps) {
 
       {/* Header */}
       <header className="sticky top-0 z-20 border-b border-border bg-background/95 backdrop-blur-md ml-48">
-        <div className="flex items-center justify-end h-14 px-4 sm:px-6 gap-1 sm:gap-1.5">
+        <div className="flex items-center justify-between h-14 px-4 sm:px-6 gap-1 sm:gap-1.5">
           {/* Search */}
-          <div className="hidden sm:flex items-center mr-auto">
+          <div className="hidden sm:flex items-center">
             <GlobalSearch />
           </div>
 
-          {/* App count */}
-          <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface text-xs text-muted-foreground whitespace-nowrap">
-            <Smartphone size={12} />
-            <span className="font-semibold text-foreground">{apps.length}</span>
-          </div>
+          {/* Right side */}
+          <div className="flex items-center gap-1 sm:gap-1.5">
+            {/* App count */}
+            <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface text-xs text-muted-foreground whitespace-nowrap">
+              <Smartphone size={12} />
+              <span className="font-semibold text-foreground">{apps.length}</span>
+            </div>
 
-          {/* Notifications */}
-          <div className="relative" ref={notifRef}>
-            <button
-              onClick={() => setNotifOpen(o => !o)}
-              className="relative w-[32px] h-[32px] rounded-full border border-border bg-inset text-muted-foreground hover:text-foreground hover:border-border-light hover:bg-card-hover flex items-center justify-center transition-all duration-200 shrink-0"
-            >
-              <Bell size={13} />
-              {(unread?.count || 0) > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-red-500 text-[8px] font-bold flex items-center justify-center text-white">
-                  {unread!.count > 9 ? '9+' : unread!.count}
-                </span>
-              )}
-            </button>
-            {notifOpen && (
-              <div className="absolute right-0 top-full mt-2 w-80 glass-dropdown rounded-xl overflow-hidden z-50 animate-dropdownIn">
-                <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
-                  <span className="text-sm font-medium text-foreground">Notificações</span>
-                  <div className="flex items-center gap-2">
-                    {(unread?.count || 0) > 0 && (
-                      <button
-                        onClick={() => markAllMutation.mutate()}
-                        className="text-xs text-blue-400 hover:underline flex items-center gap-1"
+            {/* Notifications */}
+            <div className="relative" ref={notifRef}>
+              <button
+                onClick={() => setNotifOpen(o => !o)}
+                className="header-icon-btn"
+              >
+                <Bell size={13} />
+                {(unread?.count || 0) > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-red-500 text-[8px] font-bold flex items-center justify-center text-white">
+                    {unread!.count > 9 ? '9+' : unread!.count}
+                  </span>
+                )}
+              </button>
+              {notifOpen && (
+                <div className="absolute right-0 top-full mt-2 w-80 glass-dropdown rounded-xl overflow-hidden z-50 animate-dropdownIn">
+                  <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+                    <span className="text-sm font-medium text-foreground">Notificações</span>
+                    <div className="flex items-center gap-2">
+                      {(unread?.count || 0) > 0 && (
+                        <button
+                          onClick={() => markAllMutation.mutate()}
+                          className="text-xs text-blue-400 hover:underline flex items-center gap-1"
+                        >
+                          <CheckCheck size={12} /> Ler todas
+                        </button>
+                      )}
+                      <Link
+                        href="/notifications"
+                        onClick={() => setNotifOpen(false)}
+                        className="text-xs text-muted-foreground hover:text-foreground"
                       >
-                        <CheckCheck size={12} /> Ler todas
-                      </button>
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                      </Link>
+                    </div>
+                  </div>
+                  <div className="max-h-72 overflow-y-auto">
+                    {notifList.length === 0 ? (
+                      <div className="text-center py-8 text-sm text-muted-foreground/60">
+                        Nenhuma notificação
+                      </div>
+                    ) : (
+                      notifList.map(n => {
+                        const { icon: NIcon, color } = notifIcon(n.type)
+                        return (
+                          <Link
+                            key={n.id}
+                            href={n.appId ? `/apps/${n.appId}` : '/notifications'}
+                            onClick={() => setNotifOpen(false)}
+                            className={`flex items-start gap-3 px-4 py-3 transition-colors hover:bg-white/[0.04] ${!n.read ? 'bg-white/[0.02]' : ''}`}
+                          >
+                            <NIcon size={15} className={`shrink-0 mt-0.5 ${color}`} />
+                            <div className="min-w-0 flex-1">
+                              <p className="text-sm text-foreground/90 truncate">{n.title}</p>
+                              <p className="text-xs text-muted-foreground/70 mt-0.5">{new Date(n.createdAt).toLocaleString('pt-BR')}</p>
+                            </div>
+                            {!n.read && <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0 mt-1.5" />}
+                          </Link>
+                        )
+                      })
                     )}
+                  </div>
+                  {notifList.length > 0 && (
                     <Link
                       href="/notifications"
                       onClick={() => setNotifOpen(false)}
-                      className="text-xs text-muted-foreground hover:text-foreground"
+                      className="block text-center text-xs text-blue-400 py-3 border-t border-white/10 hover:bg-white/[0.04]"
                     >
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                      Ver todas as notificações
                     </Link>
-                  </div>
-                </div>
-                <div className="max-h-72 overflow-y-auto">
-                  {notifList.length === 0 ? (
-                    <div className="text-center py-8 text-sm text-muted-foreground/60">
-                      Nenhuma notificação
-                    </div>
-                  ) : (
-                    notifList.map(n => {
-                      const { icon: NIcon, color } = notifIcon(n.type)
-                      return (
-                        <Link
-                          key={n.id}
-                          href={n.appId ? `/apps/${n.appId}` : '/notifications'}
-                          onClick={() => setNotifOpen(false)}
-                          className={`flex items-start gap-3 px-4 py-3 transition-colors hover:bg-white/[0.04] ${!n.read ? 'bg-white/[0.02]' : ''}`}
-                        >
-                          <NIcon size={15} className={`shrink-0 mt-0.5 ${color}`} />
-                          <div className="min-w-0 flex-1">
-                            <p className="text-sm text-foreground/90 truncate">{n.title}</p>
-                            <p className="text-xs text-muted-foreground/70 mt-0.5">{new Date(n.createdAt).toLocaleString('pt-BR')}</p>
-                          </div>
-                          {!n.read && <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0 mt-1.5" />}
-                        </Link>
-                      )
-                    })
                   )}
                 </div>
-                {notifList.length > 0 && (
-                  <Link
-                    href="/notifications"
-                    onClick={() => setNotifOpen(false)}
-                    className="block text-center text-xs text-blue-400 py-3 border-t border-white/10 hover:bg-white/[0.04]"
-                  >
-                    Ver todas as notificações
-                  </Link>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Theme toggle */}
-          <button
-            onClick={toggle}
-            className="w-[32px] h-[32px] rounded-full border border-border bg-inset text-muted-foreground hover:text-foreground hover:border-border-light hover:bg-card-hover flex items-center justify-center transition-all duration-200 shrink-0"
-          >
-            <div className="transition-transform duration-300 hover:scale-110 active:scale-90 flex items-center justify-center">
-              {isDark ? <Sun size={14} /> : <Moon size={14} />}
+              )}
             </div>
-          </button>
 
-          {/* Language toggle */}
-          <div className="relative">
-            <button
-              onClick={() => setLangOpen(!langOpen)}
-              className="w-[32px] h-[32px] rounded-full border border-border bg-inset text-muted-foreground hover:text-foreground hover:border-border-light hover:bg-card-hover flex items-center justify-center transition-all duration-200 shrink-0"
-            >
-              <Languages size={14} />
+            {/* Theme toggle */}
+            <button onClick={toggle} className="header-icon-btn">
+              <div className="transition-transform duration-300 hover:scale-110 active:scale-90 flex items-center justify-center">
+                {isDark ? <Sun size={14} /> : <Moon size={14} />}
+              </div>
             </button>
-            {langOpen && (
-              <>
-                <div className="fixed inset-0 z-40" onClick={() => setLangOpen(false)} />
-                <div className="absolute right-0 top-full mt-2 w-40 bg-card border border-border rounded-xl shadow-xl py-1.5 z-50 transition-all duration-150">
-                  {languages.map(l => (
-                    <button
-                      key={l.code}
-                      onClick={() => { setLang(l.code); setLangOpen(false) }}
-                      className={`w-full h-10 px-4 text-left text-sm flex items-center justify-between transition-colors ${lang === l.code ? 'text-foreground font-medium' : 'text-muted-foreground hover:text-foreground hover:bg-inset'}`}
-                    >
-                      {l.label}
-                      {lang === l.code && <span className="w-1.5 h-1.5 rounded-full bg-sasi-red" />}
-                    </button>
-                  ))}
+
+            {/* Settings gear */}
+            <Link href="/admin" className="header-icon-btn">
+              <Settings size={14} />
+            </Link>
+
+            {/* Language toggle */}
+            <div className="relative">
+              <button onClick={() => setLangOpen(!langOpen)} className="header-icon-btn">
+                <Languages size={14} />
+              </button>
+              {langOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setLangOpen(false)} />
+                  <div className="absolute right-0 top-full mt-2 w-40 bg-card border border-border rounded-xl shadow-xl py-1.5 z-50 transition-all duration-150">
+                    {languages.map(l => (
+                      <button
+                        key={l.code}
+                        onClick={() => { setLang(l.code); setLangOpen(false) }}
+                        className={`w-full h-10 px-4 text-left text-sm flex items-center justify-between transition-colors ${lang === l.code ? 'text-foreground font-medium' : 'text-muted-foreground hover:text-foreground hover:bg-inset'}`}
+                      >
+                        {l.label}
+                        {lang === l.code && <span className="w-1.5 h-1.5 rounded-full bg-sasi-red" />}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Profile */}
+            <div ref={profileRef} className="relative">
+              <button
+                onClick={() => setProfileOpen(!profileOpen)}
+                className="flex items-center gap-2 pl-2 pr-3 py-1 rounded-xl border border-border bg-inset/50 hover:bg-inset transition-all duration-200"
+              >
+                <div className="w-7 h-7 rounded-full bg-transparent flex items-center justify-center text-muted-foreground shrink-0">
+                  <User size={15} />
                 </div>
-              </>
-            )}
+                <span className="hidden sm:inline text-xs text-muted-foreground">{display}</span>
+                <ChevronDown size={10} className={`text-muted-foreground transition-transform duration-200 ${profileOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {profileOpen && (
+                <div className="absolute right-0 top-full mt-2 w-56 bg-card border border-border rounded-xl shadow-xl py-1.5 z-50">
+                  <div className="px-4 py-2.5 text-xs text-muted-foreground border-b border-border mb-1">{user.email}</div>
+                  <button
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-inset transition"
+                    onClick={() => { setProfileOpen(false); setShowPasswordModal(true) }}
+                  >
+                    <Lock size={15} className="text-muted-foreground" />
+                    Alterar senha
+                  </button>
+                  <div className="h-px bg-border mx-3 my-1" />
+                  <button
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-500/10 transition"
+                    onClick={() => { setProfileOpen(false); logout(); router.push('/login') }}
+                  >
+                    <LogOut size={15} />
+                    Sair
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </header>

@@ -127,6 +127,26 @@ body {
   border-color: rgba(16,185,129,0.7);
 }
 
+/* ─── Header icon button ─── */
+.header-icon-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 9999px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.04);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+.header-icon-btn:hover {
+  color: var(--text);
+  border-color: var(--border-light);
+  background: rgba(255,255,255,0.08);
+}
+
 /* ─── Glass dropdown ─── */
 .glass-dropdown {
   background: rgba(17,17,17,0.95);
