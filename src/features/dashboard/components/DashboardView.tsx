@@ -139,9 +139,7 @@ function CommandCenter() {
           )}
         </div>
         <div className="flex items-center gap-2">
-          <button
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-slate-200 dark:border-white/10 text-foreground text-sm font-medium hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-all"
-          >
+          <button className="sasi-btn-secondary inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm">
             <Download size={15} /> Relatórios
           </button>
         </div>
@@ -162,7 +160,7 @@ function CommandCenter() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2 rounded-xl border border-slate-200/80 dark:border-white/10 bg-white/70 dark:bg-white/[0.04] backdrop-blur-xl p-5 transition-all duration-200 shadow-sm dark:shadow-none">
+        <div className="lg:col-span-2 sasi-card-hover rounded-xl p-5">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="font-semibold text-foreground">Prioridades</h3>
@@ -187,7 +185,7 @@ function CommandCenter() {
                   <Link
                     key={app.id}
                     href={`/apps/${app.id}`}
-                    className="flex items-center gap-4 p-3 rounded-lg bg-white/50 dark:bg-white/[0.04] border border-slate-200/60 dark:border-white/10 hover:bg-slate-100/60 dark:hover:bg-white/[0.06] transition-all group"
+                    className="flex items-center gap-4 p-3 rounded-lg sasi-card transition-all group"
                   >
                     <div className={`w-2 h-2 rounded-full shrink-0 ${isRed ? 'bg-red-500' : isYellow ? 'bg-amber-500' : isGreen ? 'bg-emerald-500' : 'bg-slate-400'}`} />
                     <div className="flex-1 min-w-0">
@@ -206,7 +204,7 @@ function CommandCenter() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-slate-200/80 dark:border-white/10 bg-white/70 dark:bg-white/[0.04] backdrop-blur-xl p-5 transition-all duration-200 shadow-sm dark:shadow-none">
+        <div className="sasi-card-hover rounded-xl p-5">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="font-semibold text-foreground">Saúde da Plataforma</h3>
@@ -229,7 +227,7 @@ function CommandCenter() {
               <span className="text-muted-foreground">Requer atenção</span>
               <span className="font-medium text-red-500">{needsAttentionApps}</span>
             </div>
-            <div className="border-t border-slate-200/60 dark:border-white/10 pt-3 mt-3">
+            <div className="border-t border-border pt-3 mt-3">
               <div className="flex items-center justify-between text-sm">
                 <span className="font-semibold text-foreground">Total</span>
                 <span className="font-semibold text-foreground">{totalApps}</span>
@@ -238,7 +236,7 @@ function CommandCenter() {
           </div>
           <Link
             href="/apps"
-            className="mt-4 block text-center text-sm text-blue-600 dark:text-blue-400 py-2 rounded-lg border border-slate-200/60 dark:border-white/10 hover:bg-slate-100/60 dark:hover:bg-white/[0.06] transition-all"
+            className="sasi-btn-secondary mt-4 block text-center text-sm py-2 rounded-lg"
           >
             Ver listagem completa
           </Link>
@@ -246,7 +244,7 @@ function CommandCenter() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-xl border border-slate-200/80 dark:border-white/10 bg-white/70 dark:bg-white/[0.04] backdrop-blur-xl p-5 transition-all duration-200 shadow-sm dark:shadow-none">
+        <div className="sasi-card-hover rounded-xl p-5">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-foreground">Apps Recentes</h3>
             <Link href="/apps" className="text-xs text-blue-600 dark:text-blue-400 hover:underline">
@@ -264,7 +262,7 @@ function CommandCenter() {
                   <Link
                     key={app.id}
                     href={`/apps/${app.id}`}
-                    className="flex items-center justify-between p-3 rounded-lg bg-white/50 dark:bg-white/[0.04] border border-slate-200/60 dark:border-white/10 hover:bg-slate-100/60 dark:hover:bg-white/[0.06] transition-all group"
+                    className="flex items-center justify-between p-3 rounded-lg sasi-card transition-all group"
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
@@ -287,7 +285,7 @@ function CommandCenter() {
           )}
         </div>
 
-        <div className="rounded-xl border border-slate-200/80 dark:border-white/10 bg-white/70 dark:bg-white/[0.04] backdrop-blur-xl p-5 transition-all duration-200 shadow-sm dark:shadow-none">
+        <div className="sasi-card-hover rounded-xl p-5">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-foreground">Estatísticas</h3>
           </div>
@@ -315,7 +313,7 @@ function CommandCenter() {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="p-3 rounded-lg bg-white/50 dark:bg-white/[0.04] border border-slate-200/60 dark:border-white/10">
+              <div className="p-3 rounded-lg sasi-card">
                 <div className="flex items-center gap-2 mb-2">
                   <Globe size={14} className="text-emerald-500" />
                   <span className="text-xs text-muted-foreground">Google Play</span>
@@ -323,7 +321,7 @@ function CommandCenter() {
                 <p className="text-lg font-bold text-foreground">{googleCount}</p>
                 <p className="text-[10px] text-muted-foreground/60">apps publicados</p>
               </div>
-              <div className="p-3 rounded-lg bg-white/50 dark:bg-white/[0.04] border border-slate-200/60 dark:border-white/10">
+              <div className="p-3 rounded-lg sasi-card">
                 <div className="flex items-center gap-2 mb-2">
                   <Apple size={14} className="text-blue-500" />
                   <span className="text-xs text-muted-foreground">App Store</span>
@@ -336,7 +334,7 @@ function CommandCenter() {
         </div>
       </div>
 
-      <div className="rounded-xl border border-slate-200/80 dark:border-white/10 bg-white/70 dark:bg-white/[0.04] backdrop-blur-xl p-5 transition-all duration-200 shadow-sm dark:shadow-none">
+      <div className="sasi-card-hover rounded-xl p-5">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-semibold text-foreground">Timeline</h3>
           <Link href="/activity" className="text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
@@ -357,7 +355,7 @@ function CommandCenter() {
                 action.includes('REJECT') || action.includes('FAILED') ? 'text-red-500' : 'text-blue-500'
 
               return (
-                <div key={event.id} className="flex items-start gap-3 py-2.5 border-b border-slate-200/40 dark:border-white/5 last:border-0">
+                <div key={event.id} className="flex items-start gap-3 py-2.5 border-b border-border/50 last:border-0">
                   <div className={`w-6 h-6 rounded-full bg-muted flex items-center justify-center shrink-0 mt-0.5 ${iconColor}`}>
                     <Icon size={12} />
                   </div>

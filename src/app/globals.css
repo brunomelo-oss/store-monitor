@@ -4,31 +4,32 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --bg: #f5f5f7;
-  --bg-card: #ffffff;
-  --bg-surface: #F1F5F9;
-  --bg-inset: #E2E8F0;
-  --bg-card-hover: #f0f0f2;
-  --border: #E2E8F0;
-  --border-light: #CBD5E1;
-  --text: #0F172A;
-  --text-secondary: #475569;
-  --text-muted: #64748B;
+  --bg: #0a0a0a;
+  --bg-card: #111111;
+  --bg-surface: #1a1a1a;
+  --bg-inset: #14141e;
+  --bg-card-hover: #1a1a1a;
+  --border: rgba(255,255,255,0.1);
+  --border-light: rgba(255,255,255,0.15);
+  --text: #e0e0e0;
+  --text-secondary: #888888;
+  --text-muted: #888888;
   --color-sasi-blue: #1a3a8c;
   --color-sasi-red: #DC2626;
+  --color-emerald: #10b981;
 }
 
 .dark {
-  --bg: #020617;
-  --bg-card: #0F172A;
-  --bg-surface: #1E293B;
+  --bg: #0a0a0a;
+  --bg-card: #111111;
+  --bg-surface: #1a1a1a;
   --bg-inset: #14141e;
-  --bg-card-hover: #1a2332;
-  --border: #334155;
-  --border-light: #475569;
-  --text: #F8FAFC;
-  --text-secondary: #94A3B8;
-  --text-muted: #64748B;
+  --bg-card-hover: #1a1a1a;
+  --border: rgba(255,255,255,0.1);
+  --border-light: rgba(255,255,255,0.15);
+  --text: #e0e0e0;
+  --text-secondary: #888888;
+  --text-muted: #888888;
 }
 
 @theme inline {
@@ -36,6 +37,7 @@
   --color-foreground: var(--text);
   --color-sasi-blue: #1a3a8c;
   --color-sasi-red: #DC2626;
+  --color-emerald: #10b981;
   --color-surface: var(--bg-surface);
   --color-inset: var(--bg-inset);
   --color-card: var(--bg-card);
@@ -51,72 +53,11 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-sans);
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Light theme subtle background glow */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0;
-  transition: opacity 0.5s ease;
-}
-
-/* Light mode header override */
 .app-header {
   background: var(--bg-card);
   border-bottom: 1px solid var(--border);
-  transition: background 0.3s ease, border-color 0.3s ease;
-}
-
-/* Light mode: blue gradient header */
-:root:not(.dark) .app-header {
-  background: linear-gradient(90deg, #004bcc, #00177a);
-  border-bottom: none;
-}
-:root:not(.dark) .app-header .text-foreground {
-  color: #fff;
-}
-:root:not(.dark) .app-header .text-muted-foreground {
-  color: rgba(255,255,255,0.6);
-}
-:root:not(.dark) .app-header .bg-surface {
-  background: rgba(255,255,255,0.12);
-  color: rgba(255,255,255,0.7);
-}
-:root:not(.dark) .app-header .text-foreground.font-semibold {
-  color: #fff;
-}
-:root:not(.dark) .app-header [class*="hover:bg-zinc"] {
-  color: rgba(255,255,255,0.7);
-}
-:root:not(.dark) .app-header [class*="hover:bg-zinc"]:hover {
-  background: rgba(255,255,255,0.1);
-  color: #fff;
-}
-:root:not(.dark) .app-header .border-border {
-  border-color: rgba(255,255,255,0.15);
-}
-:root:not(.dark) .app-header .bg-card {
-  background: rgba(255,255,255,0.12);
-  color: #fff;
-}
-:root:not(.dark) .app-header .bg-card .text-zinc-400 {
-  color: rgba(255,255,255,0.7);
-}
-:root:not(.dark) .app-header .bg-card .text-zinc-500 {
-  color: rgba(255,255,255,0.5);
-}
-
-/* Light mode: subtle background glow */
-:root:not(.dark) body::before {
-  background:
-    radial-gradient(ellipse 600px 400px at 10% 15%, rgba(0,75,204,0.05) 0%, transparent 100%),
-    radial-gradient(ellipse 500px 500px at 90% 85%, rgba(0,23,122,0.04) 0%, transparent 100%);
-  opacity: 1;
 }
 
 /* SASI logo gradient animation */
@@ -129,19 +70,70 @@ body::before {
   animation: gradientShift 4s ease infinite;
 }
 
-/* Light mode: logo light text on blue header */
-:root:not(.dark) .logo-sasi {
-  background: linear-gradient(90deg, #e0e8ff, #ffffff, #e0e8ff);
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
 @keyframes gradientShift {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
+}
+
+/* ─── SASI Card (glass preto, sem borda) ─── */
+.sasi-card {
+  background: rgba(255,255,255,0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid transparent;
+  transition: border-color 200ms ease-in-out, box-shadow 200ms ease-in-out;
+}
+.sasi-card:hover {
+  border-color: rgba(16,185,129,0.3);
+  box-shadow: 0 0 0 1px rgba(16,185,129,0.08);
+}
+
+/* ─── SASI Card com hover ─── */
+.sasi-card-hover {
+  background: rgba(255,255,255,0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.05);
+  transition: border-color 200ms ease-in-out, box-shadow 200ms ease-in-out;
+}
+.sasi-card-hover:hover {
+  border-color: rgba(16,185,129,0.3);
+  box-shadow: 0 0 0 1px rgba(16,185,129,0.08);
+}
+
+/* ─── Botão primário SASI ─── */
+.sasi-btn-primary {
+  background: #10b981;
+  color: #000;
+  font-weight: 500;
+  border: none;
+  transition: background 200ms ease-in-out;
+}
+.sasi-btn-primary:hover {
+  background: #059669;
+}
+
+/* ─── Botão secundário SASI ─── */
+.sasi-btn-secondary {
+  background: transparent;
+  border: 1px solid rgba(16,185,129,0.5);
+  color: #e0e0e0;
+  font-weight: 500;
+  transition: background 200ms ease-in-out, border-color 200ms ease-in-out;
+}
+.sasi-btn-secondary:hover {
+  background: rgba(16,185,129,0.1);
+  border-color: rgba(16,185,129,0.7);
+}
+
+/* ─── Glass dropdown ─── */
+.glass-dropdown {
+  background: rgba(17,17,17,0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
 }
 
 /* Glassmorphism card surface — light mode */
@@ -153,45 +145,9 @@ body::before {
   box-shadow: 0 1px 3px rgba(0,0,0,.04);
 }
 
-/* Glassmorphism card surface — dark mode */
-.dark .card-glass {
-  background: rgba(15,23,42,.72);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,.08);
-  box-shadow: none;
-}
-
-/* Card glass hover lift */
+/* Card glass hover lift (deprecated — use .sasi-card instead) */
 .card-glass-hover {
   transition: all 0.2s ease;
-}
-.card-glass-hover:hover {
-  background: rgba(255,255,255,.82);
-  border-color: rgba(0,0,0,.12);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,.08);
-}
-.dark .card-glass-hover:hover {
-  background: rgba(255,255,255,.07);
-  border-color: rgba(255,255,255,.16);
-  box-shadow: 0 8px 30px rgba(0,0,0,.12);
-}
-
-/* Glassmorphism search dropdown — dark */
-.glass-dropdown {
-  background: rgba(15,23,42,.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255,255,255,.10);
-  box-shadow: 0 20px 60px rgba(0,0,0,.35);
-}
-
-/* Glassmorphism search dropdown — light */
-:root:not(.dark) .glass-dropdown {
-  background: rgba(255,255,255,.95);
-  border: 1px solid rgba(203,213,225,.8);
-  box-shadow: 0 8px 30px rgba(0,0,0,.1);
 }
 
 /* Metric glow effects */
@@ -387,7 +343,7 @@ body::before {
   opacity: 0.9;
 }
 
-/* Fix hardcoded text colors inside modal - exclude elements with red bg (buttons) */
+/* Fix hardcoded text colors inside modal */
 .fixed.inset-0.z-50 .max-w-lg .text-white:where(:not([class*="bg-sasi-red"])),
 .fixed.inset-0.z-50 .max-w-lg .text-zinc-400:where(:not([class*="bg-sasi-red"])) {
   color: var(--text) !important;
@@ -479,7 +435,6 @@ body::before {
 [class*="max-w-3xl"] [class*="bg-card border border-border rounded-2xl p-6"] {
   border-radius: 20px !important;
   padding: 1.5rem !important;
-  box-shadow: 0 1px 3px rgba(0,0,0,.04);
 }
 
 /* User rows */
@@ -495,34 +450,10 @@ body::before {
   border-radius: 16px !important;
 }
 
-/* Fix hardcoded colors in user manager */
-:root:not(.dark) [class*="max-w-3xl"] .text-zinc-500 {
-  color: var(--text-muted) !important;
-}
-
-:root:not(.dark) [class*="max-w-3xl"] .text-white:where(:not([class*="bg-sasi-red"])) {
-  color: var(--text) !important;
-}
-
-:root:not(.dark) [class*="max-w-3xl"] .text-zinc-500 {
-  color: var(--text-muted) !important;
-}
-
-/* Invite section heading icon */
-[class*="max-w-3xl"] [class*="text-muted-foreground flex-shrink-0"] {
-  color: var(--text-muted) !important;
-}
-
 /* Invite pending badge */
 [class*="max-w-3xl"] [class*="bg-yellow-500/10 text-yellow-400"] {
   color: #CA8A04 !important;
   background: rgba(202,138,4,.1) !important;
-}
-
-/* User role badges in light mode */
-:root:not(.dark) [class*="max-w-3xl"] [class*="bg-zinc-200 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400"] {
-  background: #E2E8F0 !important;
-  color: #475569 !important;
 }
 
 /* ===== 4. HEADER ACTIONS ===== */
@@ -599,95 +530,7 @@ body::before {
   transition: transform 0.2s ease !important;
 }
 
-/* Light mode header button overrides */
-:root:not(.dark) .app-header button[title] {
-  background: rgba(255,255,255,0.12) !important;
-  border-color: rgba(255,255,255,0.15) !important;
-  box-shadow: none;
-}
 
-:root:not(.dark) .app-header button[title] svg {
-  color: rgba(255,255,255,0.7);
-}
-
-:root:not(.dark) .app-header button[title]:hover {
-  background: rgba(255,255,255,0.18) !important;
-  border-color: rgba(255,255,255,0.25) !important;
-  box-shadow: 0 4px 16px rgba(0,0,0,.15);
-}
-
-:root:not(.dark) .app-header button[title]:hover svg {
-  color: #fff;
-}
-
-/* Light mode profile button */
-:root:not(.dark) .app-header [class*="flex items-center gap-2 px-3 py-1.5 rounded-xl"] {
-  background: rgba(255,255,255,0.12) !important;
-  color: #fff !important;
-}
-
-:root:not(.dark) .app-header [class*="flex items-center gap-2 px-3 py-1.5 rounded-xl"]:hover {
-  background: rgba(255,255,255,0.18) !important;
-}
-
-:root:not(.dark) .app-header [class*="text-zinc-400"] {
-  color: rgba(255,255,255,0.6) !important;
-}
-
-:root:not(.dark) .app-header [class*="text-zinc-500"] {
-  color: rgba(255,255,255,0.5) !important;
-}
-
-/* ===== 5. PROFILE DROPDOWN LIGHT MODE FIX ===== */
-
-:root:not(.dark) [class*="absolute right-0 top-full mt-2 w-56"] {
-  background: #FFFFFF !important;
-  border: 1px solid #E2E8F0 !important;
-}
-
-:root:not(.dark) [class*="absolute right-0 top-full mt-2 w-56"] [class*="text-foreground"] {
-  color: #0F172A !important;
-}
-
-:root:not(.dark) [class*="absolute right-0 top-full mt-2 w-56"] [class*="text-muted-foreground"] {
-  color: #64748B !important;
-}
-
-:root:not(.dark) [class*="absolute right-0 top-full mt-2 w-56"] [class*="hover:bg-inset"]:hover {
-  background: #F1F5F9 !important;
-}
-
-:root:not(.dark) [class*="absolute right-0 top-full mt-2 w-56"] [class*="hover:bg-red-50 dark:hover:bg-red-500/10"]:hover {
-  background: #FEF2F2 !important;
-}
-
-:root:not(.dark) [class*="h-px bg-border"] {
-  background: #E2E8F0 !important;
-}
-
-/* User manager light mode fixes */
-:root:not(.dark) [class*="max-w-3xl"] [class*="bg-zinc-800 border border-zinc-700 text-white"] {
-  background: #F8FAFC !important;
-  border-color: #E2E8F0 !important;
-  color: #0F172A !important;
-}
-
-:root:not(.dark) [class*="max-w-3xl"] [class*="bg-zinc-800 border border-zinc-700 text-white"]::placeholder {
-  color: #64748B !important;
-}
-
-:root:not(.dark) [class*="max-w-3xl"] [class*="bg-zinc-800 border border-zinc-700 text-white"]:focus {
-  border-color: #DC2626 !important;
-  box-shadow: 0 0 0 3px rgba(220,38,38,.12) !important;
-}
-
-:root:not(.dark) [class*="max-w-3xl"] .text-xs.text-zinc-500 {
-  color: #64748B !important;
-}
-
-:root:not(.dark) [class*="max-w-3xl"] .text-zinc-500 {
-  color: #64748B !important;
-}
 
 /* ===== GLOBAL CONSISTENCY ===== */
 
@@ -696,21 +539,23 @@ body::before {
   animation-duration: 0.15s;
 }
 
-/* Smooth scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
+
+/* Focus ring */
+*:focus-visible { outline: 2px solid rgba(16,185,129,0.5); outline-offset: 2px; }
+
+/* Shimmer loading */
+.shimmer-bg {
+  background: linear-gradient(90deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.03) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
 }
 
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }

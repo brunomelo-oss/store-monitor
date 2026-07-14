@@ -38,7 +38,7 @@ export function AppsView() {
         <div className="flex items-center gap-3">
           <Link
             href="/apps/new"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-zinc-800 text-white text-sm font-medium hover:bg-zinc-700 shadow-sm transition-all dark:bg-zinc-200 dark:text-zinc-900 dark:hover:bg-zinc-300"
+            className="sasi-btn-primary inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm shadow-sm"
           >
             <Plus size={15} /> Novo aplicativo
           </Link>
