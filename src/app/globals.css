@@ -89,25 +89,24 @@ body {
   box-shadow: 0 0 0 1px rgba(16,185,129,0.08);
 }
 
-/* ─── Big card (borda cinza visível, hover verde) ─── */
+/* ─── Big card (borda sutil, hover mais claro) ─── */
 .sasi-card-hover {
-  background: rgba(0,0,0,0.4);
+  background: rgba(255,255,255,0.03);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1.5px solid #4b5563;
-  transition: border-color 200ms ease-in-out, box-shadow 200ms ease-in-out;
+  border: 1px solid rgba(255,255,255,0.08);
+  transition: border-color 200ms ease-in-out;
 }
 .sasi-card-hover:hover {
-  border-color: rgba(16,185,129,0.5);
-  box-shadow: 0 0 0 1px rgba(16,185,129,0.08);
+  border-color: rgba(255,255,255,0.15);
 }
 
 /* ─── Sidebar glass ─── */
 .sasi-sidebar {
-  background: rgba(15,15,15,0.7);
+  background: rgba(15,15,15,0.6);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border-right: 1px solid rgba(255,255,255,0.1);
+  border-right: 1px solid rgba(255,255,255,0.08);
 }
 
 /* ─── Sidebar nav item ─── */
@@ -119,15 +118,16 @@ body {
   border-radius: 0.5rem;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #c0c0c0;
+  color: #a0a0a0;
   transition: background 200ms ease, color 200ms ease;
 }
 .sasi-nav-item:hover {
-  background: rgba(16,185,129,0.15);
+  background: rgba(255,255,255,0.05);
   color: #e0e0e0;
 }
 .sasi-nav-item.active {
   color: #10b981;
+  background: transparent;
 }
 
 /* ─── Botão primário SASI ─── */

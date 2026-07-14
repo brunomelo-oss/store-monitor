@@ -228,11 +228,6 @@ export function AppLayout({ children }: AppLayoutProps) {
               </div>
             </button>
 
-            {/* Settings gear */}
-            <Link href="/admin" className="header-icon-btn">
-              <Settings size={14} />
-            </Link>
-
             {/* Language toggle */}
             <div className="relative">
               <button onClick={() => setLangOpen(!langOpen)} className="header-icon-btn">
