@@ -88,7 +88,7 @@ export function GlobalSearch() {
       .map(({ score: _, ...rest }) => rest)
 
     return [...pages, ...actions, ...appResults, ...settings]
-  }, [q, apps])
+  }, [q, apps, t])
 
   useEffect(() => { setSelectedIdx(0) }, [query])
 
