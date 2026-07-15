@@ -12,7 +12,7 @@ interface InviteSetupProps {
   onBack: () => void
 }
 
-const inputClass = 'w-full px-4 py-3 rounded-lg bg-slate-100 dark:bg-white/10 border border-slate-200 dark:border-white/10 text-foreground dark:text-white placeholder-zinc-500 text-sm outline-none focus:border-sasi-red/50 focus:bg-slate-200 dark:focus:bg-white/[0.12] transition'
+const inputClass = 'w-full px-4 py-3 rounded-lg bg-slate-100 dark:bg-white/10 border border-slate-200 dark:border-white/10 text-foreground placeholder:text-muted-foreground text-sm outline-none focus:border-sasi-red/50 focus:bg-slate-200 dark:focus:bg-white/[0.12] transition'
 
 export function InviteSetup({ email, onSuccess, onBack }: InviteSetupProps) {
   const { inviteSetup } = useAuth()
@@ -39,7 +39,7 @@ export function InviteSetup({ email, onSuccess, onBack }: InviteSetupProps) {
 
   return (
     <div className="space-y-5 animate-in fade-in slide-in-from-bottom-3 duration-300">
-      <button onClick={onBack} className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition">
+      <button onClick={onBack} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition">
         <ArrowLeft size={14} />
         {t('common.back')}
       </button>
@@ -48,13 +48,13 @@ export function InviteSetup({ email, onSuccess, onBack }: InviteSetupProps) {
         <div className="w-12 h-12 mx-auto rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
           <Lock size={20} className="text-blue-400" />
         </div>
-        <div className="text-lg font-semibold text-white mt-3">{t('invite.title')}</div>
-        <div className="text-sm text-zinc-500 mt-1">{t('invite.subtitle')}</div>
+        <div className="text-lg font-semibold text-foreground mt-3">{t('invite.title')}</div>
+        <div className="text-sm text-muted-foreground mt-1">{t('invite.subtitle')}</div>
       </div>
 
       <div className="p-3 rounded-lg bg-slate-100 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.06]">
-        <div className="text-[10px] text-zinc-600 uppercase tracking-wider mb-1">{t('invite.email')}</div>
-        <div className="text-sm text-zinc-300 font-medium">{email}</div>
+        <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">{t('invite.email')}</div>
+        <div className="text-sm text-foreground font-medium">{email}</div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-3">
@@ -64,7 +64,7 @@ export function InviteSetup({ email, onSuccess, onBack }: InviteSetupProps) {
             type={showPw ? 'text' : 'password'} autoComplete="new-password" placeholder={t('invite.password')}
             value={password} onChange={e => setPassword(e.target.value)}
           />
-          <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition" onClick={() => setShowPw(!showPw)}>
+          <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition" onClick={() => setShowPw(!showPw)}>
             {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>
         </div>

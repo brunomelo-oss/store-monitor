@@ -11,7 +11,7 @@ interface RegisterFormProps {
   onBack: () => void
 }
 
-const inputClass = 'w-full px-4 py-3 rounded-lg bg-slate-100 dark:bg-white/10 border border-slate-200 dark:border-white/10 text-foreground dark:text-white placeholder-zinc-500 text-sm outline-none focus:border-sasi-red/50 focus:bg-slate-200 dark:focus:bg-white/[0.12] transition'
+const inputClass = 'w-full px-4 py-3 rounded-lg bg-slate-100 dark:bg-white/10 border border-slate-200 dark:border-white/10 text-foreground placeholder:text-muted-foreground text-sm outline-none focus:border-sasi-red/50 focus:bg-slate-200 dark:focus:bg-white/[0.12] transition'
 
 export function RegisterForm({ onSuccess, onBack }: RegisterFormProps) {
   const { register } = useAuth()
@@ -38,14 +38,14 @@ export function RegisterForm({ onSuccess, onBack }: RegisterFormProps) {
 
   return (
     <div className="space-y-5 animate-in fade-in slide-in-from-bottom-3 duration-300">
-      <button onClick={onBack} className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition">
+      <button onClick={onBack} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition">
         <ArrowLeft size={14} />
         {t('common.back')}
       </button>
 
       <div className="text-center">
         <div className="text-lg font-semibold text-foreground dark:text-white">{t('register.title')}</div>
-        <div className="text-sm text-zinc-500 mt-1">{t('register.subtitle')}</div>
+        <div className="text-sm text-muted-foreground mt-1">{t('register.subtitle')}</div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-3">
@@ -61,7 +61,7 @@ export function RegisterForm({ onSuccess, onBack }: RegisterFormProps) {
             type={showPw ? 'text' : 'password'} autoComplete="new-password" placeholder={t('register.password')}
             value={password} onChange={e => setPassword(e.target.value)}
           />
-          <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition" onClick={() => setShowPw(!showPw)}>
+          <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition" onClick={() => setShowPw(!showPw)}>
             {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>
         </div>

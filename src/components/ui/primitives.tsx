@@ -10,14 +10,14 @@ type InputProps = InputHTMLAttributes<HTMLInputElement> & {
 
 const variants = {
   auth: 'bg-slate-100 dark:bg-white/10 border-slate-200 dark:border-white/10 focus:border-sasi-red/50 focus:bg-slate-200 dark:focus:bg-white/[0.12]',
-  surface: 'bg-zinc-800 border-zinc-700 focus:border-zinc-500',
+  surface: 'bg-surface border-border focus:border-sasi-red/50',
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ variant = 'auth', className = '', ...props }, ref) => (
     <input
       ref={ref}
-      className={`w-full px-4 py-3 rounded-lg border text-foreground dark:text-white placeholder-zinc-500 text-sm outline-none transition ${variants[variant]} ${className}`}
+       className={`w-full px-4 py-3 rounded-lg border text-foreground placeholder:text-muted-foreground text-sm outline-none transition ${variants[variant]} ${className}`}
       {...props}
     />
   )
@@ -48,7 +48,7 @@ export function PasswordInput({
       />
       <button
         type="button"
-        className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition"
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition"
         onClick={() => setShow(!show)}
       >
         {show ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -80,7 +80,7 @@ export function SubmitButton({
 
 export function BackButton({ onClick, label = '← Voltar' }: { onClick: () => void; label?: string }) {
   return (
-    <button className="text-xs text-zinc-500 hover:text-zinc-300 transition w-full text-center" onClick={onClick}>
+    <button className="text-xs text-muted-foreground hover:text-foreground transition w-full text-center" onClick={onClick}>
       {label}
     </button>
   )
@@ -103,7 +103,7 @@ export function SuccessScreen({
         <div className="text-3xl text-emerald-400 font-bold">✓</div>
       </div>
       <div className="text-lg font-semibold text-foreground dark:text-white">{title}</div>
-      <div className="text-sm text-zinc-500">{message}</div>
+      <div className="text-sm text-muted-foreground">{message}</div>
       <button onClick={onClick} className="w-full py-3 rounded-lg bg-gradient-to-r from-sasi-red to-red-500 text-white font-semibold text-sm hover:opacity-90 transition shadow-lg shadow-sasi-red/20">
         {buttonLabel}
       </button>

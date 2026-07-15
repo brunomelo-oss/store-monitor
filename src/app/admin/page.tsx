@@ -17,8 +17,8 @@ export default function AdminPage() {
 
   if (loading || !user) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <Loader2 size={32} className="animate-spin text-zinc-500" />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 size={32} className="animate-spin text-muted-foreground" />
       </div>
     )
   }

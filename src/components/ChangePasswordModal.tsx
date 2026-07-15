@@ -44,7 +44,7 @@ export function ChangePasswordModal({ onClose }: Props) {
     }
   }
 
-  const inputClass = 'w-full px-3 py-2 rounded-lg bg-surface dark:bg-zinc-800 border border-border dark:border-zinc-700 text-foreground dark:text-white text-sm outline-none focus:border-zinc-500 transition'
+  const inputClass = 'w-full px-3 py-2 rounded-lg bg-surface border-border text-foreground text-sm outline-none focus:border-sasi-red/50 transition'
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-overlay" onClick={e => { if (e.target === e.currentTarget) onClose() }}>
@@ -59,15 +59,15 @@ export function ChangePasswordModal({ onClose }: Props) {
           <input className={inputClass} type={showPw ? 'text' : 'password'} autoComplete="current-password" placeholder={t('common.currentPassword')} value={current} onChange={e => setCurrent(e.target.value)} />
           <div className="relative">
             <input className={`${inputClass} pr-10`} type={showPw ? 'text' : 'password'} autoComplete="new-password" placeholder={t('common.newPassword')} value={newPw} onChange={e => setNewPw(e.target.value)} />
-            <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500" onClick={() => setShowPw(!showPw)}>
+            <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" onClick={() => setShowPw(!showPw)}>
               {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
           </div>
           <input className={inputClass} type="password" autoComplete="new-password" placeholder={t('common.confirmPassword')} value={confirm} onChange={e => setConfirm(e.target.value)} />
           <div className="space-y-1 text-xs">
-            <div className={`${newPw.length >= 8 ? 'text-emerald-400' : 'text-zinc-500'}`}>✓ {t('changePassword.requirement.length')}</div>
-            <div className={`${/[a-zA-Z]/.test(newPw) ? 'text-emerald-400' : 'text-zinc-500'}`}>✓ {t('changePassword.requirement.letter')}</div>
-            <div className={`${/[!@#$%^&*()_+\-=\[\]{}|;':",.\/<>\?`~]/.test(newPw) ? 'text-emerald-400' : 'text-zinc-500'}`}>✓ {t('changePassword.requirement.special')}</div>
+            <div className={`${newPw.length >= 8 ? 'text-emerald-400' : 'text-muted-foreground'}`}>✓ {t('changePassword.requirement.length')}</div>
+            <div className={`${/[a-zA-Z]/.test(newPw) ? 'text-emerald-400' : 'text-muted-foreground'}`}>✓ {t('changePassword.requirement.letter')}</div>
+            <div className={`${/[!@#$%^&*()_+\-=\[\]{}|;':",.\/<>\?`~]/.test(newPw) ? 'text-emerald-400' : 'text-muted-foreground'}`}>✓ {t('changePassword.requirement.special')}</div>
           </div>
           {error && <p className="text-red-400 text-xs">{error}</p>}
         </div>

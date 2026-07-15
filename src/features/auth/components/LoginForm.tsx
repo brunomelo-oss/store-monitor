@@ -11,7 +11,7 @@ interface LoginFormProps {
   onSuccess: () => void
 }
 
-const inputClass = 'w-full px-4 py-3 rounded-lg bg-slate-100 dark:bg-white/10 border border-slate-200 dark:border-white/10 text-foreground dark:text-white placeholder-zinc-500 text-sm outline-none focus:outline-none focus:border-sasi-red/50 focus:bg-slate-200 dark:focus:bg-white/[0.12] transition'
+const inputClass = 'w-full px-4 py-3 rounded-lg bg-slate-100 dark:bg-white/10 border border-slate-200 dark:border-white/10 text-foreground placeholder:text-muted-foreground text-sm outline-none focus:outline-none focus:border-sasi-red/50 focus:bg-slate-200 dark:focus:bg-white/[0.12] transition'
 
 export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
   const { login } = useAuth()
@@ -83,7 +83,7 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
         <div className="w-[180px] h-[60px] mx-auto mb-4">
           <img src="/assets/logo-white.png" alt={t('login.altLogo')} className="w-full h-full object-contain" />
         </div>
-        <div className="text-sm text-zinc-500">{t('login.subtitle')}</div>
+        <div className="text-sm text-muted-foreground">{t('login.subtitle')}</div>
       </div>
 
       <form onSubmit={handleSubmit} className={`space-y-3 ${shaking ? 'animate-shake' : ''}`}>
@@ -112,7 +112,7 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
           />
           <button
             type="button"
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition"
             onClick={() => setShowPw(!showPw)}
           >
             {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -140,12 +140,12 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
 
         <label className="flex items-center gap-3 cursor-pointer select-none py-1">
           <div
-            className={`relative w-[38px] h-[22px] rounded-full transition-colors duration-200 ${rememberMe ? 'bg-sasi-red' : 'bg-zinc-700'}`}
+            className={`relative w-[38px] h-[22px] rounded-full transition-colors duration-200 ${rememberMe ? 'bg-sasi-red' : 'bg-inset'}`}
             onClick={() => setRememberMe(!rememberMe)}
           >
             <div className={`absolute top-[2px] left-[2px] w-[18px] h-[18px] rounded-full bg-white shadow-sm transition-transform duration-200 ${rememberMe ? 'translate-x-[16px]' : ''}`} />
           </div>
-          <span className="text-xs text-zinc-400">{t('login.remember')}</span>
+          <span className="text-xs text-muted-foreground">{t('login.remember')}</span>
         </label>
 
         <button
@@ -163,12 +163,12 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
           <div className="w-full border-t border-slate-200 dark:border-white/10" />
         </div>
         <div className="relative flex justify-center">
-          <span className="bg-slate-100 dark:bg-white/5 backdrop-blur-sm px-4 py-1 text-[11px] text-zinc-500 rounded-full border border-slate-200 dark:border-white/10">{t('login.or')}</span>
+          <span className="bg-slate-100 dark:bg-white/5 backdrop-blur-sm px-4 py-1 text-[11px] text-muted-foreground rounded-full border border-slate-200 dark:border-white/10">{t('login.or')}</span>
         </div>
       </div>
 
       <button
-        className="w-full py-2.5 rounded-lg border border-border text-zinc-400 text-sm font-medium hover:border-zinc-500 hover:text-zinc-300 transition"
+        className="w-full py-2.5 rounded-lg border border-border text-muted-foreground text-sm font-medium hover:border-zinc-500 hover:text-foreground transition"
         onClick={() => onSwitch('register')}
       >
         {t('login.firstAccess')}

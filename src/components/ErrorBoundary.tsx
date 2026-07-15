@@ -33,7 +33,7 @@ export class ErrorBoundary extends Component<Props, State> {
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <div className="text-4xl mb-4">⚠️</div>
           <h2 className="text-lg font-bold text-foreground mb-2">{t('errorBoundary.title')}</h2>
-          <p className="text-sm text-zinc-500 mb-4 max-w-md">
+          <p className="text-sm text-muted-foreground mb-4 max-w-md">
             {this.state.error?.message || t('errorBoundary.message')}
           </p>
           <button

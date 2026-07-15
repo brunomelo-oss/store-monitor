@@ -17,7 +17,7 @@ export function PasswordChecklist({ password }: { password: string }) {
         <div
           key={i}
           className={`flex items-center gap-2 text-xs transition-colors duration-200 ${
-            c.ok ? 'text-emerald-400' : 'text-zinc-500'
+            c.ok ? 'text-emerald-400' : 'text-muted-foreground'
           }`}
         >
           <Check size={12} className={`transition-all duration-200 ${c.ok ? 'opacity-100 scale-100' : 'opacity-40 scale-75'}`} />

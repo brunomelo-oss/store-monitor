@@ -11,7 +11,7 @@ interface PasswordResetProps {
   onSuccess: () => void
 }
 
-const inputClass = 'w-full px-4 py-3 rounded-lg bg-slate-100 dark:bg-white/10 border border-slate-200 dark:border-white/10 text-foreground dark:text-white placeholder-zinc-500 text-sm outline-none focus:border-sasi-red/50 focus:bg-slate-200 dark:focus:bg-white/[0.12] transition'
+const inputClass = 'w-full px-4 py-3 rounded-lg bg-slate-100 dark:bg-white/10 border border-slate-200 dark:border-white/10 text-foreground placeholder:text-muted-foreground text-sm outline-none focus:border-sasi-red/50 focus:bg-slate-200 dark:focus:bg-white/[0.12] transition'
 
 export function PasswordReset({ onBack, onSuccess }: PasswordResetProps) {
   const { sendResetEmail, doResetPassword } = useAuth()
@@ -52,7 +52,7 @@ export function PasswordReset({ onBack, onSuccess }: PasswordResetProps) {
   if (!sent) {
     return (
       <div className="space-y-5 animate-in fade-in slide-in-from-bottom-3 duration-300">
-        <button onClick={onBack} className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition">
+        <button onClick={onBack} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition">
           <ArrowLeft size={14} />
           {t('common.back')}
         </button>
@@ -62,7 +62,7 @@ export function PasswordReset({ onBack, onSuccess }: PasswordResetProps) {
             <Mail size={20} className="text-yellow-400" />
           </div>
           <div className="text-lg font-semibold text-foreground dark:text-white mt-3">{t('reset.title.email')}</div>
-          <div className="text-sm text-zinc-500 mt-1">{t('reset.subtitle.email')}</div>
+          <div className="text-sm text-muted-foreground mt-1">{t('reset.subtitle.email')}</div>
         </div>
 
         <input
@@ -90,7 +90,7 @@ export function PasswordReset({ onBack, onSuccess }: PasswordResetProps) {
 
   return (
     <div className="space-y-5 animate-in fade-in slide-in-from-bottom-3 duration-300">
-      <button onClick={() => setSent(false)} className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition">
+        <button onClick={() => setSent(false)} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition">
         <ArrowLeft size={14} />
         {t('common.back')}
       </button>
@@ -100,7 +100,7 @@ export function PasswordReset({ onBack, onSuccess }: PasswordResetProps) {
           <Mail size={20} className="text-emerald-400" />
         </div>
         <div className="text-lg font-semibold text-foreground dark:text-white mt-3">{t('reset.title.reset')}</div>
-        <div className="text-sm text-zinc-500 mt-1">{t('reset.subtitle.reset', { email })}</div>
+          <div className="text-sm text-muted-foreground mt-1">{t('reset.subtitle.reset', { email })}</div>
       </div>
 
       <form onSubmit={handleReset} className="space-y-3">
@@ -110,7 +110,7 @@ export function PasswordReset({ onBack, onSuccess }: PasswordResetProps) {
             type={showPw ? 'text' : 'password'} autoComplete="new-password" placeholder={t('reset.newPassword')}
             value={password} onChange={e => setPassword(e.target.value)}
           />
-          <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition" onClick={() => setShowPw(!showPw)}>
+          <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition" onClick={() => setShowPw(!showPw)}>
             {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>
         </div>

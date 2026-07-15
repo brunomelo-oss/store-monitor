@@ -8,12 +8,12 @@ const statusConfig: Record<string, { icon: typeof CheckCircle; color: string; la
   FAILED: { icon: XCircle, color: 'text-red-500', label: 'Falha' },
   PENDING: { icon: Clock, color: 'text-yellow-500', label: 'Pendente' },
   RUNNING: { icon: Loader2, color: 'text-blue-500', label: 'Executando' },
-  IGNORED: { icon: AlertTriangle, color: 'text-zinc-500', label: 'Ignorado' },
+  IGNORED: { icon: AlertTriangle, color: 'text-muted-foreground', label: 'Ignorado' },
   PARTIAL: { icon: AlertTriangle, color: 'text-orange-500', label: 'Parcial' },
 }
 
 export function StatusBadge({ status, size = 'sm' }: { status: StatusVariant; size?: 'sm' | 'md' | 'lg' }) {
-  const config = statusConfig[status] || { icon: Clock, color: 'text-zinc-400', label: status }
+  const config = statusConfig[status] || { icon: Clock, color: 'text-muted-foreground', label: status }
   const Icon = config.icon
   const sizeClass = size === 'lg' ? 'h-5 w-5' : size === 'md' ? 'h-4 w-4' : 'h-3 w-3'
 
