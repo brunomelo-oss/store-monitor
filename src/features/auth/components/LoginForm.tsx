@@ -11,7 +11,7 @@ interface LoginFormProps {
   onSuccess: () => void
 }
 
-const inputClass = 'w-full px-4 py-3 rounded-lg bg-white/10 border border-white/10 text-white placeholder-zinc-500 text-sm outline-none focus:outline-none focus:border-sasi-red/50 focus:bg-white/[0.12] transition'
+const inputClass = 'w-full px-4 py-3 rounded-lg bg-slate-100 dark:bg-white/10 border border-slate-200 dark:border-white/10 text-foreground dark:text-white placeholder-zinc-500 text-sm outline-none focus:outline-none focus:border-sasi-red/50 focus:bg-slate-200 dark:focus:bg-white/[0.12] transition'
 
 export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
   const { login } = useAuth()
@@ -160,10 +160,10 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
 
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-white/10" />
+          <div className="w-full border-t border-slate-200 dark:border-white/10" />
         </div>
         <div className="relative flex justify-center">
-          <span className="bg-white/5 backdrop-blur-sm px-4 py-1 text-[11px] text-zinc-500 rounded-full border border-white/10">{t('login.or')}</span>
+          <span className="bg-slate-100 dark:bg-white/5 backdrop-blur-sm px-4 py-1 text-[11px] text-zinc-500 rounded-full border border-slate-200 dark:border-white/10">{t('login.or')}</span>
         </div>
       </div>
 

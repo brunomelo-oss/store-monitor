@@ -9,7 +9,7 @@ type InputProps = InputHTMLAttributes<HTMLInputElement> & {
 }
 
 const variants = {
-  auth: 'bg-white/10 border-white/10 focus:border-sasi-red/50 focus:bg-white/[0.12]',
+  auth: 'bg-slate-100 dark:bg-white/10 border-slate-200 dark:border-white/10 focus:border-sasi-red/50 focus:bg-slate-200 dark:focus:bg-white/[0.12]',
   surface: 'bg-zinc-800 border-zinc-700 focus:border-zinc-500',
 }
 
@@ -17,7 +17,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ variant = 'auth', className = '', ...props }, ref) => (
     <input
       ref={ref}
-      className={`w-full px-4 py-3 rounded-lg border text-white placeholder-zinc-500 text-sm outline-none transition ${variants[variant]} ${className}`}
+      className={`w-full px-4 py-3 rounded-lg border text-foreground dark:text-white placeholder-zinc-500 text-sm outline-none transition ${variants[variant]} ${className}`}
       {...props}
     />
   )
@@ -102,7 +102,7 @@ export function SuccessScreen({
       <div className="w-16 h-16 mx-auto rounded-full bg-emerald-500/10 flex items-center justify-center">
         <div className="text-3xl text-emerald-400 font-bold">✓</div>
       </div>
-      <div className="text-lg font-semibold text-white">{title}</div>
+      <div className="text-lg font-semibold text-foreground dark:text-white">{title}</div>
       <div className="text-sm text-zinc-500">{message}</div>
       <button onClick={onClick} className="w-full py-3 rounded-lg bg-gradient-to-r from-sasi-red to-red-500 text-white font-semibold text-sm hover:opacity-90 transition shadow-lg shadow-sasi-red/20">
         {buttonLabel}

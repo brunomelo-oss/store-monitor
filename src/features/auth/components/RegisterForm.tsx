@@ -11,7 +11,7 @@ interface RegisterFormProps {
   onBack: () => void
 }
 
-const inputClass = 'w-full px-4 py-3 rounded-lg bg-white/10 border border-white/10 text-white placeholder-zinc-500 text-sm outline-none focus:border-sasi-red/50 focus:bg-white/[0.12] transition'
+const inputClass = 'w-full px-4 py-3 rounded-lg bg-slate-100 dark:bg-white/10 border border-slate-200 dark:border-white/10 text-foreground dark:text-white placeholder-zinc-500 text-sm outline-none focus:border-sasi-red/50 focus:bg-slate-200 dark:focus:bg-white/[0.12] transition'
 
 export function RegisterForm({ onSuccess, onBack }: RegisterFormProps) {
   const { register } = useAuth()
@@ -44,7 +44,7 @@ export function RegisterForm({ onSuccess, onBack }: RegisterFormProps) {
       </button>
 
       <div className="text-center">
-        <div className="text-lg font-semibold text-white">{t('register.title')}</div>
+        <div className="text-lg font-semibold text-foreground dark:text-white">{t('register.title')}</div>
         <div className="text-sm text-zinc-500 mt-1">{t('register.subtitle')}</div>
       </div>
 

@@ -24,11 +24,11 @@ export default function LoginPage() {
   if (loading) return null
 
   return (
-    <div className="min-h-screen bg-[#020617] flex items-center justify-center p-4 relative overflow-hidden login-root">
+    <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#020617] flex items-center justify-center p-4 relative overflow-hidden login-root">
       <div className="login-bg" />
-      <div className="login-overlay" />
-      <div className="login-vignette" />
-      <div className="login-spotlight" />
+      <div className="login-overlay hidden dark:block" />
+      <div className="login-vignette hidden dark:block" />
+      <div className="login-spotlight hidden dark:block" />
 
       <style>{`
         @keyframes loginFadeIn {
@@ -57,6 +57,8 @@ export default function LoginPage() {
           background-repeat: no-repeat; background-attachment: fixed;
           animation: bgFadeIn 1s ease;
         }
+        :root .login-bg { display: none; }
+        .dark .login-bg { display: block; }
 
         .login-overlay {
           position: fixed; inset: 0; z-index: 1;
@@ -80,13 +82,18 @@ export default function LoginPage() {
 
         .login-card {
           position: relative; z-index: 3;
+          background: #FFFFFF;
+          border: 1px solid #E2E8F0;
+          box-shadow: 0 25px 50px rgba(0,0,0,0.08);
+          border-radius: 24px;
+          padding: 2.5rem 2rem;
+          animation: loginFadeIn .6s ease .2s both;
+        }
+        .dark .login-card {
           background: rgba(255,255,255,.05);
           backdrop-filter: blur(12px);
           border: 1px solid rgba(255,255,255,.10);
           box-shadow: 0 30px 80px rgba(0,0,0,.45);
-          border-radius: 24px;
-          padding: 2.5rem 2rem;
-          animation: loginFadeIn .6s ease .2s both;
         }
 
         .login-card img[alt="SASI"] {
@@ -94,16 +101,7 @@ export default function LoginPage() {
         }
 
         .login-card input {
-          background: rgba(255,255,255,.08) !important;
-          border-color: rgba(255,255,255,.12) !important;
           transition: all .2s ease;
-        }
-        .login-card input:focus {
-          border-color: #DC2626 !important;
-          box-shadow: 0 0 0 3px rgba(220,38,38,.15);
-        }
-        .login-card input::placeholder {
-          color: rgba(255,255,255,.4) !important;
         }
 
         .login-card button[type="submit"] {
@@ -115,7 +113,7 @@ export default function LoginPage() {
       `}</style>
 
       <div className="fixed top-6 left-0 right-0 z-10 text-center">
-        <span className="inline-block px-4 py-1.5 rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-[11px] font-medium text-white/70 tracking-wide select-none">
+        <span className="inline-block px-4 py-1.5 rounded-full bg-slate-100 dark:bg-white/5 backdrop-blur-md border border-slate-200 dark:border-white/10 text-[11px] font-medium text-slate-500 dark:text-white/70 tracking-wide select-none">
           {t('login.createdBy')}
         </span>
       </div>

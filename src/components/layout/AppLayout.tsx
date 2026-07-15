@@ -90,7 +90,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       {/* Sidebar */}
       <aside className="fixed left-0 top-0 h-full w-48 z-30 sasi-sidebar flex flex-col">
         {/* SASI Logo */}
-        <div className="flex items-center justify-center h-16 shrink-0 border-b border-[rgba(255,255,255,0.08)]">
+          <div className="flex items-center justify-center h-16 shrink-0 border-b border-[var(--surface-glass-border)]">
           <div className="w-32 h-10 bg-[url('/assets/logo-white.png')] bg-center bg-contain bg-no-repeat" />
         </div>
 
@@ -120,7 +120,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         </nav>
 
         {/* Settings */}
-        <div className="shrink-0 p-2 border-t border-[rgba(255,255,255,0.08)]">
+        <div className="shrink-0 p-2 border-t border-[var(--surface-glass-border)]">
           <Link
             href="/admin"
             className={`sasi-nav-item ${pathname.startsWith('/admin') ? 'active' : ''}`}
@@ -162,7 +162,7 @@ export function AppLayout({ children }: AppLayoutProps) {
               </button>
               {notifOpen && (
                 <div className="absolute right-0 top-full mt-2 w-80 glass-dropdown rounded-xl overflow-hidden z-50 animate-dropdownIn">
-                  <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+                    <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-white/10">
                     <span className="text-sm font-medium text-foreground">{t('notifications.title')}</span>
                     <div className="flex items-center gap-2">
                       {(unread?.count || 0) > 0 && (
@@ -195,7 +195,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                             key={n.id}
                             href={n.appId ? `/apps/${n.appId}` : '/notifications'}
                             onClick={() => setNotifOpen(false)}
-                            className={`flex items-start gap-3 px-4 py-3 transition-colors hover:bg-white/[0.04] ${!n.read ? 'bg-white/[0.02]' : ''}`}
+                            className={`flex items-start gap-3 px-4 py-3 transition-colors hover:bg-slate-100 dark:hover:bg-white/[0.04] ${!n.read ? 'bg-slate-50 dark:bg-white/[0.02]' : ''}`}
                           >
                             <NIcon size={15} className={`shrink-0 mt-0.5 ${color}`} />
                             <div className="min-w-0 flex-1">
@@ -212,7 +212,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                     <Link
                       href="/notifications"
                       onClick={() => setNotifOpen(false)}
-                      className="block text-center text-xs text-blue-400 py-3 border-t border-white/10 hover:bg-white/[0.04]"
+                      className="block text-center text-xs text-blue-400 py-3 border-t border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/[0.04]"
                     >
                       {t('notifications.viewAll')}
                     </Link>

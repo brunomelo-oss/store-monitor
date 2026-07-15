@@ -11,7 +11,7 @@ interface PasswordResetProps {
   onSuccess: () => void
 }
 
-const inputClass = 'w-full px-4 py-3 rounded-lg bg-white/10 border border-white/10 text-white placeholder-zinc-500 text-sm outline-none focus:border-sasi-red/50 focus:bg-white/[0.12] transition'
+const inputClass = 'w-full px-4 py-3 rounded-lg bg-slate-100 dark:bg-white/10 border border-slate-200 dark:border-white/10 text-foreground dark:text-white placeholder-zinc-500 text-sm outline-none focus:border-sasi-red/50 focus:bg-slate-200 dark:focus:bg-white/[0.12] transition'
 
 export function PasswordReset({ onBack, onSuccess }: PasswordResetProps) {
   const { sendResetEmail, doResetPassword } = useAuth()
@@ -61,7 +61,7 @@ export function PasswordReset({ onBack, onSuccess }: PasswordResetProps) {
           <div className="w-12 h-12 mx-auto rounded-xl bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center">
             <Mail size={20} className="text-yellow-400" />
           </div>
-          <div className="text-lg font-semibold text-white mt-3">{t('reset.title.email')}</div>
+          <div className="text-lg font-semibold text-foreground dark:text-white mt-3">{t('reset.title.email')}</div>
           <div className="text-sm text-zinc-500 mt-1">{t('reset.subtitle.email')}</div>
         </div>
 
@@ -99,7 +99,7 @@ export function PasswordReset({ onBack, onSuccess }: PasswordResetProps) {
         <div className="w-12 h-12 mx-auto rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
           <Mail size={20} className="text-emerald-400" />
         </div>
-        <div className="text-lg font-semibold text-white mt-3">{t('reset.title.reset')}</div>
+        <div className="text-lg font-semibold text-foreground dark:text-white mt-3">{t('reset.title.reset')}</div>
         <div className="text-sm text-zinc-500 mt-1">{t('reset.subtitle.reset', { email })}</div>
       </div>
 

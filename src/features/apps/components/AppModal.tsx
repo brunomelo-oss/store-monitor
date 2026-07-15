@@ -120,7 +120,7 @@ export function AppModal({ app, mode, region, onClose }: AppModalProps) {
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-200 ${animIn ? 'bg-black/60' : 'bg-transparent'}`}
+      className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-200 ${animIn ? 'bg-overlay' : 'bg-transparent'}`}
       onClick={e => { if (e.target === e.currentTarget) onClose() }}
     >
       <div className={`w-full max-w-lg bg-zinc-900 border border-border rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto transition-all duration-200 ${animIn ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>

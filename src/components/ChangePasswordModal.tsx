@@ -44,14 +44,14 @@ export function ChangePasswordModal({ onClose }: Props) {
     }
   }
 
-  const inputClass = 'w-full px-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700 text-white text-sm outline-none focus:border-zinc-500 transition'
+  const inputClass = 'w-full px-3 py-2 rounded-lg bg-surface dark:bg-zinc-800 border border-border dark:border-zinc-700 text-foreground dark:text-white text-sm outline-none focus:border-zinc-500 transition'
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60" onClick={e => { if (e.target === e.currentTarget) onClose() }}>
-      <div className="w-full max-w-sm bg-zinc-900 border border-border rounded-2xl shadow-2xl" onClick={e => e.stopPropagation()}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-overlay" onClick={e => { if (e.target === e.currentTarget) onClose() }}>
+      <div className="w-full max-w-sm bg-card dark:bg-zinc-900 border border-border rounded-2xl shadow-2xl" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-          <h3 className="text-base font-semibold text-white">{t('changePassword.title')}</h3>
-          <button onClick={onClose} className="p-1 text-zinc-500 hover:text-white transition">
+          <h3 className="text-base font-semibold text-foreground dark:text-white">{t('changePassword.title')}</h3>
+          <button onClick={onClose} className="p-1 text-muted-foreground hover:text-foreground dark:hover:text-white transition">
             <X size={18} />
           </button>
         </div>
@@ -72,7 +72,7 @@ export function ChangePasswordModal({ onClose }: Props) {
           {error && <p className="text-red-400 text-xs">{error}</p>}
         </div>
         <div className="flex items-center justify-end gap-3 px-5 py-4 border-t border-border">
-          <button onClick={onClose} className="px-4 py-2 text-sm text-zinc-400 hover:text-white transition">{t('common.cancel')}</button>
+          <button onClick={onClose} className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground dark:hover:text-white transition">{t('common.cancel')}</button>
           <button onClick={handleSave} disabled={loading}
             className="px-5 py-2 rounded-lg bg-sasi-red text-white text-sm font-semibold hover:opacity-90 disabled:opacity-50 transition flex items-center gap-2"
           >

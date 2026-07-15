@@ -133,7 +133,7 @@ export function GlobalSearch() {
 
   return (
     <div className="relative w-full max-w-[340px] xl:max-w-[420px]">
-      <div className="flex items-center gap-2 bg-white/[0.04] backdrop-blur-xl border border-border rounded-xl px-3 py-1.5 transition-all duration-200 focus-within:border-foreground/20 focus-within:bg-white/[0.07]">
+      <div className="flex items-center gap-2 bg-slate-100 dark:bg-white/[0.04] backdrop-blur-xl border border-border rounded-xl px-3 py-1.5 transition-all duration-200 focus-within:border-foreground/20 focus-within:bg-slate-200 dark:focus-within:bg-white/[0.07]">
         <Search size={14} className="text-muted-foreground/40 shrink-0" />
         <input
           ref={inputRef}
@@ -167,8 +167,8 @@ export function GlobalSearch() {
                   key={`${item.type}-${item.id}`}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-left transition-colors ${
                     selectedIdx === idx
-                      ? 'bg-white/[0.08] text-foreground'
-                      : 'text-muted-foreground hover:bg-white/[0.04] hover:text-foreground'
+                      ? 'bg-slate-200 dark:bg-white/[0.08] text-foreground'
+                      : 'text-muted-foreground hover:bg-slate-100 dark:hover:bg-white/[0.04] hover:text-foreground'
                   }`}
                   onClick={() => execute(item)}
                   onMouseEnter={() => setSelectedIdx(idx)}
