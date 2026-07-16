@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
+import { useRouter } from 'next/navigation'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { useStoreConnections, useTestConnection, useCreateConnection, useDeleteConnection } from '@/features/store-connections/hooks/useStoreConnections'
 import { useUpdateConnection } from '@/features/store-connections/hooks/useUpdateConnection'
@@ -14,8 +15,13 @@ import { getErrorMessage } from '@/services/api-client'
 import { useToast } from '@/components/Toast'
 
 export default function ConnectionsPage() {
+  const router = useRouter()
   const { user, loading, isAdmin } = useAuth()
   const { data: connections, isLoading, error, refetch } = useStoreConnections()
+
+  useEffect(() => {
+    if (!loading && !user) router.replace('/login')
+  }, [loading, user])
   const createMutation = useCreateConnection()
   const deleteMutation = useDeleteConnection()
   const testMutation = useTestConnection()

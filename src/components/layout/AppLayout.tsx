@@ -11,9 +11,9 @@ import { useUnreadCount, useNotifications, useMarkAllAsRead } from '@/features/n
 import { GlobalSearch } from './GlobalSearch'
 import { ChangePasswordModal } from '@/components/ChangePasswordModal'
 import {
-  Layers, Users, Bell, Moon, Sun, Smartphone, Shield, LayoutDashboard,
+  Layers, Users, Bell, Smartphone, Shield, LayoutDashboard,
   CheckCheck, XCircle, CheckCircle, MessageSquare, RefreshCw,
-  Languages, Settings, LogOut, Lock, ChevronDown, User,
+  Settings, LogOut, Lock, ChevronDown, User,
 } from 'lucide-react'
 import type { LangCode } from '@/lib/i18n'
 
@@ -36,7 +36,8 @@ export function AppLayout({ children }: AppLayoutProps) {
   const [profileOpen, setProfileOpen] = useState(false)
   const profileRef = useRef<HTMLDivElement>(null)
   const [showPasswordModal, setShowPasswordModal] = useState(false)
-  const [langOpen, setLangOpen] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  const settingsRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -54,11 +55,19 @@ export function AppLayout({ children }: AppLayoutProps) {
     return () => document.removeEventListener('click', handler)
   }, [])
 
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (settingsRef.current && !settingsRef.current.contains(e.target as Node)) setSettingsOpen(false)
+    }
+    if (settingsOpen) document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [settingsOpen])
+
   const isAdmin = user?.role === 'OWNER' || user?.role === 'ADMIN'
   const navItems = [
     { id: '/apps', label: t('nav.apps'), icon: Layers },
     { id: '/admin', label: t('nav.users'), icon: Users },
-    ...(isAdmin ? [{ id: '/admin/connections', label: t('nav.system'), icon: Shield }] : []),
+    ...(isAdmin ? [{ id: '/admin/connections', label: t('nav.connections'), icon: Shield }] : []),
   ]
 
   const isActive = (href: string) => {
@@ -120,14 +129,56 @@ export function AppLayout({ children }: AppLayoutProps) {
         </nav>
 
         {/* Settings */}
-        <div className="shrink-0 p-2 border-t border-[var(--surface-glass-border)]">
-          <Link
-            href="/admin"
-            className={`sasi-nav-item ${pathname.startsWith('/admin') ? 'active' : ''}`}
+        <div className="shrink-0 p-2 border-t border-[var(--surface-glass-border)]" ref={settingsRef}>
+          <button
+            onClick={() => setSettingsOpen(!settingsOpen)}
+            className={`sasi-nav-item w-full ${pathname.startsWith('/admin') ? 'active' : ''}`}
           >
             <Settings size={20} />
             <span>{t('nav.settings')}</span>
-          </Link>
+          </button>
+          {settingsOpen && (
+            <div className="absolute bottom-full left-2 mb-2 w-56 bg-card border border-border rounded-xl shadow-xl p-3 z-50 animate-dropdownIn origin-bottom">
+              <div className="text-xs text-muted-foreground mb-2">{t('settings.theme')}</div>
+              <div className="flex rounded-lg bg-inset p-0.5 relative">
+                <div
+                  className="absolute h-[calc(100%-4px)] top-0.5 rounded-md bg-card shadow-sm transition-transform duration-200"
+                  style={{ width: '50%', transform: `translateX(${isDark ? '100%' : '0%'})` }}
+                />
+                <button
+                  onClick={() => { if (isDark) toggle(); setSettingsOpen(false) }}
+                  className="relative z-10 flex-1 h-8 text-xs font-medium rounded-md transition-colors"
+                >
+                  Light
+                </button>
+                <button
+                  onClick={() => { if (!isDark) toggle(); setSettingsOpen(false) }}
+                  className="relative z-10 flex-1 h-8 text-xs font-medium rounded-md transition-colors"
+                >
+                  Dark
+                </button>
+              </div>
+
+              <div className="h-px bg-border my-3" />
+
+              <div className="text-xs text-muted-foreground mb-2">{t('settings.language')}</div>
+              <div className="flex rounded-lg bg-inset p-0.5 relative">
+                <div
+                  className="absolute h-[calc(100%-4px)] top-0.5 rounded-md bg-card shadow-sm transition-transform duration-200"
+                  style={{ width: `${100 / languages.length}%`, transform: `translateX(${languages.findIndex(l => l.code === lang) * 100}%)` }}
+                />
+                {languages.map(l => (
+                  <button
+                    key={l.code}
+                    onClick={() => { setLang(l.code); setSettingsOpen(false) }}
+                    className="relative z-10 flex-1 h-8 text-xs font-medium rounded-md transition-colors"
+                  >
+                    {l.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </aside>
 
@@ -218,37 +269,6 @@ export function AppLayout({ children }: AppLayoutProps) {
                     </Link>
                   )}
                 </div>
-              )}
-            </div>
-
-            {/* Theme toggle */}
-            <button onClick={toggle} className="header-icon-btn">
-              <div className="transition-transform duration-300 hover:scale-110 active:scale-90 flex items-center justify-center">
-                {isDark ? <Sun size={14} /> : <Moon size={14} />}
-              </div>
-            </button>
-
-            {/* Language toggle */}
-            <div className="relative">
-              <button onClick={() => setLangOpen(!langOpen)} className="header-icon-btn">
-                <Languages size={14} />
-              </button>
-              {langOpen && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setLangOpen(false)} />
-                  <div className="absolute right-0 top-full mt-2 w-40 bg-card border border-border rounded-xl shadow-xl py-1.5 z-50 transition-all duration-150">
-                    {languages.map(l => (
-                      <button
-                        key={l.code}
-                        onClick={() => { setLang(l.code); setLangOpen(false) }}
-                        className={`w-full h-10 px-4 text-left text-sm flex items-center justify-between transition-colors ${lang === l.code ? 'text-foreground font-medium' : 'text-muted-foreground hover:text-foreground hover:bg-inset'}`}
-                      >
-                        {l.label}
-                        {lang === l.code && <span className="w-1.5 h-1.5 rounded-full bg-sasi-red" />}
-                      </button>
-                    ))}
-                  </div>
-                </>
               )}
             </div>
 

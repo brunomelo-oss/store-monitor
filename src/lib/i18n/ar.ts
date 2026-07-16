@@ -36,8 +36,11 @@ export const ar: Record<string, string> = {
   'nav.dashboard': 'لوحة التحكم',
   'nav.apps': 'التطبيقات',
   'nav.users': 'المستخدمين',
-  'nav.system': 'النظام',
+  'nav.connections': 'الاتصالات',
   'nav.settings': 'الإعدادات',
+
+  'settings.theme': 'المظهر',
+  'settings.language': 'اللغة',
 
   'notifications.title': 'الإشعارات',
   'notifications.markAllRead': 'تحديد الكل مقروء',

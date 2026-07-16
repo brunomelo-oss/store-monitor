@@ -36,8 +36,11 @@ export const pt: Record<string, string> = {
   'nav.dashboard': 'Dashboard',
   'nav.apps': 'Apps',
   'nav.users': 'Usuários',
-  'nav.system': 'Sistema',
+  'nav.connections': 'Conexões',
   'nav.settings': 'Configurações',
+
+  'settings.theme': 'Tema',
+  'settings.language': 'Idioma',
 
   'notifications.title': 'Notificações',
   'notifications.markAllRead': 'Ler todas',
