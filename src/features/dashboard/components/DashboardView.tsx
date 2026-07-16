@@ -9,6 +9,7 @@ import { Tooltip } from '@/components/Tooltip'
 import { EmptyState } from '@/components/EmptyState'
 import { useApps } from '@/hooks/useApps'
 import { useActivity } from '@/features/activity/hooks/useActivity'
+import { useLang } from '@/contexts/LanguageContext'
 import { Spinner } from '@/components/LoadingSkeleton'
 import {
   Smartphone, CheckCircle, XCircle, Clock,
@@ -55,6 +56,7 @@ function DashboardSkeleton() {
 
 function CommandCenter() {
   const router = useRouter()
+  const { t, lang } = useLang()
   const { data: apps = [], isLoading: appsLoading } = useApps()
   const { data: activity = [] } = useActivity(20)
 
@@ -84,20 +86,22 @@ function CommandCenter() {
     return s === 'REJECTED' || s === 'PENDING' || s === 'FAILED' || s === 'PUBLISHED'
   }).slice(0, 5)
 
+  const locale = lang === 'pt' ? 'pt-BR' : lang === 'en' ? 'en-US' : 'ar-SA'
+
   const kpiCards = [
-    { label: 'Publicados', value: publishedApps, icon: Smartphone, variant: 'success' as const, subtitle: `${totalApps} no total` },
-    { label: 'Em Revisão', value: inReviewApps, icon: Clock, variant: 'warning' as const },
-    { label: 'Precisam de Atenção', value: needsAttentionApps, icon: AlertTriangle, variant: 'attention' as const },
-    { label: 'Rejeitados', value: rejectedApps, icon: XCircle, variant: 'rejected' as const },
-    { label: 'Builds Pendentes', value: pendingBuilds, icon: Hourglass, variant: 'pending' as const },
-    { label: 'Taxa Aprovação', value: `${approvalRate}%`, icon: TrendingUp, variant: 'rate' as const },
+    { label: t('dashboard.published'), value: publishedApps, icon: Smartphone, variant: 'success' as const, subtitle: t('dashboard.ofTotal', { count: totalApps }) },
+    { label: t('dashboard.inReview'), value: inReviewApps, icon: Clock, variant: 'warning' as const },
+    { label: t('dashboard.needsAttention'), value: needsAttentionApps, icon: AlertTriangle, variant: 'attention' as const },
+    { label: t('dashboard.rejected'), value: rejectedApps, icon: XCircle, variant: 'rejected' as const },
+    { label: t('dashboard.pendingBuilds'), value: pendingBuilds, icon: Hourglass, variant: 'pending' as const },
+    { label: t('dashboard.approvalRate'), value: `${approvalRate}%`, icon: TrendingUp, variant: 'rate' as const },
   ]
 
   const statusDistribution = [
-    { label: 'Publicados', count: publishedApps, color: 'bg-emerald-500', pct: totalApps > 0 ? (publishedApps / totalApps) * 100 : 0 },
-    { label: 'Em Revisão', count: inReviewApps, color: 'bg-amber-500', pct: totalApps > 0 ? (inReviewApps / totalApps) * 100 : 0 },
-    { label: 'Rejeitados', count: rejectedApps, color: 'bg-red-500', pct: totalApps > 0 ? (rejectedApps / totalApps) * 100 : 0 },
-    { label: 'Outros', count: totalApps - publishedApps - inReviewApps - rejectedApps, color: 'bg-slate-400', pct: totalApps > 0 ? ((totalApps - publishedApps - inReviewApps - rejectedApps) / totalApps) * 100 : 0 },
+    { label: t('dashboard.published_singular'), count: publishedApps, color: 'bg-emerald-500', pct: totalApps > 0 ? (publishedApps / totalApps) * 100 : 0 },
+    { label: t('dashboard.inReview'), count: inReviewApps, color: 'bg-amber-500', pct: totalApps > 0 ? (inReviewApps / totalApps) * 100 : 0 },
+    { label: t('dashboard.rejected'), count: rejectedApps, color: 'bg-red-500', pct: totalApps > 0 ? (rejectedApps / totalApps) * 100 : 0 },
+    { label: t('dashboard.others'), count: totalApps - publishedApps - inReviewApps - rejectedApps, color: 'bg-slate-400', pct: totalApps > 0 ? ((totalApps - publishedApps - inReviewApps - rejectedApps) / totalApps) * 100 : 0 },
   ]
 
   const googleCount = apps.filter(a => a.playVersion && a.playVersion !== '-').length
@@ -113,10 +117,10 @@ function CommandCenter() {
     const latest = new Date(Math.max(...dates.map(d => new Date(d).getTime())))
     const diff = Date.now() - latest.getTime()
     const mins = Math.floor(diff / 60000)
-    if (mins < 1) return 'agora mesmo'
-    if (mins < 60) return `${mins} min atrás`
-    return `${Math.floor(mins / 60)}h atrás`
-  }, [activity, apps])
+    if (mins < 1) return t('dashboard.justNow')
+    if (mins < 60) return t('dashboard.minAgo', { mins })
+    return t('dashboard.hoursAgo', { hours: Math.floor(mins / 60) })
+  }, [activity, apps, t])
 
   if (appsLoading) return <Spinner />
 
@@ -124,30 +128,30 @@ function CommandCenter() {
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
+          <h1 className="text-2xl font-bold text-foreground">{t('dashboard.title')}</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            {totalApps} {totalApps === 1 ? 'aplicativo monitorado' : 'aplicativos monitorados'}
+            {t('dashboard.monitoredApps', { count: totalApps, s: totalApps === 1 ? '' : 's' })}
             {inReviewApps > 0 && <span className="inline-flex items-center gap-1 ml-2">
-              <Badge variant="warning" dot>{inReviewApps} em revisão</Badge>
+              <Badge variant="warning" dot>{t('dashboard.inReview_badge', { count: inReviewApps })}</Badge>
             </span>}
             {needsAttentionApps > 0 && <span className="inline-flex items-center gap-1 ml-1.5">
-              <Badge variant="danger" dot>{needsAttentionApps} precisam de atenção</Badge>
+              <Badge variant="danger" dot>{t('dashboard.needsAttention_badge', { count: needsAttentionApps })}</Badge>
             </span>}
           </p>
           {timeSinceLastUpdate && (
-            <p className="text-xs text-muted-foreground/60 mt-0.5">Última atualização há {timeSinceLastUpdate}</p>
+            <p className="text-xs text-muted-foreground/60 mt-0.5">{t('dashboard.lastUpdate', { time: timeSinceLastUpdate })}</p>
           )}
         </div>
         <div className="flex items-center gap-2">
           <button className="sasi-btn-secondary inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm">
-            <Download size={15} /> Relatórios
+            <Download size={15} /> {t('dashboard.reports')}
           </button>
         </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6">
         {kpiCards.map(card => (
-          <Link key={card.label} href={card.label === 'Publicados' ? '/apps?status=PUBLISHED' : card.label === 'Em Revisão' ? '/apps?status=REVIEW' : card.label === 'Rejeitados' ? '/apps?status=REJECTED' : '/apps'}>
+          <Link key={card.label} href={card.label === t('dashboard.published') ? '/apps?status=PUBLISHED' : card.label === t('dashboard.inReview') ? '/apps?status=REVIEW' : card.label === t('dashboard.rejected') ? '/apps?status=REJECTED' : '/apps'}>
             <MetricCard
               title={card.label}
               value={card.value}
@@ -163,17 +167,17 @@ function CommandCenter() {
         <div className="lg:col-span-2 sasi-card-hover rounded-xl p-5">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="font-semibold text-foreground">Prioridades</h3>
-              <p className="text-xs text-muted-foreground mt-0.5">Itens que exigem ação</p>
+              <h3 className="font-semibold text-foreground">{t('dashboard.priorities')}</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">{t('dashboard.requiresAction')}</p>
             </div>
             <Link href="/apps" className="text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
-              Ver todas as pendências <ArrowUpRight size={12} />
+              {t('dashboard.viewAllPending')} <ArrowUpRight size={12} />
             </Link>
           </div>
           <div className="space-y-2">
             {priorities.length === 0 ? (
               <div className="text-center py-8 text-sm text-muted-foreground/60">
-                Nenhum item pendente
+                {t('dashboard.noPendingItems')}
               </div>
             ) : (
               priorities.map(app => {
@@ -191,7 +195,7 @@ function CommandCenter() {
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-foreground truncate">{app.name}</p>
                       <p className="text-xs text-muted-foreground truncate">
-                        {isRed ? 'Versão rejeitada' : isYellow ? 'Documentação pendente' : isGreen ? 'Pronto para publicação' : status}
+                        {isRed ? t('dashboard.rejectedVersion') : isYellow ? t('dashboard.pendingDocumentation') : isGreen ? t('dashboard.readyToPublish') : status}
                       </p>
                     </div>
                     <Badge variant={isRed ? 'danger' : isYellow ? 'warning' : isGreen ? 'success' : 'default'} size="sm" dot>
@@ -207,8 +211,8 @@ function CommandCenter() {
         <div className="sasi-card-hover rounded-xl p-5">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="font-semibold text-foreground">Saúde da Plataforma</h3>
-              <p className="text-xs text-muted-foreground mt-0.5">Resumo geral</p>
+              <h3 className="font-semibold text-foreground">{t('dashboard.platformHealth')}</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">{t('dashboard.generalSummary')}</p>
             </div>
             <Link href="/apps" className="text-xs text-blue-600 dark:text-blue-400 hover:underline">
               <ExternalLink size={13} />
@@ -216,20 +220,20 @@ function CommandCenter() {
           </div>
           <div className="space-y-3">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Publicados</span>
+              <span className="text-muted-foreground">{t('dashboard.published_singular')}</span>
               <span className="font-medium text-foreground">{publishedApps}</span>
             </div>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Em revisão</span>
+              <span className="text-muted-foreground">{t('dashboard.inReview')}</span>
               <span className="font-medium text-foreground">{inReviewApps}</span>
             </div>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Requer atenção</span>
+              <span className="text-muted-foreground">{t('dashboard.requiresAttention')}</span>
               <span className="font-medium text-red-500">{needsAttentionApps}</span>
             </div>
             <div className="border-t border-border pt-3 mt-3">
               <div className="flex items-center justify-between text-sm">
-                <span className="font-semibold text-foreground">Total</span>
+                <span className="font-semibold text-foreground">{t('dashboard.total')}</span>
                 <span className="font-semibold text-foreground">{totalApps}</span>
               </div>
             </div>
@@ -238,7 +242,7 @@ function CommandCenter() {
             href="/apps"
             className="sasi-btn-secondary mt-4 block text-center text-sm py-2 rounded-lg"
           >
-            Ver listagem completa
+            {t('dashboard.viewFullList')}
           </Link>
         </div>
       </div>
@@ -246,13 +250,13 @@ function CommandCenter() {
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="sasi-card-hover rounded-xl p-5">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-foreground">Apps Recentes</h3>
+            <h3 className="font-semibold text-foreground">{t('dashboard.recentApps')}</h3>
             <Link href="/apps" className="text-xs text-blue-600 dark:text-blue-400 hover:underline">
-              Ver todos
+              {t('dashboard.viewAll')}
             </Link>
           </div>
           {recentApps.length === 0 ? (
-            <EmptyState icon={Smartphone} title="Nenhum app encontrado" description="Crie seu primeiro aplicativo para começar." action={{ label: 'Criar aplicativo', onClick: () => router.push('/apps/new') }} />
+            <EmptyState icon={Smartphone} title={t('dashboard.noAppsFound')} description={t('dashboard.createFirstApp')} action={{ label: t('dashboard.createApp'), onClick: () => router.push('/apps/new') }} />
           ) : (
             <div className="space-y-2">
               {recentApps.map(app => {
@@ -271,7 +275,7 @@ function CommandCenter() {
                       <div className="min-w-0">
                         <p className="text-sm font-medium text-foreground truncate">{app.name}</p>
                         <p className="text-xs text-muted-foreground">
-                          v{app.playVersion || app.appVersion || '-'} · {app.updatedAt ? new Date(app.updatedAt).toLocaleDateString('pt-BR') : ''}
+                          v{app.playVersion || app.appVersion || '-'} · {app.updatedAt ? new Date(app.updatedAt).toLocaleDateString(locale) : ''}
                         </p>
                       </div>
                     </div>
@@ -287,13 +291,13 @@ function CommandCenter() {
 
         <div className="sasi-card-hover rounded-xl p-5">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-foreground">Estatísticas</h3>
+            <h3 className="font-semibold text-foreground">{t('dashboard.statistics')}</h3>
           </div>
           <div className="space-y-6">
             <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-muted-foreground">Distribuição por status</span>
-                <span className="text-xs text-muted-foreground/60">{totalApps} apps</span>
+                <span className="text-sm text-muted-foreground">{t('dashboard.statusDistribution')}</span>
+                <span className="text-xs text-muted-foreground/60">{t('dashboard.apps', { count: totalApps })}</span>
               </div>
               <div className="flex h-3 rounded-full overflow-hidden bg-muted">
                 {statusDistribution.filter(s => s.count > 0).map(s => (
@@ -319,7 +323,7 @@ function CommandCenter() {
                   <span className="text-xs text-muted-foreground">Google Play</span>
                 </div>
                 <p className="text-lg font-bold text-foreground">{googleCount}</p>
-                <p className="text-[10px] text-muted-foreground/60">apps publicados</p>
+                <p className="text-[10px] text-muted-foreground/60">{t('dashboard.publishedApps')}</p>
               </div>
               <div className="p-3 rounded-lg sasi-card">
                 <div className="flex items-center gap-2 mb-2">
@@ -327,7 +331,7 @@ function CommandCenter() {
                   <span className="text-xs text-muted-foreground">App Store</span>
                 </div>
                 <p className="text-lg font-bold text-foreground">{appleCount}</p>
-                <p className="text-[10px] text-muted-foreground/60">apps publicados</p>
+                <p className="text-[10px] text-muted-foreground/60">{t('dashboard.publishedApps')}</p>
               </div>
             </div>
           </div>
@@ -336,13 +340,13 @@ function CommandCenter() {
 
       <div className="sasi-card-hover rounded-xl p-5">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-foreground">Timeline</h3>
+          <h3 className="font-semibold text-foreground">{t('dashboard.timeline')}</h3>
           <Link href="/activity" className="text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
-            Ver todas <ArrowUpRight size={12} />
+            {t('dashboard.viewAll')} <ArrowUpRight size={12} />
           </Link>
         </div>
         {filteredActivity.length === 0 ? (
-          <EmptyState icon={Activity} title="Nenhum evento" description="Atividades recentes aparecerão aqui." action={{ label: 'Ver atividade', onClick: () => router.push('/activity'), variant: 'outline' }} />
+          <EmptyState icon={Activity} title={t('dashboard.noEvents')} description={t('dashboard.noEventsDesc')} action={{ label: t('dashboard.viewActivity'), onClick: () => router.push('/activity'), variant: 'outline' }} />
         ) : (
           <div className="space-y-0">
             {filteredActivity.slice(0, 10).map((event, idx) => {
@@ -362,7 +366,7 @@ function CommandCenter() {
                   <div className="min-w-0 flex-1">
                     <p className="text-sm text-foreground/80 truncate">{event.description}</p>
                     <div className="flex items-center gap-2 mt-0.5">
-                      <span className="text-xs text-muted-foreground/60">{new Date(event.createdAt).toLocaleString('pt-BR')}</span>
+                      <span className="text-xs text-muted-foreground/60">{new Date(event.createdAt).toLocaleString(locale)}</span>
                       {event.username && <><span className="text-xs text-muted-foreground/30">·</span><span className="text-xs text-muted-foreground/60">{event.username}</span></>}
                     </div>
                   </div>

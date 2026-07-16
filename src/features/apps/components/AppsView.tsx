@@ -40,7 +40,7 @@ export function AppsView() {
             href="/apps/new"
             className="sasi-btn-primary inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm shadow-sm"
           >
-            <Plus size={15} /> Novo aplicativo
+            <Plus size={15} /> {t('search.newApp')}
           </Link>
           <ModeToggle mode={mode} onChange={setMode} show={isAdmin} />
         </div>
