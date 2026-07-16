@@ -83,7 +83,7 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
     <div className="space-y-5">
       <div className="text-center">
         <div className="w-[180px] h-[60px] mx-auto mb-4">
-          <img src={isDark ? '/assets/logo-white.png' : '/assets/sasi-black.png'} alt={t('login.altLogo')} className="w-full h-full object-contain" />
+          <img src={isDark ? '/assets/logo-white.png' : '/assets/logo-black.png'} alt={t('login.altLogo')} className="w-full h-full object-contain" />
         </div>
         <div className="text-sm text-muted-foreground">{t('login.subtitle')}</div>
       </div>

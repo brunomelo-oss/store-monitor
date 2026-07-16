@@ -91,7 +91,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       <aside className="fixed left-0 top-0 h-full w-48 z-30 sasi-sidebar flex flex-col">
         {/* SASI Logo */}
           <div className="flex items-center justify-center h-16 shrink-0 border-b border-[var(--surface-glass-border)]">
-          <div className="w-32 h-10 bg-center bg-contain bg-no-repeat" style={{ backgroundImage: `url(${isDark ? '/assets/logo-white.png' : '/assets/sasi-black.png'})` }} />
+          <div className="w-32 h-10 bg-center bg-contain bg-no-repeat" style={{ backgroundImage: `url(${isDark ? '/assets/logo-white.png' : '/assets/logo-black.png'})` }} />
         </div>
 
         {/* Nav */}
