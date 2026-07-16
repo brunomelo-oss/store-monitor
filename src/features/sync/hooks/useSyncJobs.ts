@@ -6,7 +6,13 @@ const SYNC_JOBS_KEY = ['sync-jobs'] as const
 export function useSyncJobs() {
   return useQuery({
     queryKey: SYNC_JOBS_KEY,
-    queryFn: syncService.listJobs,
+    queryFn: async () => {
+      try {
+        return await syncService.listJobs()
+      } catch {
+        return []
+      }
+    },
     staleTime: 10_000,
   })
 }

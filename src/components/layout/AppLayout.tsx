@@ -129,7 +129,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         </nav>
 
         {/* Settings */}
-        <div className="shrink-0 p-2 border-t border-[var(--surface-glass-border)]" ref={settingsRef}>
+        <div className="relative shrink-0 p-2 border-t border-[var(--surface-glass-border)]" ref={settingsRef}>
           <button
             onClick={() => setSettingsOpen(!settingsOpen)}
             className={`sasi-nav-item w-full ${pathname.startsWith('/admin') ? 'active' : ''}`}

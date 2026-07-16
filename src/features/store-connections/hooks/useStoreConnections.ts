@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { storeConnectionsService } from '@/services/store-connections.service'
 
-const CONNECTIONS_KEY = ['store-connections'] as const
+export const CONNECTIONS_KEY = ['store-connections'] as const
 
 interface StoreConnection {
   id: number

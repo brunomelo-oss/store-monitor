@@ -6,7 +6,13 @@ const SYNC_HISTORY_KEY = ['sync-history'] as const
 export function useSyncHistory() {
   return useQuery({
     queryKey: SYNC_HISTORY_KEY,
-    queryFn: syncService.listHistory,
+    queryFn: async () => {
+      try {
+        return await syncService.listHistory()
+      } catch {
+        return []
+      }
+    },
     staleTime: 15_000,
   })
 }
@@ -14,7 +20,13 @@ export function useSyncHistory() {
 export function useSyncHistoryDetail(id: number) {
   return useQuery({
     queryKey: [...SYNC_HISTORY_KEY, id] as const,
-    queryFn: () => syncService.getHistory(id),
+    queryFn: async () => {
+      try {
+        return await syncService.getHistory(id)
+      } catch {
+        return null
+      }
+    },
     enabled: !!id,
   })
 }

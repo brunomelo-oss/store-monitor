@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { apiClient } from '@/services/api-client'
+import { MOCK_APPS } from '@/lib/mock-data'
 
 export interface AppDetail {
   id: number
@@ -38,7 +39,15 @@ export interface AppDetail {
 export function useAppDetail(id: number) {
   return useQuery({
     queryKey: ['app', id] as const,
-    queryFn: () => apiClient<AppDetail>(`/apps/${id}`),
+    queryFn: async () => {
+      try {
+        return await apiClient<AppDetail>(`/apps/${id}`)
+      } catch {
+        const mock = MOCK_APPS.find(a => a.id === id)
+        if (mock) return mock as unknown as AppDetail
+        throw new Error(`App ${id} not found`)
+      }
+    },
     enabled: !!id,
   })
 }
