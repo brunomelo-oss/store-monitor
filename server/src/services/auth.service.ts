@@ -78,8 +78,9 @@ export class AuthService {
       finalUsername = `${username}${attempt}`
     }
 
+    const userCount = await userRepository.count()
     const invite = await inviteRepository.findByEmail(email)
-    const role = invite ? (invite.role as UserRole) : UserRole.VIEWER
+    const role = invite ? (invite.role as UserRole) : (userCount === 0 ? UserRole.OWNER : UserRole.VIEWER)
 
     await withTx(async (tx) => {
       const user = await tx.user.create({

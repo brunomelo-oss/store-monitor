@@ -18,6 +18,10 @@ export class UserRepository extends BaseRepository<UserModel, UserCreateInput, U
     return this.model.findUnique({ where: { username } }) as Promise<UserModel | null>
   }
 
+  async count(): Promise<number> {
+    return this.model.count()
+  }
+
   async findByEmailOrUsername(identifier: string): Promise<UserModel | null> {
     return this.model.findFirst({
       where: {
