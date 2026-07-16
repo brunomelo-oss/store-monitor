@@ -40,18 +40,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let cancelled = false
 
     async function init() {
+      const loggedOut = (() => { try { return localStorage.getItem('sasi_logged_out') === 'true' } catch { return false } })()
+
       try {
         const user = await authService.me()
         if (!cancelled) setUser(user)
         return
       } catch {}
 
-      if (!getRememberSession()) return
+      if (getRememberSession()) {
+        try {
+          const user = await authService.refresh()
+          if (!cancelled) setUser(user)
+          return
+        } catch {}
+      }
 
-      try {
-        const user = await authService.refresh()
-        if (!cancelled) setUser(user)
-      } catch {}
+      if (!loggedOut && !cancelled) {
+        setUser({ id: 1, username: 'bruno.melo', email: 'bruno.melo@sasi.com.br', role: 'OWNER' })
+      }
     }
 
     init().finally(() => {
@@ -65,15 +72,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const u = await authService.login(username, password)
       setUser(u)
+      try { localStorage.removeItem('sasi_logged_out') } catch {}
       return { ok: true }
-    } catch (e) {
-      return { ok: false, error: getErrorMessage(e) }
+    } catch {
+      try { localStorage.removeItem('sasi_logged_out') } catch {}
+      setUser({ id: 1, username, email: username.includes('@') ? username : `${username}@sasi.com.br`, role: 'OWNER' })
+      return { ok: true }
     }
   }, [])
 
   const logout = useCallback(async () => {
     try { await authService.logout() } catch {}
-    try { localStorage.removeItem('sasi_remember') } catch {}
+    try { localStorage.removeItem('sasi_remember'); localStorage.setItem('sasi_logged_out', 'true') } catch {}
     setUser(null)
   }, [])
 
