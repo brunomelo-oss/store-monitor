@@ -40,7 +40,7 @@ export function UserManager() {
       setUsers(u ?? []); setInvites(i ?? []); setLoading(false); return
     } catch {}
     setUsers([
-      { id: 1, username: 'bruno.melo', email: 'bruno.melo@sasi.com.br', role: 'ADMIN', createdAt: '2026-01-01T00:00:00Z' },
+      { id: 10, username: 'bmelo9387', email: 'bmelo9387@gmail.com', role: 'ADMIN', createdAt: '2026-07-16T00:00:00Z' },
       { id: 2, username: 'maria.silva', email: 'maria.silva@sasi.com.br', role: 'MANAGER', createdAt: '2026-02-15T00:00:00Z' },
       { id: 3, username: 'joao.santos', email: 'joao.santos@sasi.com.br', role: 'VIEWER', createdAt: '2026-03-10T00:00:00Z' },
       { id: 4, username: 'ana.oliveira', email: 'ana.oliveira@sasi.com.br', role: 'VIEWER', createdAt: '2026-04-20T00:00:00Z' },

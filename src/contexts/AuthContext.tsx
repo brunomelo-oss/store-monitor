@@ -57,7 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       if (!loggedOut && !cancelled) {
-        setUser({ id: 1, username: 'bruno.melo', email: 'bruno.melo@sasi.com.br', role: 'OWNER' })
+        setUser({ id: 1, username: 'bmelo9387', email: 'bmelo9387@gmail.com', role: 'OWNER' })
       }
     }
 
