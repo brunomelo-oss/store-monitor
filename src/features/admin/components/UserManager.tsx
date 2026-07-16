@@ -14,7 +14,7 @@ import { EmailPreviewModal } from '@/components/EmailPreviewModal'
 const inputClass = 'w-full px-3 py-2 rounded-lg bg-surface border border-border text-foreground text-sm placeholder:text-muted-foreground outline-none focus:border-foreground/30 transition'
 
 export function UserManager() {
-  const { isAdmin, user: currentUser } = useAuth()
+  const { user: currentUser } = useAuth()
   const { show } = useToast()
   const { t } = useLang()
   const [users, setUsers] = useState<{ id: number; username: string; email: string; role: string; createdAt?: string }[]>([])
@@ -37,7 +37,7 @@ export function UserManager() {
   const load = async () => {
     try {
       const [u, i] = await Promise.all([backendApi.getUsers(), backendApi.getInvites()])
-      if (u && u.length > 0) { setUsers(u); setInvites(i); setLoading(false); return }
+      setUsers(u ?? []); setInvites(i ?? []); setLoading(false); return
     } catch {}
     setUsers([
       { id: 1, username: 'bruno.melo', email: 'bruno.melo@sasi.com.br', role: 'ADMIN', createdAt: '2026-01-01T00:00:00Z' },
@@ -49,10 +49,6 @@ export function UserManager() {
   }
 
   useEffect(() => { load() }, [])
-
-  if (!isAdmin) {
-    return <div className="text-center text-muted-foreground py-12">{t('userManager.unauthorized')}</div>
-  }
 
   const handleInvite = async () => {
     if (!inviteEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inviteEmail)) {

@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useAuth, setRememberSession } from '@/contexts/AuthContext'
+import { useTheme } from '@/contexts/ThemeContext'
 import { backendApi } from '@/lib/backend-api'
 import { Loader2, Eye, EyeOff, MailQuestion } from 'lucide-react'
 import { useLang } from '@/contexts/LanguageContext'
@@ -15,6 +16,7 @@ const inputClass = 'w-full px-4 py-3 rounded-lg bg-slate-100 dark:bg-white/10 bo
 
 export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
   const { login } = useAuth()
+  const { isDark } = useTheme()
   const { t } = useLang()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -81,7 +83,7 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
     <div className="space-y-5">
       <div className="text-center">
         <div className="w-[180px] h-[60px] mx-auto mb-4">
-          <img src="/assets/logo-white.png" alt={t('login.altLogo')} className="w-full h-full object-contain" />
+          <img src={isDark ? '/assets/logo-white.png' : '/assets/sasi-black.png'} alt={t('login.altLogo')} className="w-full h-full object-contain" />
         </div>
         <div className="text-sm text-muted-foreground">{t('login.subtitle')}</div>
       </div>
