@@ -47,11 +47,11 @@ export function ChangePasswordModal({ onClose }: Props) {
   const inputClass = 'w-full px-3 py-2 rounded-lg bg-surface border-border text-foreground text-sm outline-none focus:border-sasi-red/50 transition'
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-overlay" onClick={e => { if (e.target === e.currentTarget) onClose() }}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-overlay" onClick={e => { if (e.target === e.currentTarget) onClose() }} role="dialog" aria-modal="true" aria-label={t('changePassword.title')}>
       <div className="w-full max-w-sm bg-card dark:bg-zinc-900 border border-border rounded-2xl shadow-2xl" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between px-5 py-4 border-b border-border">
           <h3 className="text-base font-semibold text-foreground dark:text-white">{t('changePassword.title')}</h3>
-          <button onClick={onClose} className="p-1 text-muted-foreground hover:text-foreground dark:hover:text-white transition">
+          <button onClick={onClose} className="p-1 text-muted-foreground hover:text-foreground dark:hover:text-white transition" aria-label={t('common.close') || 'Close'}>
             <X size={18} />
           </button>
         </div>

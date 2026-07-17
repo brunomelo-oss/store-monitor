@@ -62,10 +62,10 @@ export default function HealthPage() {
                 <div className="flex items-center gap-3">
                   <c.icon size={18} className="text-muted-foreground" />
                   <span className="font-medium">{c.label}</span>
-                  {(c.check as any).message && <span className="text-xs text-muted-foreground">({(c.check as any).message})</span>}
+                  {c.check.message && <span className="text-xs text-muted-foreground">({c.check.message})</span>}
                 </div>
                 <div className="flex items-center gap-2">
-                  {(c.check as any).latency && <span className="text-xs text-muted-foreground">{(c.check as any).latency}ms</span>}
+                  {c.check.latency != null && <span className="text-xs text-muted-foreground">{c.check.latency}ms</span>}
                   {statusIcon(c.check.status)}
                 </div>
               </div>

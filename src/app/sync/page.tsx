@@ -7,6 +7,7 @@ import { useSyncJobs } from '@/features/sync/hooks/useSyncJobs'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { ErrorState } from '@/components/ErrorState'
 import { Loader2, CheckCircle, XCircle, Clock, AlertTriangle } from 'lucide-react'
+import { formatLocaleDate } from '@/lib/utils'
 
 const statusIcon: Record<string, React.ReactNode> = {
   SUCCESS: <CheckCircle size={16} className="text-green-500" />,
@@ -67,7 +68,7 @@ export default function SyncPage() {
                       <td className="px-4 py-3 text-muted-foreground">{item.type}</td>
                       <td className="px-4 py-3 text-muted-foreground">{item.triggerType}</td>
                       <td className="px-4 py-3 text-right text-muted-foreground">
-                        {new Date(item.startedAt).toLocaleString('pt-BR')}
+                        {formatLocaleDate(item.startedAt)}
                       </td>
                     </tr>
                   ))}
@@ -115,7 +116,7 @@ export default function SyncPage() {
                         {job.lastError || '-'}
                       </td>
                       <td className="px-4 py-3 text-right text-muted-foreground">
-                        {new Date(job.createdAt).toLocaleString('pt-BR')}
+                        {formatLocaleDate(job.createdAt)}
                       </td>
                     </tr>
                   ))}

@@ -122,11 +122,12 @@ export function AppModal({ app, mode, region, onClose }: AppModalProps) {
     <div
       className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-200 ${animIn ? 'bg-overlay' : 'bg-transparent'}`}
       onClick={e => { if (e.target === e.currentTarget) onClose() }}
+      role="dialog" aria-modal="true" aria-label={isAdd ? t('appModal.title.add') : (isDetails ? app?.name || '' : t('appModal.title.edit'))}
     >
       <div className={`w-full max-w-lg bg-zinc-900 border border-border rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto transition-all duration-200 ${animIn ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
         <div className="flex items-center justify-between px-6 py-4 border-b border-border">
           <h3 className="text-base font-semibold text-white">{isAdd ? (appRegion ? t('appModal.title.addRegion', { region: appRegion }) : t('appModal.title.add')) : (isDetails ? app?.name || '' : t('appModal.title.edit'))}</h3>
-          <button onClick={onClose} className="p-1.5 rounded-lg text-zinc-500 hover:text-white hover:bg-zinc-800 transition">
+          <button onClick={onClose} className="p-1.5 rounded-lg text-zinc-500 hover:text-white hover:bg-zinc-800 transition" aria-label={t('appModal.title.close') || 'Close'}>
             <X size={16} />
           </button>
         </div>
@@ -147,14 +148,14 @@ export function AppModal({ app, mode, region, onClose }: AppModalProps) {
                 <div className="p-3 rounded-lg bg-zinc-800/40">
                   <div className="flex items-center gap-1.5 text-[10px] text-zinc-600 uppercase tracking-wider mb-1">
                     <Globe size={11} />
-                    Região
+                    {t('appModal.label.region')}
                   </div>
                   <div className="text-sm font-medium text-white">{app?.region}</div>
                 </div>
                 <div className="p-3 rounded-lg bg-zinc-800/40">
                   <div className="flex items-center gap-1.5 text-[10px] text-zinc-600 uppercase tracking-wider mb-1">
                     <Tag size={11} />
-                    Status
+                    {t('appModal.label.status')}
                   </div>
                   <div className="text-sm font-medium text-white">{app ? t('status.' + overallStatus(app)) : '---'}</div>
                 </div>
@@ -163,8 +164,8 @@ export function AppModal({ app, mode, region, onClose }: AppModalProps) {
               {(app?.packageName || app?.bundleId) && (
                 <div className="p-3 rounded-lg bg-zinc-800/40 space-y-1">
                   <div className="flex items-center gap-1.5 text-[10px] text-zinc-600 uppercase tracking-wider mb-1">
-                    <Package size={11} />
-                    Identificadores
+                    <Smartphone size={13} />
+                    {t('appModal.label.accounts')}
                   </div>
                   {app?.packageName && <div className="flex justify-between text-sm"><span className="text-zinc-500">Package</span><span className="font-mono text-xs text-white">{app.packageName}</span></div>}
                   {app?.bundleId && <div className="flex justify-between text-sm"><span className="text-zinc-500">Bundle ID</span><span className="font-mono text-xs text-white">{app.bundleId}</span></div>}
@@ -179,11 +180,11 @@ export function AppModal({ app, mode, region, onClose }: AppModalProps) {
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="text-zinc-500">Google</span>
+                    <span className="text-zinc-500">{t('appModal.label.google')}</span>
                     <span className="text-white">{ACCOUNTS.google.find(a => a.id === app?.googleAccount)?.name || '---'}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-zinc-500">Apple</span>
+                    <span className="text-zinc-500">{t('appModal.label.apple')}</span>
                     <span className="text-white">{ACCOUNTS.apple.find(a => a.id === app?.appleAccount)?.name || '---'}</span>
                   </div>
                 </div>
@@ -192,19 +193,19 @@ export function AppModal({ app, mode, region, onClose }: AppModalProps) {
               <div>
                 <div className="flex items-center gap-1.5 text-xs text-zinc-500 mb-2">
                   <Smartphone size={13} />
-                  Google Play
+                  {t('appModal.section.playStore')}
                 </div>
                 <div className="p-3 rounded-lg bg-zinc-800/40 space-y-1">
                   <div className="flex justify-between text-sm">
-                    <span className="text-zinc-500">Status</span>
-                    <span className="text-white font-medium">{t('status.' + (app?.playStore.status || 'unpublished'))}</span>
+                    <span className="text-zinc-500">{t('appModal.label.status')}</span>
+                    <span className="text-white font-medium">{t('status.' + (app?.playStore?.status || 'unpublished'))}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-zinc-500">Versão</span>
-                    <span className="text-white">{app?.playStore.version || '--'}</span>
+                    <span className="text-zinc-500">{t('appModal.label.version')}</span>
+                    <span className="text-white">{app?.playStore?.version || '--'}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-zinc-500">Data</span>
+                    <span className="text-zinc-500">{t('appModal.label.date')}</span>
                     <span className="text-white">{app ? formatDate(app.playStore.lastUpdate) : '--'}</span>
                   </div>
                 </div>
@@ -213,19 +214,19 @@ export function AppModal({ app, mode, region, onClose }: AppModalProps) {
               <div>
                 <div className="flex items-center gap-1.5 text-xs text-zinc-500 mb-2">
                   <Apple size={13} />
-                  App Store
+                  {t('appModal.section.appStore')}
                 </div>
                 <div className="p-3 rounded-lg bg-zinc-800/40 space-y-1">
                   <div className="flex justify-between text-sm">
-                    <span className="text-zinc-500">Status</span>
-                    <span className="text-white font-medium">{t('status.' + (app?.appStore.status || 'unpublished'))}</span>
+                    <span className="text-zinc-500">{t('appModal.label.status')}</span>
+                    <span className="text-white font-medium">{t('status.' + (app?.appStore?.status || 'unpublished'))}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-zinc-500">Versão</span>
-                    <span className="text-white">{app?.appStore.version || '--'}</span>
+                    <span className="text-zinc-500">{t('appModal.label.version')}</span>
+                    <span className="text-white">{app?.appStore?.version || '--'}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-zinc-500">Data</span>
+                    <span className="text-zinc-500">{t('appModal.label.date')}</span>
                     <span className="text-white">{app ? formatDate(app.appStore.lastUpdate) : '--'}</span>
                   </div>
                 </div>
@@ -234,13 +235,13 @@ export function AppModal({ app, mode, region, onClose }: AppModalProps) {
           ) : (
             <>
               <div>
-                <label className={labelClass}>{t('appModal.label.name')}</label>
-                <input className={inputClass} value={name} onChange={e => setName(e.target.value)} placeholder={t('appModal.placeholder.name')} />
+                <label className={labelClass} htmlFor="app-name">{t('appModal.label.name')}</label>
+                <input id="app-name" className={inputClass} value={name} onChange={e => setName(e.target.value)} placeholder={t('appModal.placeholder.name')} />
               </div>
 
               <div className={shaking ? 'animate-shake' : ''}>
-                <label className={labelClass}>{t('appModal.label.region')} <span className="text-red-500">*</span></label>
-                <select className={selectClass} value={appRegion} onChange={e => setAppRegion(e.target.value)}>
+                <label className={labelClass} htmlFor="app-region">{t('appModal.label.region')} <span className="text-red-500">*</span></label>
+                <select id="app-region" className={selectClass} value={appRegion} onChange={e => setAppRegion(e.target.value)}>
                   {isAdd && <option value="">{t('appModal.placeholder.region')}</option>}
                   <option value="Brasil">{t('appModal.option.brasil')}</option>
                   <option value="Internacional">{t('appModal.option.internacional')}</option>
@@ -249,26 +250,26 @@ export function AppModal({ app, mode, region, onClose }: AppModalProps) {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className={labelClass}>Package Name (Google)</label>
-                  <input className={inputClass} value={packageName} onChange={e => setPackageName(e.target.value)} placeholder="com.example.app" />
+                  <label className={labelClass} htmlFor="app-package">Package Name (Google)</label>
+                  <input id="app-package" className={inputClass} value={packageName} onChange={e => setPackageName(e.target.value)} placeholder="com.example.app" />
                 </div>
                 <div>
-                  <label className={labelClass}>Bundle ID (Apple)</label>
-                  <input className={inputClass} value={bundleId} onChange={e => setBundleId(e.target.value)} placeholder="com.example.app" />
+                  <label className={labelClass} htmlFor="app-bundle">Bundle ID (Apple)</label>
+                  <input id="app-bundle" className={inputClass} value={bundleId} onChange={e => setBundleId(e.target.value)} placeholder="com.example.app" />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className={labelClass}>Conexão Google Play</label>
-                  <select className={selectClass} value={storeConnId ?? ''} onChange={e => setStoreConnId(e.target.value ? Number(e.target.value) : null)}>
+                  <label className={labelClass} htmlFor="app-conn-google">Conexão Google Play</label>
+                  <select id="app-conn-google" className={selectClass} value={storeConnId ?? ''} onChange={e => setStoreConnId(e.target.value ? Number(e.target.value) : null)}>
                     <option value="">Nenhuma</option>
                     {googleConnections.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className={labelClass}>Conexão App Store</label>
-                  <select className={selectClass} value={storeConnId ?? ''} onChange={e => setStoreConnId(e.target.value ? Number(e.target.value) : null)}>
+                  <label className={labelClass} htmlFor="app-conn-apple">Conexão App Store</label>
+                  <select id="app-conn-apple" className={selectClass} value={storeConnId ?? ''} onChange={e => setStoreConnId(e.target.value ? Number(e.target.value) : null)}>
                     <option value="">Nenhuma</option>
                     {appleConnections.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
                   </select>
@@ -282,23 +283,23 @@ export function AppModal({ app, mode, region, onClose }: AppModalProps) {
                 </div>
                 <div className="grid grid-cols-3 gap-3">
                   <div>
-                    <label className={labelClass}>{t('appModal.label.status')}</label>
-                    <select className={selectClass} value={playStatus} onChange={e => setPlayStatus(e.target.value as AppStatus)}>
+                    <label className={labelClass} htmlFor="play-status">{t('appModal.label.status')}</label>
+                    <select id="play-status" className={selectClass} value={playStatus} onChange={e => setPlayStatus(e.target.value as AppStatus)}>
                       {['published', 'review', 'rejected', 'pending', 'unpublished'].map(k => <option key={k} value={k}>{t('status.' + k)}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className={labelClass}>{t('appModal.label.version')}</label>
-                    <input className={inputClass} placeholder={t('appModal.placeholder.version')} value={playVersion} onChange={e => setPlayVersion(e.target.value)} />
+                    <label className={labelClass} htmlFor="play-version">{t('appModal.label.version')}</label>
+                    <input id="play-version" className={inputClass} placeholder={t('appModal.placeholder.version')} value={playVersion} onChange={e => setPlayVersion(e.target.value)} />
                   </div>
                   <div>
-                    <label className={labelClass}>{t('appModal.label.date')}</label>
-                    <input className={inputClass} type="date" value={playDate} onChange={e => setPlayDate(e.target.value)} />
+                    <label className={labelClass} htmlFor="play-date">{t('appModal.label.date')}</label>
+                    <input id="play-date" className={inputClass} type="date" value={playDate} onChange={e => setPlayDate(e.target.value)} />
                   </div>
                 </div>
                 <div>
-                  <label className={labelClass}>{t('appModal.label.account')}</label>
-                  <select className={selectClass} value={googleAccount} onChange={e => setGoogleAccount(e.target.value)}>
+                  <label className={labelClass} htmlFor="play-account">{t('appModal.label.account')}</label>
+                  <select id="play-account" className={selectClass} value={googleAccount} onChange={e => setGoogleAccount(e.target.value)}>
                     {ACCOUNTS.google.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
                   </select>
                 </div>
@@ -311,23 +312,23 @@ export function AppModal({ app, mode, region, onClose }: AppModalProps) {
                 </div>
                 <div className="grid grid-cols-3 gap-3">
                   <div>
-                    <label className={labelClass}>{t('appModal.label.status')}</label>
-                    <select className={selectClass} value={appStatus} onChange={e => setAppStatus(e.target.value as AppStatus)}>
+                    <label className={labelClass} htmlFor="app-status">{t('appModal.label.status')}</label>
+                    <select id="app-status" className={selectClass} value={appStatus} onChange={e => setAppStatus(e.target.value as AppStatus)}>
                       {['published', 'review', 'rejected', 'pending', 'unpublished'].map(k => <option key={k} value={k}>{t('status.' + k)}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className={labelClass}>{t('appModal.label.version')}</label>
-                    <input className={inputClass} placeholder={t('appModal.placeholder.version')} value={appVersion} onChange={e => setAppVersion(e.target.value)} />
+                    <label className={labelClass} htmlFor="app-version">{t('appModal.label.version')}</label>
+                    <input id="app-version" className={inputClass} placeholder={t('appModal.placeholder.version')} value={appVersion} onChange={e => setAppVersion(e.target.value)} />
                   </div>
                   <div>
-                    <label className={labelClass}>{t('appModal.label.date')}</label>
-                    <input className={inputClass} type="date" value={appDate} onChange={e => setAppDate(e.target.value)} />
+                    <label className={labelClass} htmlFor="app-date">{t('appModal.label.date')}</label>
+                    <input id="app-date" className={inputClass} type="date" value={appDate} onChange={e => setAppDate(e.target.value)} />
                   </div>
                 </div>
                 <div>
-                  <label className={labelClass}>{t('appModal.label.account')}</label>
-                  <select className={selectClass} value={appleAccount} onChange={e => setAppleAccount(e.target.value)}>
+                  <label className={labelClass} htmlFor="app-account">{t('appModal.label.account')}</label>
+                  <select id="app-account" className={selectClass} value={appleAccount} onChange={e => setAppleAccount(e.target.value)}>
                     {ACCOUNTS.apple.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
                   </select>
                 </div>

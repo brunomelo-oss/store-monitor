@@ -9,6 +9,7 @@ import { useNotifications, useMarkAsRead, useMarkAllAsRead } from '@/features/no
 import { Spinner } from '@/components/LoadingSkeleton'
 import { EmptyState } from '@/components/EmptyState'
 import { ErrorState } from '@/components/ErrorState'
+import { formatLocaleDate } from '@/lib/utils'
 
 const typeIcons: Record<string, typeof Bell> = {
   NEW_VERSION: Star,
@@ -146,7 +147,7 @@ export default function NotificationsPage() {
                       {!n.read && <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0" />}
                     </div>
                     <p className="text-sm text-muted-foreground mt-0.5 line-clamp-2">{n.message}</p>
-                    <p className="text-xs text-muted-foreground mt-2">{new Date(n.createdAt).toLocaleString('pt-BR')}</p>
+                    <p className="text-xs text-muted-foreground mt-2">{formatLocaleDate(n.createdAt)}</p>
                   </div>
                   {n.appId && (
                     <span className="text-xs text-muted-foreground shrink-0 mt-1">App #{n.appId}</span>

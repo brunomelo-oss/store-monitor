@@ -20,7 +20,7 @@ export function useUsers() {
     queryFn: async () => {
       try {
         const data = await usersService.list()
-        if (data && data.length > 0) return data as unknown as UserRow[]
+        if (data && data.length > 0) return data
       } catch {}
       return MOCK_USERS
     },

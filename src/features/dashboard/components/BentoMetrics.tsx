@@ -60,8 +60,8 @@ export function BentoMetrics() {
   const { t } = useLang()
 
   const hasRealData = apps.filter(a =>
-    (a.playStore.version && a.playStore.version !== '-') ||
-    (a.appStore.version && a.appStore.version !== '-')
+    (a.playStore?.version && a.playStore.version !== '-') ||
+    (a.appStore?.version && a.appStore.version !== '-')
   )
   const total = hasRealData.length
   const healthy = hasRealData.filter(a => overallStatus(a) === 'published').length

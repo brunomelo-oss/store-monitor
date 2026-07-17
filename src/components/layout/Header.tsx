@@ -7,6 +7,7 @@ import { useToast } from '@/components/Toast'
 import { useLang } from '@/contexts/LanguageContext'
 import { useUnreadCount, useNotifications, useMarkAllAsRead } from '@/features/notifications/hooks/useNotifications'
 import { ProfileDropdown } from './ProfileDropdown'
+import { formatLocaleDate } from '@/lib/utils'
 import { Moon, Sun, RotateCcw, Languages, Bell, CheckCheck, XCircle, CheckCircle, MessageSquare, RefreshCw } from 'lucide-react'
 import Link from 'next/link'
 import type { LangCode } from '@/lib/i18n'
@@ -49,7 +50,7 @@ export function Header() {
     if (confirm(t('header.resetConfirm'))) {
       try {
         const { MOCK_APPS } = await import('@/lib/mock-data')
-        const fresh = JSON.parse(JSON.stringify(MOCK_APPS))
+        const fresh = structuredClone(MOCK_APPS)
         await bulkReplaceMutation.mutateAsync(fresh)
         show(t('header.resetSuccess'), 'success')
       } catch {
@@ -72,14 +73,14 @@ export function Header() {
         <button
           onClick={() => setNotifOpen(o => !o)}
           className="relative w-[32px] h-[32px] rounded-full border border-border bg-inset text-muted-foreground hover:text-foreground hover:border-border-light hover:bg-card-hover flex items-center justify-center transition-all duration-200 shrink-0"
-          title="Notificações"
+          aria-label="Notificações"
         >
           <Bell size={13} />
-          {(unread?.count || 0) > 0 && (
+          {unread?.count ? (
             <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-red-500 text-[9px] font-bold flex items-center justify-center text-white">
-              {unread!.count > 9 ? '9+' : unread!.count}
+              {unread.count > 9 ? '9+' : unread.count}
             </span>
-          )}
+          ) : null}
         </button>
         {notifOpen && (
           <div className="absolute right-0 top-full mt-2 w-80 glass-dropdown rounded-xl overflow-hidden z-50 animate-dropdownIn">
@@ -121,7 +122,7 @@ export function Header() {
                       <NIcon size={15} className={`shrink-0 mt-0.5 ${color}`} />
                       <div className="min-w-0 flex-1">
                         <p className="text-sm text-foreground/90 truncate">{n.title}</p>
-                        <p className="text-xs text-muted-foreground/70 mt-0.5">{new Date(n.createdAt).toLocaleString('pt-BR')}</p>
+                        <p className="text-xs text-muted-foreground/70 mt-0.5">{formatLocaleDate(n.createdAt)}</p>
                       </div>
                       {!n.read && <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0 mt-1.5" />}
                     </Link>
@@ -170,7 +171,7 @@ export function Header() {
           <button
             onClick={toggle}
             className="w-[32px] h-[32px] rounded-full border border-border bg-inset text-muted-foreground hover:text-foreground hover:border-border-light hover:bg-card-hover flex items-center justify-center transition-all duration-200 shrink-0"
-            title={t('header.themeToggle')}
+            aria-label={t('header.themeToggle')}
           >
             <div className="transition-transform duration-300 hover:scale-110 active:scale-90 flex items-center justify-center">
               {isDark ? <Sun size={14} /> : <Moon size={14} />}
@@ -181,7 +182,7 @@ export function Header() {
             <button
               onClick={() => setLangOpen(!langOpen)}
               className="w-[32px] h-[32px] rounded-full border border-border bg-inset text-muted-foreground hover:text-foreground hover:border-border-light hover:bg-card-hover flex items-center justify-center transition-all duration-200 shrink-0"
-              title={t('header.language')}
+              aria-label={t('header.language')}
             >
               <Languages size={14} />
             </button>
@@ -211,7 +212,7 @@ export function Header() {
           <button
             onClick={handleReset}
             className="w-[32px] h-[32px] rounded-full border border-border bg-inset text-muted-foreground hover:text-foreground hover:border-border-light hover:bg-card-hover flex items-center justify-center transition-all duration-200 shrink-0"
-            title={t('header.reset')}
+            aria-label={t('header.reset')}
           >
             <RotateCcw size={13} />
           </button>

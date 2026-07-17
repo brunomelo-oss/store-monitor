@@ -155,7 +155,7 @@ export default function LoginPage() {
           <SuccessScreen
             title={t('success.invite.title')}
             message={t('success.invite.message')}
-            buttonLabel={t('success.registered.button')}
+            buttonLabel={t('success.invite.button')}
             onClick={() => setStep('login')}
           />
         )}
@@ -169,7 +169,7 @@ export default function LoginPage() {
           <SuccessScreen
             title={t('success.reset.title')}
             message={t('success.reset.message')}
-            buttonLabel={t('success.registered.button')}
+            buttonLabel={t('success.reset.button')}
             onClick={() => setStep('login')}
           />
         )}

@@ -15,6 +15,7 @@ import { MetricCard } from '@/components/MetricCard'
 import { Timeline } from '@/components/Timeline'
 import { DataTable } from '@/components/DataTable'
 import { EmptyState } from '@/components/EmptyState'
+import { formatLocaleDate } from '@/lib/utils'
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Globe, Apple, Smartphone, Package, Layers, GitBranch, BarChart3, Star, MessageSquare, RefreshCw, Bell, FileText, Clock, AlertTriangle, CheckCircle, XCircle, ExternalLink, Copy, ArrowLeft } from 'lucide-react'
@@ -235,7 +236,7 @@ function OverviewTab({ app, syncHistory }: { app: any; syncHistory: any[] }) {
             { key: 'type', header: 'Tipo', render: (s: any) => s.type },
             { key: 'triggerType', header: 'Disparo', render: (s: any) => s.triggerType },
             { key: 'changesDetected', header: 'Alterações', render: (s: any) => s.changesDetected || 0 },
-            { key: 'startedAt', header: 'Data', render: (s: any) => new Date(s.startedAt).toLocaleString('pt-BR') },
+            { key: 'startedAt', header: 'Data', render: (s: any) => formatLocaleDate(s.startedAt) },
           ]}
           data={syncHistory.slice(0, 10)}
           keyExtractor={(s: any) => s.id}
@@ -336,7 +337,7 @@ function VersionsTab({ app }: { app: any }) {
           { key: 'store', header: 'Loja', render: (v: any) => v.store === 'GOOGLE' ? <span className="flex items-center gap-1"><Globe size={12} />Google Play</span> : <span className="flex items-center gap-1"><Apple size={12} />App Store</span> },
           { key: 'status', header: 'Status', render: (v: any) => <StatusBadge status={v.status} /> },
           { key: 'buildNumber', header: 'Build', render: (v: any) => v.buildNumber || '—' },
-          { key: 'createdAt', header: 'Criado em', render: (v: any) => new Date(v.createdAt).toLocaleString('pt-BR') },
+          { key: 'createdAt', header: 'Criado em', render: (v: any) => formatLocaleDate(v.createdAt) },
         ]}
         data={versions}
         keyExtractor={(v: any) => v.id}
@@ -355,7 +356,7 @@ function BuildsTab({ app }: { app: any }) {
           { key: 'buildNumber', header: 'Build', render: (b: any) => <span className="font-mono">{b.buildNumber}</span> },
           { key: 'store', header: 'Loja', render: (b: any) => b.store === 'GOOGLE' ? 'Google Play' : 'App Store' },
           { key: 'status', header: 'Status', render: (b: any) => <StatusBadge status={b.status} /> },
-          { key: 'createdAt', header: 'Criado em', render: (b: any) => new Date(b.createdAt).toLocaleString('pt-BR') },
+          { key: 'createdAt', header: 'Criado em', render: (b: any) => formatLocaleDate(b.createdAt) },
           { key: 'artifactUrl', header: '', render: (b: any) => b.artifactUrl ? <a href={b.artifactUrl} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline text-xs"><ExternalLink size={14} /></a> : '—' },
         ]}
         data={builds}
@@ -470,7 +471,7 @@ function ReviewsTab({ app }: { app: any }) {
           { key: 'score', header: 'Nota', render: (r: any) => <span className="text-yellow-400">{'★'.repeat(r.score)}{'☆'.repeat(5 - r.score)}</span> },
           { key: 'title', header: 'Título', render: (r: any) => r.title || '—', className: 'max-w-[200px] truncate' },
           { key: 'content', header: 'Conteúdo', render: (r: any) => r.content ? <span className="max-w-[300px] truncate block">{r.content}</span> : '—' },
-          { key: 'createdAt', header: 'Data', render: (r: any) => new Date(r.createdAt).toLocaleDateString('pt-BR') },
+          { key: 'createdAt', header: 'Data', render: (r: any) => formatLocaleDate(r.createdAt, 'pt-BR', 'date') },
         ]}
         data={reviews}
         keyExtractor={(r: any) => r.id}
@@ -550,7 +551,7 @@ function AuditTab({ auditLogs }: { auditLogs: AuditLogItem[] }) {
           { key: 'user', header: 'Usuário', render: (l: any) => l.user?.username || l.userId || '—' },
           { key: 'metadata', header: 'Detalhes', render: (l: any) => l.metadata ? JSON.stringify(l.metadata).slice(0, 80) : '—', className: 'max-w-[200px] truncate text-muted-foreground font-mono text-xs' },
           { key: 'ip', header: 'IP', render: (l: any) => l.ip || '—', className: 'font-mono text-xs' },
-          { key: 'createdAt', header: 'Data', render: (l: any) => new Date(l.createdAt).toLocaleString('pt-BR') },
+          { key: 'createdAt', header: 'Data', render: (l: any) => formatLocaleDate(l.createdAt) },
         ]}
         data={auditLogs}
         keyExtractor={(l: any) => l.id}

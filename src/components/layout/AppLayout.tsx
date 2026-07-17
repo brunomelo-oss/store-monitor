@@ -8,6 +8,7 @@ import { useTheme } from '@/contexts/ThemeContext'
 import { useApps } from '@/hooks/useApps'
 import { useLang } from '@/contexts/LanguageContext'
 import { useUnreadCount, useNotifications, useMarkAllAsRead } from '@/features/notifications/hooks/useNotifications'
+import { formatLocaleDate } from '@/lib/utils'
 import { GlobalSearch } from './GlobalSearch'
 import { ChangePasswordModal } from '@/components/ChangePasswordModal'
 import {
@@ -133,6 +134,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           <button
             onClick={() => setSettingsOpen(!settingsOpen)}
             className={`sasi-nav-item w-full ${pathname.startsWith('/admin') ? 'active' : ''}`}
+            aria-label={t('nav.settings')}
           >
             <Settings size={20} />
             <span>{t('nav.settings')}</span>
@@ -203,13 +205,14 @@ export function AppLayout({ children }: AppLayoutProps) {
               <button
                 onClick={() => setNotifOpen(o => !o)}
                 className="header-icon-btn"
+                aria-label={t('notifications.title')}
               >
                 <Bell size={13} />
-                {(unread?.count || 0) > 0 && (
+                {unread?.count ? (
                   <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-red-500 text-[8px] font-bold flex items-center justify-center text-white">
-                    {unread!.count > 9 ? '9+' : unread!.count}
+                    {unread.count > 9 ? '9+' : unread.count}
                   </span>
-                )}
+                ) : null}
               </button>
               {notifOpen && (
                 <div className="absolute right-0 top-full mt-2 w-80 glass-dropdown rounded-xl overflow-hidden z-50 animate-dropdownIn">
@@ -251,7 +254,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                             <NIcon size={15} className={`shrink-0 mt-0.5 ${color}`} />
                             <div className="min-w-0 flex-1">
                               <p className="text-sm text-foreground/90 truncate">{n.title}</p>
-                              <p className="text-xs text-muted-foreground/70 mt-0.5">{new Date(n.createdAt).toLocaleString(lang === 'ar' ? 'ar-SA' : lang === 'en' ? 'en-US' : 'pt-BR')}</p>
+                              <p className="text-xs text-muted-foreground/70 mt-0.5">{formatLocaleDate(n.createdAt, lang === 'ar' ? 'ar-SA' : lang === 'en' ? 'en-US' : 'pt-BR')}</p>
                             </div>
                             {!n.read && <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0 mt-1.5" />}
                           </Link>

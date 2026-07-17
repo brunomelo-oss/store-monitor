@@ -16,8 +16,8 @@ export function Indicators() {
   const { t } = useLang()
 
   const hasRealData = apps.filter(a =>
-    (a.playStore.version && a.playStore.version !== '-') ||
-    (a.appStore.version && a.appStore.version !== '-')
+    (a.playStore?.version && a.playStore.version !== '-') ||
+    (a.appStore?.version && a.appStore.version !== '-')
   )
   const healthy = hasRealData.filter(a => overallStatus(a) === 'published').length
   const rejected = hasRealData.filter(a => overallStatus(a) === 'rejected').length

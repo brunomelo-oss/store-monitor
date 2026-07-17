@@ -8,14 +8,14 @@ export interface HealthStatus {
   environment: string
   checks: {
     database: { status: string; message?: string; latency?: number }
-    api: { status: string }
-    sync: { status: string; message?: string }
-    notifications: { status: string; message?: string }
-    analytics: { status: string; message?: string }
-    backgroundJobs: { status: string; message?: string }
+    api: { status: string; message?: string; latency?: number }
+    sync: { status: string; message?: string; latency?: number }
+    notifications: { status: string; message?: string; latency?: number }
+    analytics: { status: string; message?: string; latency?: number }
+    backgroundJobs: { status: string; message?: string; latency?: number }
     providers: {
-      google: { status: string }
-      apple: { status: string }
+      google: { status: string; message?: string; latency?: number }
+      apple: { status: string; message?: string; latency?: number }
     }
   }
   metrics: {

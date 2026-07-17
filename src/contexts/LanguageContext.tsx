@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react'
-import { dictionaries, type LangCode } from '@/lib/i18n'
+import { dictionaries, isValidLangCode, type LangCode } from '@/lib/i18n'
 
 interface LanguageContextType {
   lang: LangCode
@@ -18,8 +18,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY) as LangCode | null
-      if (saved && dictionaries[saved]) setLangState(saved)
+      const saved = localStorage.getItem(STORAGE_KEY)
+      if (isValidLangCode(saved)) setLangState(saved)
     } catch {}
   }, [])
 

@@ -91,7 +91,7 @@ export async function apiClient<T>(path: string, options?: RequestInit): Promise
 
   if (res.status === 204) return undefined as T
 
-  const body = await res.json()
+  const body = await res.json().catch(() => null)
 
   if (body && typeof body === 'object' && 'success' in body) {
     if (body.success === true && 'data' in body) {

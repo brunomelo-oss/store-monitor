@@ -78,7 +78,7 @@ function CommandCenter() {
   const recentApps = [...apps].sort((a, b) => {
     const aDate = a.updatedAt || a.createdAt
     const bDate = b.updatedAt || b.createdAt
-    return new Date(bDate ?? 0).getTime() - new Date(aDate ?? 0).getTime()
+    return new Date(bDate || 0).getTime() - new Date(aDate || 0).getTime()
   }).slice(0, 8)
 
   const priorities = apps.filter(a => {
@@ -114,7 +114,7 @@ function CommandCenter() {
   const timeSinceLastUpdate = useMemo(() => {
     const dates = ([activity.map(a => a.createdAt), apps.map(a => a.updatedAt || a.createdAt)].flat().filter(Boolean) as string[])
     if (!dates.length) return null
-    const latest = new Date(Math.max(...dates.map(d => new Date(d).getTime())))
+    const latest = new Date(Math.max(...dates.map(d => new Date(d).getTime()).filter(n => !isNaN(n)), 0))
     const diff = Date.now() - latest.getTime()
     const mins = Math.floor(diff / 60000)
     if (mins < 1) return t('dashboard.justNow')

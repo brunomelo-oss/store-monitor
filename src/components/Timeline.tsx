@@ -1,5 +1,6 @@
 import { Fragment } from 'react'
 import { Clock, RefreshCw, CheckCircle, XCircle, UserPlus, Mail, LogIn, LogOut, Key, Star, MessageSquare, Upload, FileText, Bell, Terminal, type LucideIcon } from 'lucide-react'
+import { safeDate, formatLocaleDate } from '@/lib/utils'
 
 interface TimelineEvent {
   id: string
@@ -53,9 +54,10 @@ const typeColors: Record<string, string> = {
 }
 
 function formatTimeAgo(dateStr: string): string {
+  const d = safeDate(dateStr)
+  if (!d) return '—'
   const now = Date.now()
-  const date = new Date(dateStr).getTime()
-  const diff = now - date
+  const diff = now - d.getTime()
   const mins = Math.floor(diff / 60000)
   const hours = Math.floor(diff / 3600000)
   const days = Math.floor(diff / 86400000)
@@ -64,7 +66,7 @@ function formatTimeAgo(dateStr: string): string {
   if (mins < 60) return `${mins}min atrás`
   if (hours < 24) return `${hours}h atrás`
   if (days < 7) return `${days}d atrás`
-  return new Date(dateStr).toLocaleDateString('pt-BR')
+  return d.toLocaleDateString('pt-BR')
 }
 
 export function Timeline({ events }: { events: TimelineEvent[] }) {
@@ -88,10 +90,10 @@ export function Timeline({ events }: { events: TimelineEvent[] }) {
 
           return (
             <Fragment key={event.id}>
-              {idx > 0 && new Date(event.timestamp).toDateString() !== new Date(filtered[idx - 1].timestamp).toDateString() && (
+              {idx > 0 && safeDate(event.timestamp)?.toDateString() !== safeDate(filtered[idx - 1].timestamp)?.toDateString() && (
                 <div className="relative pl-10 py-2">
                   <span className="text-xs text-muted-foreground bg-background px-2">
-                    {new Date(event.timestamp).toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
+                    {formatLocaleDate(event.timestamp, 'pt-BR', 'date')}
                   </span>
                 </div>
               )}

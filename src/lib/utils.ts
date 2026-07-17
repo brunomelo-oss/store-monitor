@@ -2,6 +2,20 @@ import { App, AppStatus } from '@/types'
 
 const STATUS_ORDER: AppStatus[] = ['published', 'review', 'rejected', 'pending', 'unpublished']
 
+export function safeDate(dateStr?: string | null): Date | null {
+  if (!dateStr) return null
+  const d = new Date(dateStr)
+  return isNaN(d.getTime()) ? null : d
+}
+
+export function formatLocaleDate(dateStr: string | undefined | null, locale = 'pt-BR', style: 'datetime' | 'date' | 'time' = 'datetime'): string {
+  const d = safeDate(dateStr)
+  if (!d) return '—'
+  if (style === 'date') return d.toLocaleDateString(locale)
+  if (style === 'time') return d.toLocaleTimeString(locale)
+  return d.toLocaleString(locale)
+}
+
 export function daysSince(dateStr: string): number | null {
   if (!dateStr) return null
   const parts = dateStr.split('-')

@@ -46,7 +46,7 @@ export function InstallChart() {
                   />
                 </div>
                 <div className="text-sm font-bold text-muted-foreground text-right">
-                  {app.installations.toLocaleString('pt-BR')}
+                  {(app.installations ?? 0).toLocaleString('pt-BR')}
                 </div>
               </div>
             )

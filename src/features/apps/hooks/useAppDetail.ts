@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { apiClient } from '@/services/api-client'
 import { MOCK_APPS } from '@/lib/mock-data'
+import type { App } from '@/types'
 
 export interface AppDetail {
   id: number
@@ -36,6 +37,33 @@ export interface AppDetail {
   storeConnection?: Record<string, unknown> | null
 }
 
+function adaptAppToDetail(app: App): AppDetail {
+  return {
+    id: app.id,
+    name: app.name,
+    region: app.region,
+    icon: null,
+    packageName: app.packageName || null,
+    bundleId: app.bundleId || null,
+    googleAccount: app.googleAccount || null,
+    appleAccount: app.appleAccount || null,
+    playStatus: app.playStore?.status || null,
+    playVersion: app.playStore?.version || null,
+    playLastUpdate: app.playStore?.lastUpdate || null,
+    appStatus: app.appStore?.status || null,
+    appVersion: app.appStore?.version || null,
+    appLastUpdate: app.appStore?.lastUpdate || null,
+    installations: app.installations ?? null,
+    rating: app.rating ?? null,
+    pinned: app.pinned ?? false,
+    sortOrder: app.sortOrder || 0,
+    organizationId: 1,
+    storeConnectionId: app.storeConnectionId ?? null,
+    createdAt: app.createdAt || '',
+    updatedAt: app.updatedAt || '',
+  }
+}
+
 export function useAppDetail(id: number) {
   return useQuery({
     queryKey: ['app', id] as const,
@@ -44,7 +72,7 @@ export function useAppDetail(id: number) {
         return await apiClient<AppDetail>(`/apps/${id}`)
       } catch {
         const mock = MOCK_APPS.find(a => a.id === id)
-        if (mock) return mock as unknown as AppDetail
+        if (mock) return adaptAppToDetail(mock)
         throw new Error(`App ${id} not found`)
       }
     },

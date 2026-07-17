@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
-import { healthService } from '@/services/health.service'
+import { healthService, type HealthStatus } from '@/services/health.service'
 
-const MOCK_HEALTH = {
+const MOCK_HEALTH: HealthStatus = {
   status: 'healthy', timestamp: new Date().toISOString(), uptime: 86400,
   version: '1.0.0', environment: 'production',
   checks: {
