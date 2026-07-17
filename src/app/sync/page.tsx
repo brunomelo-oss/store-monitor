@@ -5,6 +5,7 @@ import { AppLayout } from '@/components/layout/AppLayout'
 import { useSyncHistory } from '@/features/sync/hooks/useSyncHistory'
 import { useSyncJobs } from '@/features/sync/hooks/useSyncJobs'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
+import { ErrorState } from '@/components/ErrorState'
 import { Loader2, CheckCircle, XCircle, Clock, AlertTriangle } from 'lucide-react'
 
 const statusIcon: Record<string, React.ReactNode> = {
@@ -17,8 +18,8 @@ const statusIcon: Record<string, React.ReactNode> = {
 
 export default function SyncPage() {
   const { user, loading } = useAuth()
-  const { data: history, isLoading: historyLoading } = useSyncHistory()
-  const { data: jobs, isLoading: jobsLoading } = useSyncJobs()
+  const { data: history, isLoading: historyLoading, error: historyError } = useSyncHistory()
+  const { data: jobs, isLoading: jobsLoading, error: jobsError } = useSyncJobs()
 
   if (loading || !user) {
     return (
@@ -39,7 +40,7 @@ export default function SyncPage() {
 
         <section>
           <h2 className="text-lg font-semibold mb-4">Histórico de Sincronização</h2>
-          {historyLoading ? (
+          {historyError ? <ErrorState onRetry={() => window.location.reload()} /> : historyLoading ? (
             <div className="flex items-center gap-2 text-muted-foreground">
               <Loader2 size={16} className="animate-spin" />
               <span>Carregando...</span>
@@ -85,7 +86,7 @@ export default function SyncPage() {
 
         <section>
           <h2 className="text-lg font-semibold mb-4">Jobs</h2>
-          {jobsLoading ? (
+          {jobsError ? <ErrorState onRetry={() => window.location.reload()} /> : jobsLoading ? (
             <div className="flex items-center gap-2 text-muted-foreground">
               <Loader2 size={16} className="animate-spin" />
               <span>Carregando...</span>

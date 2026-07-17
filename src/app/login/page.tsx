@@ -8,6 +8,7 @@ import { RegisterForm } from '@/features/auth/components/RegisterForm'
 import { InviteSetup } from '@/features/auth/components/InviteSetup'
 import { PasswordReset } from '@/features/auth/components/PasswordReset'
 import { SuccessScreen } from '@/components/ui/primitives'
+import { Loader2 } from 'lucide-react'
 import { useLang } from '@/contexts/LanguageContext'
 
 export default function LoginPage() {
@@ -21,7 +22,13 @@ export default function LoginPage() {
     if (user) router.push('/')
   }, [user, router])
 
-  if (loading) return null
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#020617] flex items-center justify-center">
+        <Loader2 size={32} className="animate-spin text-muted-foreground" />
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#020617] flex items-center justify-center p-4 relative overflow-hidden login-root">

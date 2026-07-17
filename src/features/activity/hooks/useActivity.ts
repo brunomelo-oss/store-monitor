@@ -12,6 +12,7 @@ export function useActivity(limit = 50) {
         return MOCK_ACTIVITIES
       }
     },
+    initialData: MOCK_ACTIVITIES,
     staleTime: 15_000,
   })
 }
