@@ -69,12 +69,20 @@ export function getErrorMessage(error: unknown): string {
 /** @deprecated Use getErrorMessage() instead */
 export const extractError = getErrorMessage
 
+export const API_TIMEOUT = 5000
+
 export async function apiClient<T>(path: string, options?: RequestInit): Promise<T> {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), API_TIMEOUT)
+
   const res = await fetch(`${BASE}${path}`, {
+    signal: controller.signal,
     credentials: 'include',
     ...options,
     headers: { 'Content-Type': 'application/json', ...options?.headers },
   })
+
+  clearTimeout(timer)
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({ error: 'Erro de conexão' }))
