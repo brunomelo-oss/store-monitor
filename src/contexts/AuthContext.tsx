@@ -42,6 +42,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async function init() {
       const loggedOut = (() => { try { return localStorage.getItem('sasi_logged_out') === 'true' } catch { return false } })()
 
+      // Mock user imediatamente — UI renderiza sem delay
+      if (!loggedOut && !cancelled) {
+        setUser({ id: 1, username: 'bmelo9387', email: 'bmelo9387@gmail.com', role: 'OWNER' })
+      }
+
+      // Libera loading imediatamente
+      if (!cancelled) setLoading(false)
+
+      // Tenta API real em background (não bloqueia)
       try {
         const user = await authService.me()
         if (!cancelled) setUser(user)
@@ -52,19 +61,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
           const user = await authService.refresh()
           if (!cancelled) setUser(user)
-          return
         } catch {}
-      }
-
-      if (!loggedOut && !cancelled) {
-        setUser({ id: 1, username: 'bmelo9387', email: 'bmelo9387@gmail.com', role: 'OWNER' })
       }
     }
 
-    init().finally(() => {
-      if (!cancelled) setLoading(false)
-    })
-
+    init()
     return () => { cancelled = true }
   }, [])
 

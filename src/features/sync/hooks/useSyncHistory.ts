@@ -13,6 +13,7 @@ export function useSyncHistory() {
         return []
       }
     },
+    initialData: [],
     staleTime: 15_000,
   })
 }

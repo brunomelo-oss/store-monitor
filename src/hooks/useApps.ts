@@ -15,6 +15,7 @@ export function useApps() {
       } catch {}
       return MOCK_APPS as App[]
     },
+    initialData: MOCK_APPS as App[],
     staleTime: 30_000,
   })
 }

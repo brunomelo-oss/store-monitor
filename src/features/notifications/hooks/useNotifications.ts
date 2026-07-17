@@ -14,6 +14,7 @@ export function useNotifications(take = 20) {
         return MOCK_NOTIFICATIONS as NotificationItem[]
       }
     },
+    initialData: MOCK_NOTIFICATIONS as NotificationItem[],
     staleTime: 15_000,
   })
 }
@@ -28,6 +29,7 @@ export function useUnreadCount() {
         return MOCK_UNREAD_COUNT
       }
     },
+    initialData: MOCK_UNREAD_COUNT,
     refetchInterval: 30_000,
   })
 }

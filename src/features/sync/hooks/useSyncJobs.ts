@@ -13,6 +13,7 @@ export function useSyncJobs() {
         return []
       }
     },
+    initialData: [],
     staleTime: 10_000,
   })
 }

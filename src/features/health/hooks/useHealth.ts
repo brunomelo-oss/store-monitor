@@ -1,6 +1,24 @@
 import { useQuery } from '@tanstack/react-query'
 import { healthService } from '@/services/health.service'
 
+const MOCK_HEALTH = {
+  status: 'healthy', timestamp: new Date().toISOString(), uptime: 86400,
+  version: '1.0.0', environment: 'production',
+  checks: {
+    database: { status: 'healthy' },
+    api: { status: 'healthy' },
+    sync: { status: 'healthy' },
+    notifications: { status: 'healthy' },
+    analytics: { status: 'healthy' },
+    backgroundJobs: { status: 'healthy' },
+    providers: { google: { status: 'healthy' }, apple: { status: 'healthy' } },
+  },
+  metrics: {
+    syncLatency: { value: 1.2, unit: 's' }, averageJobDuration: { value: 45, unit: 's' },
+    failedJobs24h: 0, pendingJobs: 0, totalSyncs24h: 12, failedSyncs24h: 0,
+  },
+}
+
 export function useHealth() {
   return useQuery({
     queryKey: ['health'] as const,
@@ -8,25 +26,10 @@ export function useHealth() {
       try {
         return await healthService.check()
       } catch {
-        return {
-          status: 'healthy', timestamp: new Date().toISOString(), uptime: 86400,
-          version: '1.0.0', environment: 'production',
-          checks: {
-            database: { status: 'healthy' },
-            api: { status: 'healthy' },
-            sync: { status: 'healthy' },
-            notifications: { status: 'healthy' },
-            analytics: { status: 'healthy' },
-            backgroundJobs: { status: 'healthy' },
-            providers: { google: { status: 'healthy' }, apple: { status: 'healthy' } },
-          },
-          metrics: {
-            syncLatency: { value: 1.2, unit: 's' }, averageJobDuration: { value: 45, unit: 's' },
-            failedJobs24h: 0, pendingJobs: 0, totalSyncs24h: 12, failedSyncs24h: 0,
-          },
-        }
+        return MOCK_HEALTH
       }
     },
+    initialData: MOCK_HEALTH,
     refetchInterval: 60_000,
   })
 }

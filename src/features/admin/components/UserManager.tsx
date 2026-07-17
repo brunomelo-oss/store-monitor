@@ -35,10 +35,7 @@ export function UserManager() {
   }
 
   const load = async () => {
-    try {
-      const [u, i] = await Promise.all([backendApi.getUsers(), backendApi.getInvites()])
-      setUsers(u ?? []); setInvites(i ?? []); setLoading(false); return
-    } catch {}
+    // Mock imediato — UI renderiza sem delay
     setUsers([
       { id: 10, username: 'bmelo9387', email: 'bmelo9387@gmail.com', role: 'ADMIN', createdAt: '2026-07-16T00:00:00Z' },
       { id: 2, username: 'maria.silva', email: 'maria.silva@sasi.com.br', role: 'MANAGER', createdAt: '2026-02-15T00:00:00Z' },
@@ -46,6 +43,11 @@ export function UserManager() {
       { id: 4, username: 'ana.oliveira', email: 'ana.oliveira@sasi.com.br', role: 'VIEWER', createdAt: '2026-04-20T00:00:00Z' },
     ])
     setLoading(false)
+    // Tenta API em background (não bloqueia)
+    try {
+      const [u, i] = await Promise.all([backendApi.getUsers(), backendApi.getInvites()])
+      setUsers(u ?? []); setInvites(i ?? [])
+    } catch {}
   }
 
   useEffect(() => { load() }, [])

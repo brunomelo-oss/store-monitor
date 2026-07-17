@@ -40,6 +40,7 @@ export function useStoreConnections() {
       } catch {}
       return MOCK_CONNECTIONS
     },
+    initialData: MOCK_CONNECTIONS,
     staleTime: 30_000,
   })
 }
