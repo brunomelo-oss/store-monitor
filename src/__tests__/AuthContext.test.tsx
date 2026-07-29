@@ -4,7 +4,6 @@ import { ReactNode } from 'react'
 
 const mockLogin = vi.hoisted(() => vi.fn())
 const mockLogout = vi.hoisted(() => vi.fn())
-const mockRegister = vi.hoisted(() => vi.fn())
 const mockRefresh = vi.hoisted(() => vi.fn())
 const mockMe = vi.hoisted(() => vi.fn())
 const mockCheckEmail = vi.hoisted(() => vi.fn())
@@ -16,7 +15,6 @@ vi.mock('@/services/auth.service', () => ({
     logout: mockLogout,
     refresh: mockRefresh,
     me: mockMe,
-    register: mockRegister,
     checkEmail: mockCheckEmail,
     resetPassword: mockResetPassword,
   },
@@ -33,7 +31,6 @@ function TestConsumer() {
       <div data-testid="isAdmin">{String(auth.isAdmin)}</div>
       <button data-testid="login" onClick={() => auth.login('test', 'pass')}>login</button>
       <button data-testid="logout" onClick={() => auth.logout()}>logout</button>
-      <button data-testid="register" onClick={() => auth.register('test@test.com', 'pass123@')}>register</button>
       <button data-testid="checkEmail" onClick={() => auth.sendResetEmail('test@test.com')}>check</button>
       <button data-testid="resetPassword" onClick={() => auth.doResetPassword('test@test.com', 'code', 'newpass@1')}>reset</button>
       <button data-testid="setRemember" onClick={() => auth.setRememberSession(true)}>setRemember</button>
@@ -81,7 +78,7 @@ describe('AuthContext', () => {
     renderProvider()
     await waitFor(() => expect(screen.getByTestId('loading').textContent).toBe('false'))
     expect(mockRefresh).not.toHaveBeenCalled()
-    expect(screen.getByTestId('user').textContent).toContain('bruno.melo')
+    expect(screen.getByTestId('user').textContent).toContain('bruninho')
   })
 
   it('calls refresh when remember is set and me fails', async () => {
@@ -121,14 +118,6 @@ describe('AuthContext', () => {
     await waitFor(() => {
       expect(screen.getByTestId('user').textContent).toBe('null')
     })
-  })
-
-  it('register calls backend and returns null on success', async () => {
-    mockRegister.mockResolvedValueOnce(undefined)
-    renderProvider()
-
-    await screen.getByTestId('register').click()
-    expect(mockRegister).toHaveBeenCalledWith('test@test.com', 'pass123@')
   })
 
   it('sendResetEmail returns error if email not registered', async () => {

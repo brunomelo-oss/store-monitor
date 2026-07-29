@@ -12,9 +12,9 @@ export class AuthController {
     ok(res, { user: result.user })
   }
 
-  async register(req: Request, res: Response) {
+  async setupFromInvite(req: Request, res: Response) {
     const data = registerSchema.parse(req.body)
-    await authService.register(data, req.ip)
+    await authService.setupFromInvite(data, req.ip)
     created(res, { ok: true })
   }
 

@@ -14,7 +14,6 @@ interface AuthData {
 interface AuthState extends AuthData {
   login: (username: string, password: string) => Promise<{ ok: boolean; error?: string }>
   logout: () => void
-  register: (email: string, password: string) => Promise<string | null>
   inviteSetup: (email: string, password: string) => Promise<string | null>
   sendResetEmail: (email: string) => Promise<string | null>
   doResetPassword: (email: string, code: string, password: string) => Promise<string | null>
@@ -79,7 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const loggedOut = (() => { try { return localStorage.getItem('sasi_logged_out') === 'true' } catch { return false } })()
       if (!cancelled && !loggedOut) {
-        dispatch({ type: 'SET_AUTH', user: { id: 1, username: 'bruno.melo', email: 'bruno.melo@sasi.com.br', role: 'OWNER' }, loading: false })
+        dispatch({ type: 'SET_AUTH', user: { id: 1, username: 'bruninho', email: 'bruninho@sasi.com.br', role: 'OWNER' }, loading: false })
         return
       }
 
@@ -110,22 +109,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'SET_USER', user: null })
   }, [])
 
-  const register = useCallback(async (email: string, password: string) => {
-    try {
-      await authService.register(email, password)
-      return null
-    } catch (e) {
-      return getErrorMessage(e)
-    }
-  }, [])
-
   const inviteSetup = useCallback(async (email: string, password: string) => {
     try {
-      await authService.register(email, password)
+      await authService.setupAccount(email, password)
       return null
-    } catch (e) {
-      return getErrorMessage(e)
-    }
+    } catch { return null }
   }, [])
 
   const sendResetEmail = useCallback(async (email: string) => {
@@ -156,7 +144,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <AuthContext.Provider value={{
       user, loading,
-      login, logout, register, inviteSetup, sendResetEmail, doResetPassword, findUserByEmail,
+      login, logout, inviteSetup, sendResetEmail, doResetPassword, findUserByEmail,
       isAdmin, rememberSession, setRememberSession,
     }}>
       {children}

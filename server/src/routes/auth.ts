@@ -13,7 +13,7 @@ const authLimiter = rateLimit({
   legacyHeaders: false,
 })
 
-router.post('/register', authLimiter, authController.register.bind(authController))
+router.post('/setup', authLimiter, authController.setupFromInvite.bind(authController))
 router.post('/login', authLimiter, authController.login.bind(authController))
 router.post('/logout', authController.logout.bind(authController))
 router.post('/refresh', authController.refresh.bind(authController))

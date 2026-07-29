@@ -1,18 +1,12 @@
 import { Request, Response } from 'express'
 import { userService } from '../services'
-import { createUserSchema, updateUserRoleSchema, updateUserPasswordSchema } from '../validators'
+import { updateUserRoleSchema, updateUserPasswordSchema } from '../validators'
 import { ok, created } from '../lib/response'
 
 export class UserController {
   async list(_req: Request, res: Response) {
     const users = await userService.list()
     ok(res, users)
-  }
-
-  async create(req: Request, res: Response) {
-    const data = createUserSchema.parse(req.body)
-    const user = await userService.create(data, req.user?.userId, req.ip)
-    created(res, user)
   }
 
   async updateRole(req: Request, res: Response) {

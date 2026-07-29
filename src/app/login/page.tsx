@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { LoginForm } from '@/features/auth/components/LoginForm'
-import { RegisterForm } from '@/features/auth/components/RegisterForm'
 import { InviteSetup } from '@/features/auth/components/InviteSetup'
 import { PasswordReset } from '@/features/auth/components/PasswordReset'
 import { SuccessScreen } from '@/components/ui/primitives'
@@ -125,23 +124,8 @@ export default function LoginPage() {
             onSwitch={(s, data) => {
               if (s === 'invite' && data) { setInviteEmail(data); setStep('invite') }
               if (s === 'email') setStep('email')
-              if (s === 'register') setStep('register')
             }}
             onSuccess={() => {}}
-          />
-        )}
-        {step === 'register' && (
-          <RegisterForm
-            onSuccess={() => setStep('regSuccess')}
-            onBack={() => setStep('login')}
-          />
-        )}
-        {step === 'regSuccess' && (
-          <SuccessScreen
-            title={t('success.registered.title')}
-            message={t('success.registered.message')}
-            buttonLabel={t('success.registered.button')}
-            onClick={() => setStep('login')}
           />
         )}
         {step === 'invite' && (

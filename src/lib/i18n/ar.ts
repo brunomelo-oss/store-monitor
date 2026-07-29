@@ -76,14 +76,6 @@ export const ar: Record<string, string> = {
   'login.createdBy': 'Created by SASI — Agile Communication',
   'login.altLogo': 'SASI',
 
-  'register.title': 'إنشاء حساب',
-  'register.subtitle': 'املأ بياناتك للتسجيل',
-  'register.email': 'بريدك الإلكتروني',
-  'register.password': 'إنشاء كلمة مرور',
-  'register.submit': 'تسجيل',
-  'register.error.email': 'أدخل بريدك الإلكتروني',
-  'register.error.password': 'كلمة المرور لا تستوفي المتطلبات',
-
   'invite.title': 'إنشاء كلمة مرور',
   'invite.subtitle': 'قم بإعداد كلمة مرور الوصول الخاصة بك',
   'invite.email': 'البريد الإلكتروني',
@@ -106,9 +98,6 @@ export const ar: Record<string, string> = {
   'reset.error.password': 'كلمة المرور لا تستوفي المتطلبات',
   'reset.error.match': 'كلمتا المرور غير متطابقتين',
 
-  'success.registered.title': 'تم التسجيل!',
-  'success.registered.message': 'تم إنشاء حسابك. سجل الدخول للوصول إلى لوحة التحكم.',
-  'success.registered.button': 'تسجيل الدخول',
   'success.invite.title': 'تم إنشاء الحساب!',
   'success.invite.message': 'تم تعيين كلمة المرور الخاصة بك. سجل الدخول للوصول إلى لوحة التحكم.',
   'success.invite.button': 'تسجيل الدخول',
@@ -224,7 +213,8 @@ export const ar: Record<string, string> = {
   'changePassword.requirement.special': 'رمز خاص واحد على الأقل',
 
   'passwordChecklist.length': '8 أحرف على الأقل',
-  'passwordChecklist.letter': 'حرف واحد على الأقل',
+  'passwordChecklist.uppercase': 'حرف كبير واحد على الأقل',
+  'passwordChecklist.lowercase': 'حرف صغير واحد على الأقل',
   'passwordChecklist.special': 'رمز خاص واحد على الأقل',
 
   'errorBoundary.title': 'حدث خطأ ما',

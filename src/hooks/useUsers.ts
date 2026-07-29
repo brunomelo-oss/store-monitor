@@ -8,12 +8,7 @@ interface UserRow { id: number; username: string; email: string; role: string; c
 const USERS_KEY = ['users'] as const
 const INVITES_KEY = ['invites'] as const
 
-const MOCK_USERS: UserRow[] = [
-  { id: 10, username: 'bmelo9387', email: 'bmelo9387@gmail.com', role: 'ADMIN', createdAt: '2026-07-16T00:00:00Z' },
-  { id: 2, username: 'maria.silva', email: 'maria.silva@sasi.com.br', role: 'MANAGER', createdAt: '2026-02-15T00:00:00Z' },
-  { id: 3, username: 'joao.santos', email: 'joao.santos@sasi.com.br', role: 'VIEWER', createdAt: '2026-03-10T00:00:00Z' },
-  { id: 4, username: 'ana.oliveira', email: 'ana.oliveira@sasi.com.br', role: 'VIEWER', createdAt: '2026-04-20T00:00:00Z' },
-]
+const MOCK_USERS: UserRow[] = []
 
 export function useUsers() {
   return useQuery({
@@ -30,34 +25,11 @@ export function useUsers() {
   })
 }
 
-export function useCreateUser() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: ({ email, password, role }: { email: string; password: string; role: string }) =>
-      usersService.create(email, password, role),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: USERS_KEY })
-    },
-  })
-}
-
 export function useUpdateUserRole() {
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: ({ id, role }: { id: number; role: string }) => usersService.updateRole(id, role),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: USERS_KEY })
-    },
-  })
-}
-
-export function useUpdateUserPassword() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: ({ id, password }: { id: number; password: string }) => usersService.updatePassword(id, password),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: USERS_KEY })
     },

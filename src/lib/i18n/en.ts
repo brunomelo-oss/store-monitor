@@ -76,14 +76,6 @@ export const en: Record<string, string> = {
   'login.createdBy': 'Created by SASI — Agile Communication',
   'login.altLogo': 'SASI',
 
-  'register.title': 'Create Account',
-  'register.subtitle': 'Fill in your details to register',
-  'register.email': 'Your email',
-  'register.password': 'Create a password',
-  'register.submit': 'Register',
-  'register.error.email': 'Enter your email',
-  'register.error.password': 'Password does not meet requirements',
-
   'invite.title': 'Create Password',
   'invite.subtitle': 'Set up your access password',
   'invite.email': 'Email',
@@ -106,9 +98,6 @@ export const en: Record<string, string> = {
   'reset.error.password': 'Password does not meet requirements',
   'reset.error.match': 'Passwords do not match',
 
-  'success.registered.title': 'Registration complete!',
-  'success.registered.message': 'Your account has been created. Log in to access the dashboard.',
-  'success.registered.button': 'Log in',
   'success.invite.title': 'Account Created!',
   'success.invite.message': 'Your password has been set. Log in to access the dashboard.',
   'success.invite.button': 'Log in',
@@ -224,7 +213,8 @@ export const en: Record<string, string> = {
   'changePassword.requirement.special': 'At least 1 special character',
 
   'passwordChecklist.length': 'At least 8 characters',
-  'passwordChecklist.letter': 'At least 1 letter',
+  'passwordChecklist.uppercase': 'At least 1 uppercase letter',
+  'passwordChecklist.lowercase': 'At least 1 lowercase letter',
   'passwordChecklist.special': 'At least 1 special character',
 
   'errorBoundary.title': 'Something went wrong',

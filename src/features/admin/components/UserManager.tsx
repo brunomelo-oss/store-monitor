@@ -4,12 +4,11 @@ import { useState, useEffect } from 'react'
 import { Invite } from '@/types'
 import { useAuth } from '@/contexts/AuthContext'
 import { useLang } from '@/contexts/LanguageContext'
-import { getErrorMessage } from '@/services/api-client'
 import { useToast } from '@/components/Toast'
 import { usersService } from '@/services/users.service'
 import { validatePassword } from '@/lib/utils'
 import { useShake } from '@/hooks/useShake'
-import { X, Plus, Mail, Trash2, UserPlus, Users, Loader2 } from 'lucide-react'
+import { Mail, Trash2, Users, Loader2 } from 'lucide-react'
 import { EmailPreviewModal } from '@/components/EmailPreviewModal'
 
 const inputClass = 'w-full px-3 py-2 rounded-lg bg-surface border border-border text-foreground text-sm placeholder:text-muted-foreground outline-none focus:border-foreground/30 transition'
@@ -24,20 +23,12 @@ export function UserManager() {
   const [editingUserId, setEditingUserId] = useState<number | null>(null)
   const [newPassword, setNewPassword] = useState('')
   const [inviteEmail, setInviteEmail] = useState('')
-  const [showAdd, setShowAdd] = useState(false)
-  const [newUser, setNewUser] = useState({ email: '', password: '', role: 'VIEWER' })
   const [previewEmail, setPreviewEmail] = useState('')
   const { shaking, trigger: triggerShake } = useShake()
-  const { shaking: shakingAdd, trigger: triggerShakeAdd } = useShake()
 
   const load = async () => {
     // Mock imediato — UI renderiza sem delay
-    setUsers([
-      { id: 10, username: 'bmelo9387', email: 'bmelo9387@gmail.com', role: 'ADMIN', createdAt: '2026-07-16T00:00:00Z' },
-      { id: 2, username: 'maria.silva', email: 'maria.silva@sasi.com.br', role: 'MANAGER', createdAt: '2026-02-15T00:00:00Z' },
-      { id: 3, username: 'joao.santos', email: 'joao.santos@sasi.com.br', role: 'VIEWER', createdAt: '2026-03-10T00:00:00Z' },
-      { id: 4, username: 'ana.oliveira', email: 'ana.oliveira@sasi.com.br', role: 'VIEWER', createdAt: '2026-04-20T00:00:00Z' },
-    ])
+    setUsers([])
     setLoading(false)
     // Tenta API em background (não bloqueia)
     try {
@@ -118,19 +109,6 @@ export function UserManager() {
     show(t('userManager.success.passwordChanged'), 'success')
   }
 
-  const handleAddUser = async () => {
-    if (!newUser.email) { show(t('userManager.error.emailRequired'), 'error'); triggerShakeAdd(); return }
-    if (!validatePassword(newUser.password)) { show(t('userManager.error.passwordReq'), 'error'); triggerShakeAdd(); return }
-    try {
-      await usersService.create(newUser.email, newUser.password, newUser.role)
-    } catch {}
-    const mockUser = { id: Date.now(), username: newUser.email.split('@')[0], email: newUser.email, role: newUser.role, createdAt: new Date().toISOString() }
-    setUsers(prev => [...prev, mockUser])
-    setShowAdd(false)
-    setNewUser({ email: '', password: '', role: 'VIEWER' })
-    show(t('userManager.success.userCreated'), 'success')
-  }
-
   return (
     <div className="max-w-3xl mx-auto space-y-8">
       {/* Convite Section */}
@@ -173,40 +151,9 @@ export function UserManager() {
 
       {/* Usuários Section */}
       <div className="bg-card border border-border rounded-2xl p-6 card-glass shadow-sm">
-        <div className="flex items-center justify-between mb-4">
+        <div className="mb-4">
           <h3 className="text-base font-bold text-foreground">{t('userManager.title.users')}</h3>
-          <button
-            onClick={() => setShowAdd(!showAdd)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 text-sm font-medium hover:bg-emerald-500/20 transition"
-          >
-            <Plus size={14} />
-            {t('userManager.button.new')}
-          </button>
         </div>
-
-        {showAdd && (
-          <div className={`mb-4 p-4 bg-surface rounded-xl border border-border space-y-3 ${shakingAdd ? 'animate-shake' : ''}`}>
-            <div className="flex items-center gap-2 mb-1">
-              <UserPlus size={14} className="text-muted-foreground" />
-              <span className="text-xs text-muted-foreground">{t('userManager.title.newUser')}</span>
-            </div>
-            <input className={inputClass} placeholder={t('userManager.placeholder.emailUser')} value={newUser.email} onChange={e => setNewUser({ ...newUser, email: e.target.value })} />
-            <input className={inputClass} type="password" autoComplete="new-password" placeholder={t('userManager.placeholder.passwordUser')} value={newUser.password} onChange={e => setNewUser({ ...newUser, password: e.target.value })} />
-            <select className={inputClass} value={newUser.role} onChange={e => setNewUser({ ...newUser, role: e.target.value })}>
-              {ROLE_OPTIONS.map(r => (
-                <option key={r} value={r}>{t(`userManager.option.${r.toLowerCase()}`)}</option>
-              ))}
-            </select>
-            <div className="flex gap-2 pt-1">
-              <button onClick={handleAddUser} className="px-4 py-2 rounded-lg bg-sasi-red text-white text-sm font-semibold hover:opacity-90 transition">
-                {t('userManager.button.create')}
-              </button>
-              <button onClick={() => setShowAdd(false)} className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition">
-                {t('common.cancel')}
-              </button>
-            </div>
-          </div>
-        )}
 
         <div className="space-y-2">
           {!loading && users.length === 0 && (

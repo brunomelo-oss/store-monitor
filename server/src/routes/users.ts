@@ -7,7 +7,6 @@ import { idParamSchema } from '../validators'
 const router = Router()
 
 router.get('/', requireAuth, requireAdmin, userController.list.bind(userController))
-router.post('/', requireAuth, requireAdmin, userController.create.bind(userController))
 router.patch('/:id/role', requireAuth, requireAdmin, validate(idParamSchema), userController.updateRole.bind(userController))
 router.patch('/:id/password', requireAuth, requireAdmin, validate(idParamSchema), userController.updatePassword.bind(userController))
 router.delete('/:id', requireAuth, requireAdmin, validate(idParamSchema), userController.delete.bind(userController))

@@ -121,9 +121,4 @@ describe('LoginForm', () => {
     expect(onSwitch).toHaveBeenCalledWith('invite', 'invited@test.com')
   })
 
-  it('calls onSwitch for register page', async () => {
-    renderLogin()
-    await userEvent.click(screen.getByText('Primeiro acesso'))
-    expect(onSwitch).toHaveBeenCalledWith('register')
-  })
 })

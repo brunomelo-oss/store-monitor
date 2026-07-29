@@ -76,14 +76,6 @@ export const pt: Record<string, string> = {
   'login.createdBy': 'Created by SASI — Agile Communication',
   'login.altLogo': 'SASI',
 
-  'register.title': 'Criar Conta',
-  'register.subtitle': 'Preencha os dados para se registrar',
-  'register.email': 'Seu e-mail',
-  'register.password': 'Crie uma senha',
-  'register.submit': 'Cadastrar',
-  'register.error.email': 'Digite seu e-mail',
-  'register.error.password': 'Senha não atende aos requisitos',
-
   'invite.title': 'Criar Senha',
   'invite.subtitle': 'Configure sua senha de acesso',
   'invite.email': 'E-mail',
@@ -106,9 +98,6 @@ export const pt: Record<string, string> = {
   'reset.error.password': 'Senha não atende aos requisitos',
   'reset.error.match': 'Senhas não conferem',
 
-  'success.registered.title': 'Cadastro realizado!',
-  'success.registered.message': 'Sua conta foi criada. Faça login para acessar o dashboard.',
-  'success.registered.button': 'Fazer login',
   'success.invite.title': 'Conta Criada!',
   'success.invite.message': 'Sua senha foi definida. Faça login para acessar o dashboard.',
   'success.invite.button': 'Fazer login',
@@ -224,7 +213,8 @@ export const pt: Record<string, string> = {
   'changePassword.requirement.special': 'Pelo menos 1 caractere especial',
 
   'passwordChecklist.length': 'Mínimo 8 caracteres',
-  'passwordChecklist.letter': 'Pelo menos 1 letra',
+  'passwordChecklist.uppercase': 'Pelo menos 1 letra maiúscula',
+  'passwordChecklist.lowercase': 'Pelo menos 1 letra minúscula',
   'passwordChecklist.special': 'Pelo menos 1 caractere especial',
 
   'errorBoundary.title': 'Algo deu errado',

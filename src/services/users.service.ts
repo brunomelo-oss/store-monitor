@@ -14,13 +14,6 @@ export const usersService = {
     return apiClient<UserResponse[]>('/users')
   },
 
-  async create(email: string, password: string, role: string): Promise<UserResponse> {
-    return apiClient<UserResponse>('/users', {
-      method: 'POST',
-      body: JSON.stringify({ email, password, role }),
-    })
-  },
-
   async updateRole(id: number, role: string): Promise<UserResponse> {
     return apiClient<UserResponse>(`/users/${id}/role`, {
       method: 'PATCH',

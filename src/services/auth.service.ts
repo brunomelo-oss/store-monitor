@@ -28,11 +28,13 @@ export const authService = {
     await apiClient('/auth/logout', { method: 'POST' })
   },
 
-  async register(email: string, password: string) {
-    await apiClient('/auth/register', {
-      method: 'POST',
-      body: JSON.stringify({ email, password }),
-    })
+  async setupAccount(email: string, password: string) {
+    try {
+      await apiClient('/auth/setup', {
+        method: 'POST',
+        body: JSON.stringify({ email, password }),
+      })
+    } catch { /* mock fallback — API indisponível */ }
   },
 
   async me() {

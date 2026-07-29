@@ -23,7 +23,7 @@ export function InviteSetup({ email, onSuccess, onBack }: InviteSetupProps) {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const pwOk = password.length >= 8 && /[a-zA-Z]/.test(password) && /[!@#$%^&*()_+\-=\[\]{}|;':",.\/<>\?`~]/.test(password)
+  const pwOk = password.length >= 8 && /[A-Z]/.test(password) && /[a-z]/.test(password) && /[!@#$%^&*()_+\-=\[\]{}|;':",.\/<>\?`~]/.test(password)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -50,11 +50,6 @@ export function InviteSetup({ email, onSuccess, onBack }: InviteSetupProps) {
         </div>
         <div className="text-lg font-semibold text-foreground mt-3">{t('invite.title')}</div>
         <div className="text-sm text-muted-foreground mt-1">{t('invite.subtitle')}</div>
-      </div>
-
-      <div className="p-3 rounded-lg bg-slate-100 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.06]">
-        <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">{t('invite.email')}</div>
-        <div className="text-sm text-foreground font-medium">{email}</div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-3">

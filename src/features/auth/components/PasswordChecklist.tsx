@@ -7,7 +7,8 @@ export function PasswordChecklist({ password }: { password: string }) {
   const { t } = useLang()
   const checks = [
     { label: t('passwordChecklist.length'), ok: password.length >= 8 },
-    { label: t('passwordChecklist.letter'), ok: /[a-zA-Z]/.test(password) },
+    { label: t('passwordChecklist.uppercase'), ok: /[A-Z]/.test(password) },
+    { label: t('passwordChecklist.lowercase'), ok: /[a-z]/.test(password) },
     { label: t('passwordChecklist.special'), ok: /[!@#$%^&*()_+\-=\[\]{}|;':",.\/<>\?`~]/.test(password) },
   ]
 

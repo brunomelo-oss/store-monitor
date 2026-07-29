@@ -50,12 +50,17 @@ export class AuthService {
     }
   }
 
-  async register(data: RegisterRequest, ip?: string): Promise<void> {
+  async setupFromInvite(data: RegisterRequest, ip?: string): Promise<void> {
     const { email, password } = data
 
     const existingEmail = await userRepository.findByEmail(email)
     if (existingEmail) {
       throw new ConflictError('E-mail já cadastrado')
+    }
+
+    const invite = await inviteRepository.findByEmail(email)
+    if (!invite) {
+      throw new ValidationError('Convite não encontrado. Apenas usuários convidados podem se cadastrar.')
     }
 
     const hashed = await hashPassword(password)
@@ -68,23 +73,19 @@ export class AuthService {
       finalUsername = `${username}${attempt}`
     }
 
-    const userCount = await userRepository.count()
-    const invite = await inviteRepository.findByEmail(email)
-    const role = invite ? (invite.role as UserRole) : (userCount === 0 ? UserRole.OWNER : UserRole.VIEWER)
+    const role = invite.role as UserRole
 
     await withTx(async (tx) => {
       const user = await tx.user.create({
         data: { email, username: finalUsername, password: hashed, role },
       })
 
-      if (invite) {
-        await tx.invite.deleteMany({ where: { email } })
-      }
+      await tx.invite.deleteMany({ where: { email } })
 
       await this.audit.log(user.id, 'REGISTER', 'User', user.id, { email }, ip, tx, user.organizationId)
     })
 
-    this.logger.info({ email }, 'User registered')
+    this.logger.info({ email }, 'User registered via invite')
   }
 
   async refresh(token: string, ip?: string): Promise<{ user: AuthUser; accessToken: string; refreshToken: string }> {

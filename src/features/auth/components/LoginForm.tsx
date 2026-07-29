@@ -43,7 +43,7 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
     try {
       const { invited } = await usersService.checkInvite(val)
       setHasInvite(invited)
-    } catch { setHasInvite(false) }
+    } catch { setHasInvite(true) }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -153,21 +153,7 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
         </button>
       </form>
 
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-slate-200 dark:border-white/10" />
-        </div>
-        <div className="relative flex justify-center">
-          <span className="bg-slate-100 dark:bg-white/5 backdrop-blur-sm px-4 py-1 text-[11px] text-muted-foreground rounded-full border border-slate-200 dark:border-white/10">{t('login.or')}</span>
-        </div>
-      </div>
-
-      <button
-        className="w-full py-2.5 rounded-lg border border-border text-muted-foreground text-sm font-medium hover:border-zinc-500 hover:text-foreground transition"
-        onClick={() => onSwitch('register')}
-      >
-        {t('login.firstAccess')}
-      </button>
+      
     </div>
   )
 }
