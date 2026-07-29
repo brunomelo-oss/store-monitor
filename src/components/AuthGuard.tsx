@@ -1,6 +1,6 @@
 'use client'
 
-import { useLayoutEffect, type ReactNode } from 'react'
+import { useEffect, useRef, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { Loader2 } from 'lucide-react'
@@ -8,9 +8,11 @@ import { Loader2 } from 'lucide-react'
 export function AuthGuard({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth()
   const router = useRouter()
+  const initDone = useRef(false)
 
-  useLayoutEffect(() => {
-    if (!loading && !user) router.replace('/login')
+  useEffect(() => {
+    if (!loading) initDone.current = true
+    if (initDone.current && !user) router.replace('/login')
   }, [user, loading, router])
 
   if (loading || !user) {
