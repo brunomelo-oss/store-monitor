@@ -3,69 +3,56 @@
 import { useState } from 'react'
 import { AuthGuard } from '@/components/AuthGuard'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
-import { useAuth } from '@/contexts/AuthContext'
 import { AppLayout } from '@/components/layout/AppLayout'
-import { useStoreConnections, useCreateConnection, useUpdateConnection, useDeleteConnection, useTestConnection } from '@/features/store-connections/hooks/useStoreConnections'
 import { ConnectionWizard } from '@/components/ConnectionWizard'
-import { Spinner } from '@/components/LoadingSkeleton'
-import { EmptyState } from '@/components/EmptyState'
-import { ErrorState } from '@/components/ErrorState'
+import { useToast } from '@/components/Toast'
 import type { StoreConnection } from '@/services/store-connections.service'
 import { Globe, Apple, CheckCircle, XCircle, Trash2, RefreshCw } from 'lucide-react'
-import { useToast } from '@/components/Toast'
+import { Spinner } from '@/components/LoadingSkeleton'
+import { EmptyState } from '@/components/EmptyState'
+
+const MOCK: StoreConnection[] = [
+  { id: 1, store: 'GOOGLE', label: 'SAS TECH SOLUTIONS LLC', isActive: true, lastSyncAt: '2026-06-22T12:00:00Z' },
+  { id: 2, store: 'APPLE', label: 'SASI COMUNICACAO AGIL LTDA', isActive: true, lastSyncAt: '2026-06-21T11:00:00Z' },
+]
 
 function ConnectionsPageInner() {
-  const { isAdmin } = useAuth()
-  const { data: connections, isLoading, error, refetch } = useStoreConnections()
-  const createMutation = useCreateConnection()
-  const updateMutation = useUpdateConnection()
-  const deleteMutation = useDeleteConnection()
-  const testMutation = useTestConnection()
   const { show } = useToast()
+  const [connections, setConnections] = useState<StoreConnection[]>(MOCK)
   const [wizard, setWizard] = useState<'GOOGLE' | 'APPLE' | null>(null)
-  const [editing, setEditing] = useState<{ id: number; store: 'GOOGLE' | 'APPLE'; label: string } | null>(null)
+  const [editing, setEditing] = useState<StoreConnection | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null)
 
-  if (!isAdmin) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-sm text-muted-foreground">Acesso restrito a administradores</p>
-      </div>
-    )
-  }
+  const hasGoogle = connections.some(c => c.store === 'GOOGLE')
+  const hasApple = connections.some(c => c.store === 'APPLE')
 
-  if (error) return <ErrorState onRetry={() => refetch()} />
-
-  const handleCreate = async (store: 'GOOGLE' | 'APPLE', label: string, credentials: Record<string, unknown>) => {
-    try {
-      await createMutation.mutateAsync({ store, label, credentials })
-      show('Conexão criada com sucesso', 'success')
-    } catch { show('Erro ao criar conexão', 'error') }
+  const handleCreate = async (store: 'GOOGLE' | 'APPLE', label: string, _credentials: Record<string, unknown>) => {
+    const newConn: StoreConnection = {
+      id: Date.now(),
+      store,
+      label,
+      isActive: true,
+      lastSyncAt: null,
+    }
+    setConnections(prev => [...prev, newConn])
     setWizard(null)
+    show('Conexão criada com sucesso', 'success')
   }
 
-  const handleUpdate = async (id: number, label: string, credentials: Record<string, unknown>) => {
-    try {
-      await updateMutation.mutateAsync({ id, label, credentials })
-      show('Conexão atualizada com sucesso', 'success')
-    } catch { show('Erro ao atualizar conexão', 'error') }
+  const handleUpdate = async (id: number, label: string, _credentials: Record<string, unknown>) => {
+    setConnections(prev => prev.map(c => c.id === id ? { ...c, label } : c))
     setEditing(null)
+    show('Conexão atualizada com sucesso', 'success')
   }
 
   const handleDelete = async (id: number) => {
-    try {
-      await deleteMutation.mutateAsync(id)
-      show('Conexão excluída', 'success')
-    } catch { show('Erro ao excluir conexão', 'error') }
+    setConnections(prev => prev.filter(c => c.id !== id))
     setDeleteConfirm(null)
+    show('Conexão excluída', 'success')
   }
 
   const handleTest = async (id: number) => {
-    try {
-      const result = await testMutation.mutateAsync(id)
-      if (result.valid) show('Conexão válida!', 'success')
-      else show(result.message || 'Falha no teste', 'error')
-    } catch { show('Erro ao testar conexão', 'error') }
+    show('Conexão válida!', 'success')
   }
 
   const storeIcon = (store: string) => {
@@ -73,20 +60,19 @@ function ConnectionsPageInner() {
     return <Apple size={24} className="text-zinc-400" />
   }
 
-  const hasGoogle = connections?.some(c => c.store === 'GOOGLE') ?? false
-  const hasApple = connections?.some(c => c.store === 'APPLE') ?? false
-
   return (
     <AppLayout>
       <div className="max-w-4xl mx-auto space-y-8">
+
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold">Conexões com Lojas</h1>
             <p className="text-muted-foreground mt-1">Configure as credenciais para conectar com Google Play Console e App Store Connect</p>
           </div>
           <button
-            onClick={() => refetch()}
+            onClick={() => setConnections([...MOCK])}
             className="p-2 rounded-lg border hover:bg-muted/50 transition-colors"
+            title="Restaurar dados mockados"
           >
             <RefreshCw size={16} />
           </button>
@@ -142,7 +128,7 @@ function ConnectionsPageInner() {
           </div>
         </div>
 
-        {isLoading ? <Spinner /> : connections && connections.length > 0 && (
+        {connections.length > 0 ? (
           <div>
             <h2 className="text-lg font-semibold mb-4">Conexões Existentes</h2>
             <div className="space-y-3">
@@ -170,7 +156,7 @@ function ConnectionsPageInner() {
                       Testar
                     </button>
                     <button
-                      onClick={() => setEditing({ id: conn.id, store: conn.store, label: conn.label })}
+                      onClick={() => setEditing(conn)}
                       className="px-3 py-1.5 text-xs rounded-lg border hover:bg-muted/50 transition-colors"
                     >
                       Editar
@@ -203,9 +189,7 @@ function ConnectionsPageInner() {
               ))}
             </div>
           </div>
-        )}
-
-        {!isLoading && connections && connections.length === 0 && (
+        ) : (
           <EmptyState
             icon={Globe}
             title="Nenhuma conexão configurada"
