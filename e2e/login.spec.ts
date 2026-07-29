@@ -1,6 +1,6 @@
-import { test, expect } from '@playwright/test'
+import { test, expect, type Page } from '@playwright/test'
 
-async function login(page, username = 'bruninho', password = 'Admin123@') {
+async function login(page: Page, username = 'bruninho', password = 'Admin123@') {
   await page.getByPlaceholder('Usuário ou e-mail').fill(username)
   await page.getByPlaceholder('Senha').fill(password)
   await page.getByRole('button', { name: 'Entrar' }).click()

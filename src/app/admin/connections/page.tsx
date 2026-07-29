@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { AuthGuard } from '@/components/AuthGuard'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { useAuth } from '@/contexts/AuthContext'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { useStoreConnections, useCreateConnection, useUpdateConnection, useDeleteConnection, useTestConnection } from '@/features/store-connections/hooks/useStoreConnections'
@@ -36,21 +37,27 @@ function ConnectionsPageInner() {
   if (error) return <ErrorState onRetry={() => refetch()} />
 
   const handleCreate = async (store: 'GOOGLE' | 'APPLE', label: string, credentials: Record<string, unknown>) => {
-    try { await createMutation.mutateAsync({ store, label, credentials }) } catch {}
+    try {
+      await createMutation.mutateAsync({ store, label, credentials })
+      show('Conexão criada com sucesso', 'success')
+    } catch { show('Erro ao criar conexão', 'error') }
     setWizard(null)
-    show('Conexão criada com sucesso', 'success')
   }
 
   const handleUpdate = async (id: number, label: string, credentials: Record<string, unknown>) => {
-    try { await updateMutation.mutateAsync({ id, label, credentials }) } catch {}
+    try {
+      await updateMutation.mutateAsync({ id, label, credentials })
+      show('Conexão atualizada com sucesso', 'success')
+    } catch { show('Erro ao atualizar conexão', 'error') }
     setEditing(null)
-    show('Conexão atualizada com sucesso', 'success')
   }
 
   const handleDelete = async (id: number) => {
-    try { await deleteMutation.mutateAsync(id) } catch {}
+    try {
+      await deleteMutation.mutateAsync(id)
+      show('Conexão excluída', 'success')
+    } catch { show('Erro ao excluir conexão', 'error') }
     setDeleteConfirm(null)
-    show('Conexão excluída', 'success')
   }
 
   const handleTest = async (id: number) => {
@@ -230,7 +237,9 @@ function ConnectionsPageInner() {
 export default function ConnectionsPage() {
   return (
     <AuthGuard>
-      <ConnectionsPageInner />
+      <ErrorBoundary>
+        <ConnectionsPageInner />
+      </ErrorBoundary>
     </AuthGuard>
   )
 }

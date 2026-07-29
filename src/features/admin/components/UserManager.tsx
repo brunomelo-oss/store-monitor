@@ -76,9 +76,9 @@ export function UserManager() {
   const handleUpdateRole = async (userId: number, newRole: string) => {
     try {
       await usersService.updateRole(userId, newRole)
-    } catch {}
-    setUsers(prev => prev.map(x => x.id === userId ? { ...x, role: newRole } : x))
-    show(t('userManager.success.roleChanged', { role: t(`userManager.role.${newRole.toLowerCase()}`) }), 'success')
+      setUsers(prev => prev.map(x => x.id === userId ? { ...x, role: newRole } : x))
+      show(t('userManager.success.roleChanged', { role: t(`userManager.role.${newRole.toLowerCase()}`) }), 'success')
+    } catch { show(t('common.error'), 'error') }
   }
 
   const roleBadge = (role: string) => {
@@ -104,9 +104,9 @@ export function UserManager() {
     if (!validatePassword(newPassword)) { show(t('userManager.error.passwordReq'), 'error'); return }
     try {
       await usersService.updatePassword(userId, newPassword)
-    } catch {}
-    setEditingUserId(null); setNewPassword('')
-    show(t('userManager.success.passwordChanged'), 'success')
+      setEditingUserId(null); setNewPassword('')
+      show(t('userManager.success.passwordChanged'), 'success')
+    } catch { show(t('common.error'), 'error') }
   }
 
   return (
