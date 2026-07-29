@@ -1,9 +1,9 @@
 'use client'
 
-import { useAuth } from '@/contexts/AuthContext'
+import { AuthGuard } from '@/components/AuthGuard'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { useHealth } from '@/features/health/hooks/useHealth'
-import { Spinner, LoadingSkeleton } from '@/components/LoadingSkeleton'
+import { LoadingSkeleton } from '@/components/LoadingSkeleton'
 import { ErrorState } from '@/components/ErrorState'
 import { MetricCard } from '@/components/MetricCard'
 import { CheckCircle, XCircle, AlertTriangle, Globe, Apple, Database, Activity, Bell, BarChart3, RefreshCw, Clock, HeartPulse } from 'lucide-react'
@@ -15,14 +15,13 @@ const statusIcon = (status: string) => {
 }
 
 export default function HealthPage() {
-  const { user, loading } = useAuth()
   const { data: health, isLoading, error, refetch } = useHealth()
 
-  if (loading || !user) return <Spinner />
   if (error) return <ErrorState onRetry={() => refetch()} />
   if (!health) return <LoadingSkeleton />
 
   return (
+    <AuthGuard>
     <AppLayout>
       <div className="max-w-5xl mx-auto space-y-8">
         <div className="flex items-center justify-between">
@@ -102,5 +101,6 @@ export default function HealthPage() {
         </div>
       </div>
     </AppLayout>
+    </AuthGuard>
   )
 }

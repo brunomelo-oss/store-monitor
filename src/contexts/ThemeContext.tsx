@@ -12,18 +12,17 @@ interface ThemeState {
 const ThemeContext = createContext<ThemeState>(null!)
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [isDark, setIsDark] = useState(true)
-
-  useEffect(() => {
-    const saved = localStorage.getItem(THEME_KEY)
-    if (saved === 'light') {
-      setIsDark(false)
-      document.documentElement.classList.remove('dark')
-    } else {
-      setIsDark(true)
+  const [isDark, setIsDark] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(THEME_KEY)
+      if (saved === 'light') {
+        document.documentElement.classList.remove('dark')
+        return false
+      }
       document.documentElement.classList.add('dark')
     }
-  }, [])
+    return true
+  })
 
   const toggle = () => {
     setIsDark(prev => {

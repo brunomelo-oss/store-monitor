@@ -1,8 +1,9 @@
-import { UserRole } from '@prisma/client'
+import { UserRole, Invite } from '@prisma/client'
 import crypto from 'crypto'
 import { inviteRepository } from '../repositories'
 import { NotFoundError, ConflictError } from '../lib/errors'
 import { getLogger } from '../lib/logger'
+import { toISO } from '../lib/utils'
 import { AuditService } from './audit.service'
 import { InviteRequest, InviteResponse } from '../types'
 
@@ -14,12 +15,12 @@ export class InviteService {
     this.audit = new AuditService()
   }
 
-  private toResponse(invite: any): InviteResponse {
+  private toResponse(invite: Invite): InviteResponse {
     return {
       id: invite.id,
       email: invite.email,
       role: invite.role as UserRole,
-      createdAt: invite.createdAt?.toISOString?.() || invite.createdAt,
+      createdAt: toISO(invite.createdAt) ?? '',
     }
   }
 

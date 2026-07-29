@@ -133,6 +133,8 @@ export const pt: Record<string, string> = {
   'appCard.playStore': 'Google Play',
   'appCard.appStore': 'App Store',
   'appCard.syncTriggered': 'Sincronização iniciada!',
+  'appCard.syncFailed': 'Falha na sincronização das duas lojas',
+  'appCard.syncPartial': 'Falha na sincronização de uma loja',
   'appCard.syncTooltip': 'Iniciar sincronização',
 
   'search.placeholder': 'Buscar app...',

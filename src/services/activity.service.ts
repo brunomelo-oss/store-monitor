@@ -14,7 +14,10 @@ export interface ActivityItem {
 }
 
 export const activityService = {
-  async list(limit = 50, offset = 0) {
-    return apiClient<ActivityItem[]>(`/v1/activity?limit=${limit}&offset=${offset}`)
+  async list(limit = 50, offset = 0, filters?: { entity?: string; entityId?: number }) {
+    let path = `/v1/activity?limit=${limit}&offset=${offset}`
+    if (filters?.entity) path += `&entity=${filters.entity}`
+    if (filters?.entityId) path += `&entityId=${filters.entityId}`
+    return apiClient<ActivityItem[]>(path)
   },
 }

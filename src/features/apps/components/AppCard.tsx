@@ -2,14 +2,12 @@
 
 import { useLang } from '@/contexts/LanguageContext'
 import { App } from '@/types'
-import { useTogglePin, useMoveApp, useDeleteApp } from '@/hooks/useApps'
 import { useAuth } from '@/contexts/AuthContext'
-import { useToast } from '@/components/Toast'
-import { overallStatus, daysLabel, statusColor, statusBgColor, formatDate, appImagePath, getAccountName } from '@/lib/utils'
+import { overallStatus, daysLabel, statusColor, statusBgColor, appImagePath, getAccountName } from '@/lib/utils'
 import { StatusBadge } from '@/components/StatusBadge'
-import { useTriggerSync } from '@/features/sync/hooks/useTriggerSync'
-import { Pin, Edit, Trash2, Eye, ChevronUp, ChevronDown, Star, Download, RefreshCw } from 'lucide-react'
-import { useEffect, useRef, useState, useMemo } from 'react'
+import { AppCardActions } from './AppCardActions'
+import { Pin, Star, Download } from 'lucide-react'
+import { useEffect, useRef, useState, useMemo, memo } from 'react'
 
 interface AppCardProps {
   app: App
@@ -24,14 +22,9 @@ const storeIcons = {
   apple: '/assets/app-store-icon.png',
 }
 
-export function AppCard({ app, mode, onEdit, onDetails, index = 0 }: AppCardProps) {
+export const AppCard = memo(function AppCard({ app, mode, onEdit, onDetails, index = 0 }: AppCardProps) {
   const { t } = useLang()
   const { isAdmin } = useAuth()
-  const { show } = useToast()
-  const togglePinMutation = useTogglePin()
-  const moveAppMutation = useMoveApp()
-  const deleteAppMutation = useDeleteApp()
-  const triggerSync = useTriggerSync()
   const isEdit = mode === 'edit' && isAdmin
   const imgSrc = appImagePath(app.name)
   const [visible, setVisible] = useState(false)
@@ -102,11 +95,6 @@ export function AppCard({ app, mode, onEdit, onDetails, index = 0 }: AppCardProp
       <div className="p-5 space-y-3 relative z-[1] bg-card">
         <div className="flex items-center justify-between gap-2">
           <h3 className="font-semibold text-foreground text-sm leading-tight truncate">{app.name}</h3>
-          {isEdit && (
-            <button onClick={async () => { const err = await togglePinMutation.mutateAsync(app.id).catch(e => e.message); if (err) show(err, 'warning') }} className={`p-1.5 rounded-md transition shrink-0 ${app.pinned ? 'text-amber-400' : 'text-muted-foreground hover:text-amber-400 hover:bg-surface'}`} title={t('appCard.pinTooltip')}>
-              <Pin size={13} />
-            </button>
-          )}
         </div>
 
         <div className="space-y-2">
@@ -157,71 +145,8 @@ export function AppCard({ app, mode, onEdit, onDetails, index = 0 }: AppCardProp
           )}
         </div>
 
-        <div className="flex items-center justify-between pt-3 border-t border-border/50">
-          <div className="flex items-center gap-1">
-            {isEdit ? (
-              <>
-                <button onClick={() => moveAppMutation.mutate({ id: app.id, direction: -1 })} className="p-1.5 text-muted-foreground hover:text-foreground transition rounded-md hover:bg-surface" title={t('appCard.moveUp')}>
-                  <ChevronUp size={14} />
-                </button>
-                <button onClick={() => moveAppMutation.mutate({ id: app.id, direction: 1 })} className="p-1.5 text-muted-foreground hover:text-foreground transition rounded-md hover:bg-surface" title={t('appCard.moveDown')}>
-                  <ChevronDown size={14} />
-                </button>
-                <button onClick={async () => { const err = await togglePinMutation.mutateAsync(app.id).catch(e => e.message); if (err) show(err, 'warning') }} className={`p-1.5 rounded-md transition ${app.pinned ? 'text-amber-400' : 'text-muted-foreground hover:text-amber-400 hover:bg-surface'}`} title={t('appCard.pinTooltip')}>
-                  <Pin size={13} />
-                </button>
-              </>
-            ) : (
-              <>
-                <button onClick={() => onDetails(app)} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition">
-                  <Eye size={13} />
-                  {t('appCard.details')}
-                </button>
-                <button
-                  onClick={async () => {
-                    await triggerSync.mutateAsync({
-                      appId: app.id,
-                      store: 'GOOGLE',
-                      types: ['APP_INFO', 'VERSIONS', 'BUILDS', 'REVIEWS', 'RATINGS', 'ANALYTICS', 'PUBLICATIONS'],
-                    }).catch(() => {})
-                    await triggerSync.mutateAsync({
-                      appId: app.id,
-                      store: 'APPLE',
-                      types: ['APP_INFO', 'VERSIONS', 'BUILDS', 'REVIEWS', 'RATINGS', 'ANALYTICS', 'PUBLICATIONS'],
-                    }).catch(() => {})
-                    show(t('appCard.syncTriggered'))
-                  }}
-                  disabled={triggerSync.isPending}
-                  className="flex items-center gap-1 text-xs text-muted-foreground hover:text-sky-400 transition disabled:opacity-40"
-                  title={t('appCard.syncTooltip')}
-                >
-                  <RefreshCw size={13} className={triggerSync.isPending ? 'animate-spin' : ''} />
-                </button>
-              </>
-            )}
-          </div>
-
-          <div className="flex items-center gap-1">
-            {isEdit && (
-              <>
-                <button
-                  onClick={() => onEdit(app)}
-                  className="flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-md bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500/20 transition"
-                >
-                  <Edit size={11} />
-                  {t('appCard.edit')}
-                </button>
-                <button
-                  onClick={() => { if (confirm(t('appCard.removeConfirm', { name: app.name }))) deleteAppMutation.mutate(app.id) }}
-                  className="p-1.5 text-muted-foreground hover:text-red-400 transition rounded-md hover:bg-surface"
-                >
-                  <Trash2 size={13} />
-                </button>
-              </>
-            )}
-          </div>
-        </div>
+        <AppCardActions app={app} isEdit={isEdit} onEdit={onEdit} onDetails={onDetails} />
       </div>
     </div>
   )
-}
+})

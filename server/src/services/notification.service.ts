@@ -1,6 +1,7 @@
-import { NotificationType } from '@prisma/client'
+import { NotificationType, Notification } from '@prisma/client'
 import { notificationRepository } from '../repositories'
 import { getLogger } from '../lib/logger'
+import { toISO } from '../lib/utils'
 import { NotificationDispatcher } from '../notifications'
 import { NotificationResponse } from '../types'
 
@@ -12,14 +13,14 @@ export class NotificationService {
     this.dispatcher = new NotificationDispatcher()
   }
 
-  private toResponse(notification: any): NotificationResponse {
+  private toResponse(notification: Notification): NotificationResponse {
     return {
       id: notification.id,
       type: notification.type as NotificationType,
       title: notification.title,
       message: notification.message,
       read: notification.read,
-      createdAt: notification.createdAt?.toISOString?.() || notification.createdAt,
+      createdAt: toISO(notification.createdAt) ?? '',
       appId: notification.appId || undefined,
     }
   }

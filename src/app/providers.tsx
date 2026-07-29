@@ -3,6 +3,7 @@
 import { ReactNode, useState } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AuthProvider } from '@/contexts/AuthContext'
+import { ModalProvider } from '@/contexts/ModalContext'
 import { ThemeProvider } from '@/contexts/ThemeContext'
 import { ToastProvider } from '@/components/Toast'
 import { LanguageProvider } from '@/contexts/LanguageContext'
@@ -24,7 +25,9 @@ export function Providers({ children }: { children: ReactNode }) {
         <LanguageProvider>
           <ToastProvider>
             <AuthProvider>
-              {children}
+              <ModalProvider>
+                {children}
+              </ModalProvider>
             </AuthProvider>
           </ToastProvider>
         </LanguageProvider>

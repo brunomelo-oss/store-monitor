@@ -1,19 +1,5 @@
 import { UserRole, Region, StoreType, SyncStatus, NotificationType, JobType, JobStatus, SyncTriggerType } from '@prisma/client'
 
-// ─── API Response Types ───────────────────────────────────────────
-
-export interface ApiResponse<T = Record<string, unknown>> {
-  data?: T
-  error?: string
-}
-
-export interface PaginatedResponse<T> {
-  data: T[]
-  total: number
-  page: number
-  perPage: number
-}
-
 // ─── Auth Types ────────────────────────────────────────────────────
 
 export interface AuthUser {
@@ -32,11 +18,6 @@ export interface LoginRequest {
 export interface RegisterRequest {
   email: string
   password: string
-}
-
-export interface ChangePasswordRequest {
-  currentPassword: string
-  newPassword: string
 }
 
 // ─── App Types ────────────────────────────────────────────────────
@@ -169,12 +150,6 @@ export interface StoreConnectionResponse {
   lastSyncAt: string | null
 }
 
-export interface CreateStoreConnectionRequest {
-  store: StoreType
-  label: string
-  credentials: Record<string, unknown>
-}
-
 export interface ConnectionTestResult {
   valid: boolean
   message?: string
@@ -204,13 +179,4 @@ export interface JobResponse {
   createdAt: string
 }
 
-// ─── Analytics Types ──────────────────────────────────────────────
 
-export interface AnalyticsSummary {
-  totalDownloads: number
-  totalInstalls: number
-  averageRating: number
-  totalApps: number
-  healthyApps: number
-  rejectedApps: number
-}

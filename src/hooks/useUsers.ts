@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Invite } from '@/types'
 import { usersService } from '@/services/users.service'
+import { logError } from '@/lib/logger'
 
 interface UserRow { id: number; username: string; email: string; role: string; createdAt?: string }
 
@@ -21,7 +22,7 @@ export function useUsers() {
       try {
         const data = await usersService.list()
         if (data && data.length > 0) return data
-      } catch {}
+      } catch (e) { logError('useUsers', e) }
       return MOCK_USERS
     },
     initialData: MOCK_USERS,
@@ -81,7 +82,7 @@ export function useInvites() {
       try {
         const data = await usersService.getInvites()
         if (data) return data as Invite[]
-      } catch {}
+      } catch (e) { logError('useInvites', e) }
       return [] as Invite[]
     },
     initialData: [] as Invite[],

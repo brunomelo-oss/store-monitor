@@ -1,7 +1,13 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { App } from '@/types'
+
+const mockShow = vi.hoisted(() => vi.fn())
+vi.mock('@/components/Toast', () => ({
+  useToast: () => ({ show: mockShow }),
+}))
 
 const mockCreateApp = vi.hoisted(() => vi.fn())
 const mockUpdateApp = vi.hoisted(() => vi.fn())
@@ -39,6 +45,16 @@ vi.mock('@/lib/mock-data', () => ({
 
 import { AppModal } from '@/features/apps/components/AppModal'
 
+const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+
+function renderModal(app: App | null, mode: 'edit' | 'add' | 'details', region = 'Brasil') {
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <AppModal app={app} mode={mode} region={region} onClose={onClose} />
+    </QueryClientProvider>
+  )
+}
+
 const baseApp: App = {
   id: 1,
   name: 'SASI',
@@ -61,7 +77,7 @@ beforeEach(() => {
 describe('AppModal', () => {
   describe('details mode', () => {
     it('renders app info in read-only mode', () => {
-      render(<AppModal app={baseApp} mode="details" region="Brasil" onClose={onClose} />)
+      renderModal(baseApp, 'details')
       expect(screen.getByText('SASI')).toBeInTheDocument()
       expect(screen.getByText('Brasil')).toBeInTheDocument()
       expect(screen.getByText('SASI Holdings Limited')).toBeInTheDocument()
@@ -71,19 +87,19 @@ describe('AppModal', () => {
     })
 
     it('does not show save button', () => {
-      render(<AppModal app={baseApp} mode="details" region="Brasil" onClose={onClose} />)
+      renderModal(baseApp, 'details')
       expect(screen.queryByText('Salvar')).not.toBeInTheDocument()
     })
 
     it('shows Fechar button', () => {
-      render(<AppModal app={baseApp} mode="details" region="Brasil" onClose={onClose} />)
+      renderModal(baseApp, 'details')
       expect(screen.getByText('Fechar')).toBeInTheDocument()
     })
   })
 
   describe('add mode', () => {
     function renderAdd() {
-      const utils = render(<AppModal app={null} mode="add" region="Brasil" onClose={onClose} />)
+      const utils = renderModal(null, 'add')
       const nameInput = utils.container.querySelector('input:not([type="date"])')!
       return { ...utils, nameInput }
     }
@@ -94,7 +110,7 @@ describe('AppModal', () => {
     }
 
     it('renders form with region selection', () => {
-      render(<AppModal app={null} mode="add" region="Internacional" onClose={onClose} />)
+      renderModal(null, 'add', 'Internacional')
       expect(screen.getByText('Novo App')).toBeInTheDocument()
       expect(screen.getByText('Selecione...')).toBeInTheDocument()
       expect(screen.getAllByPlaceholderText('x.y.z').length).toBe(2)
@@ -102,7 +118,7 @@ describe('AppModal', () => {
     })
 
     it('validates region is required', async () => {
-      render(<AppModal app={null} mode="add" region="Brasil" onClose={onClose} />)
+      renderModal(null, 'add')
       const nameInput = screen.getByPlaceholderText('Ex: App SASI')
       await userEvent.type(nameInput, 'Test App')
       await userEvent.click(screen.getByText('Salvar'))
@@ -111,7 +127,7 @@ describe('AppModal', () => {
     })
 
     it('validates empty name', async () => {
-      render(<AppModal app={null} mode="add" region="Brasil" onClose={onClose} />)
+      renderModal(null, 'add')
       await userEvent.click(screen.getByText('Salvar'))
       expect(await screen.findByText('O nome do app não pode ficar vazio')).toBeInTheDocument()
       expect(mockCreateApp).not.toHaveBeenCalled()
@@ -147,7 +163,7 @@ describe('AppModal', () => {
     })
 
     it('closes on backdrop click', async () => {
-      render(<AppModal app={null} mode="add" region="Brasil" onClose={onClose} />)
+      renderModal(null, 'add')
       const backdrop = screen.getByText('Novo App').closest('.fixed')!
       await userEvent.click(backdrop)
       expect(onClose).toHaveBeenCalled()
@@ -156,7 +172,7 @@ describe('AppModal', () => {
 
   describe('edit mode', () => {
     it('pre-fills form with app data', () => {
-      render(<AppModal app={baseApp} mode="edit" region="Brasil" onClose={onClose} />)
+      renderModal(baseApp, 'edit')
       expect(screen.getByText('Editar App')).toBeInTheDocument()
       const nameInput = screen.getByDisplayValue('SASI')
       expect(nameInput).toBeInTheDocument()
@@ -164,7 +180,7 @@ describe('AppModal', () => {
 
     it('calls updateApp on submit', async () => {
       mockUpdateApp.mockResolvedValueOnce(null)
-      render(<AppModal app={baseApp} mode="edit" region="Brasil" onClose={onClose} />)
+      renderModal(baseApp, 'edit')
 
       const nameInput = screen.getByDisplayValue('SASI')
       await userEvent.clear(nameInput)

@@ -6,8 +6,9 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useLang } from '@/contexts/LanguageContext'
 import { getErrorMessage } from '@/services/api-client'
 import { useToast } from '@/components/Toast'
-import { backendApi } from '@/lib/backend-api'
+import { usersService } from '@/services/users.service'
 import { validatePassword } from '@/lib/utils'
+import { useShake } from '@/hooks/useShake'
 import { X, Plus, Mail, Trash2, UserPlus, Users, Loader2 } from 'lucide-react'
 import { EmailPreviewModal } from '@/components/EmailPreviewModal'
 
@@ -26,13 +27,8 @@ export function UserManager() {
   const [showAdd, setShowAdd] = useState(false)
   const [newUser, setNewUser] = useState({ email: '', password: '', role: 'VIEWER' })
   const [previewEmail, setPreviewEmail] = useState('')
-  const [shaking, setShaking] = useState(false)
-  const [shakingAdd, setShakingAdd] = useState(false)
-
-  const triggerShake = (setter: (v: boolean) => void) => {
-    setter(true)
-    setTimeout(() => setter(false), 500)
-  }
+  const { shaking, trigger: triggerShake } = useShake()
+  const { shaking: shakingAdd, trigger: triggerShakeAdd } = useShake()
 
   const load = async () => {
     // Mock imediato — UI renderiza sem delay
@@ -45,7 +41,7 @@ export function UserManager() {
     setLoading(false)
     // Tenta API em background (não bloqueia)
     try {
-      const [u, i] = await Promise.all([backendApi.getUsers(), backendApi.getInvites()])
+      const [u, i] = await Promise.all([usersService.list(), usersService.getInvites()])
       setUsers(u ?? []); setInvites(i ?? [])
     } catch {}
   }
@@ -54,10 +50,10 @@ export function UserManager() {
 
   const handleInvite = async () => {
     if (!inviteEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+/.test(inviteEmail)) {
-      show(t('userManager.error.invalidEmail'), 'error'); triggerShake(setShaking); return
+      show(t('userManager.error.invalidEmail'), 'error'); triggerShake(); return
     }
     try {
-      const invite = await backendApi.createInvite(inviteEmail)
+      const invite = await usersService.createInvite(inviteEmail)
       setInvites(prev => [...prev, invite])
       setPreviewEmail(inviteEmail)
       setInviteEmail('')
@@ -71,7 +67,7 @@ export function UserManager() {
 
   const handleDeleteInvite = async (id: number) => {
     try {
-      await backendApi.deleteInvite(id)
+      await usersService.deleteInvite(id)
     } catch {}
     setInvites(prev => prev.filter(i => i.id !== id))
     show(t('userManager.success.inviteRemoved'), 'success')
@@ -80,7 +76,7 @@ export function UserManager() {
   const handleDeleteUser = async (id: number, email: string) => {
     if (!confirm(t('userManager.action.removeUser', { email }))) return
     try {
-      await backendApi.deleteUser(id)
+      await usersService.delete(id)
     } catch {}
     setUsers(prev => prev.filter(u => u.id !== id))
     show(t('userManager.success.userRemoved'), 'success')
@@ -88,7 +84,7 @@ export function UserManager() {
 
   const handleUpdateRole = async (userId: number, newRole: string) => {
     try {
-      await backendApi.updateUserRole(userId, newRole)
+      await usersService.updateRole(userId, newRole)
     } catch {}
     setUsers(prev => prev.map(x => x.id === userId ? { ...x, role: newRole } : x))
     show(t('userManager.success.roleChanged', { role: t(`userManager.role.${newRole.toLowerCase()}`) }), 'success')
@@ -116,17 +112,17 @@ export function UserManager() {
   const handlePasswordChange = async (userId: number) => {
     if (!validatePassword(newPassword)) { show(t('userManager.error.passwordReq'), 'error'); return }
     try {
-      await backendApi.updateUserPassword(userId, newPassword)
+      await usersService.updatePassword(userId, newPassword)
     } catch {}
     setEditingUserId(null); setNewPassword('')
     show(t('userManager.success.passwordChanged'), 'success')
   }
 
   const handleAddUser = async () => {
-    if (!newUser.email) { show(t('userManager.error.emailRequired'), 'error'); triggerShake(setShakingAdd); return }
-    if (!validatePassword(newUser.password)) { show(t('userManager.error.passwordReq'), 'error'); triggerShake(setShakingAdd); return }
+    if (!newUser.email) { show(t('userManager.error.emailRequired'), 'error'); triggerShakeAdd(); return }
+    if (!validatePassword(newUser.password)) { show(t('userManager.error.passwordReq'), 'error'); triggerShakeAdd(); return }
     try {
-      await backendApi.createUser(newUser.email, newUser.password, newUser.role)
+      await usersService.create(newUser.email, newUser.password, newUser.role)
     } catch {}
     const mockUser = { id: Date.now(), username: newUser.email.split('@')[0], email: newUser.email, role: newUser.role, createdAt: new Date().toISOString() }
     setUsers(prev => [...prev, mockUser])

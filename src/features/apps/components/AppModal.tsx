@@ -6,11 +6,13 @@ import { App, AppStatus } from '@/types'
 import { useApps, useCreateApp, useUpdateApp } from '@/hooks/useApps'
 import { useStoreConnections } from '@/features/store-connections/hooks/useStoreConnections'
 import { ACCOUNTS } from '@/lib/mock-data'
-import { validateVersion, overallStatus, formatDate } from '@/lib/utils'
-import { X, Loader2, Smartphone, Apple, Globe, Tag, Package } from 'lucide-react'
+import { validateVersion } from '@/lib/utils'
+import { useShake } from '@/hooks/useShake'
+import { AppDetailView } from './AppDetailView'
+import { X, Loader2, Smartphone, Apple } from 'lucide-react'
 import { useToast } from '@/components/Toast'
 
-interface AppModalProps {
+export interface AppModalProps {
   app: App | null
   mode: 'edit' | 'add' | 'details'
   region: string
@@ -31,7 +33,7 @@ export function AppModal({ app, mode, region, onClose }: AppModalProps) {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [animIn, setAnimIn] = useState(false)
-  const [shaking, setShaking] = useState(false)
+  const { shaking, trigger: triggerShake } = useShake()
 
   useEffect(() => {
     const timer = setTimeout(() => setAnimIn(true), 10)
@@ -45,7 +47,8 @@ export function AppModal({ app, mode, region, onClose }: AppModalProps) {
   const [appRegion, setAppRegion] = useState('')
   const [packageName, setPackageName] = useState('')
   const [bundleId, setBundleId] = useState('')
-  const [storeConnId, setStoreConnId] = useState<number | null>(null)
+  const [googleConnId, setGoogleConnId] = useState<number | null>(null)
+  const [appleConnId, setAppleConnId] = useState<number | null>(null)
   const [playStatus, setPlayStatus] = useState<AppStatus>('unpublished')
   const [playVersion, setPlayVersion] = useState('')
   const [playDate, setPlayDate] = useState('')
@@ -60,23 +63,19 @@ export function AppModal({ app, mode, region, onClose }: AppModalProps) {
       setName(app.name); setAppRegion(app.region)
       setPackageName(app.packageName || '')
       setBundleId(app.bundleId || '')
-      setStoreConnId(app.storeConnectionId ?? null)
+      setGoogleConnId(app.googleStoreConnectionId ?? app.storeConnectionId ?? null)
+      setAppleConnId(app.appleStoreConnectionId ?? app.storeConnectionId ?? null)
       setPlayStatus(app.playStore.status); setPlayVersion(app.playStore.version); setPlayDate(app.playStore.lastUpdate)
       setAppStatus(app.appStore.status); setAppVersion(app.appStore.version); setAppDate(app.appStore.lastUpdate)
       setGoogleAccount(app.googleAccount); setAppleAccount(app.appleAccount)
     } else if (isAdd) {
       setName(''); setAppRegion('')
-      setPackageName(''); setBundleId(''); setStoreConnId(null)
+      setPackageName(''); setBundleId(''); setGoogleConnId(null); setAppleConnId(null)
       setPlayStatus('unpublished'); setPlayVersion(''); setPlayDate('')
       setAppStatus('unpublished'); setAppVersion(''); setAppDate('')
       setGoogleAccount('sasiHoldings'); setAppleAccount('sasTech')
     }
   }, [app, isAdd, region])
-
-  const triggerShake = () => {
-    setShaking(true)
-    setTimeout(() => setShaking(false), 500)
-  }
 
   const handleSave = async () => {
     setError('')
@@ -92,7 +91,9 @@ export function AppModal({ app, mode, region, onClose }: AppModalProps) {
       googleAccount, appleAccount,
       packageName: packageName || undefined,
       bundleId: bundleId || undefined,
-      storeConnectionId: storeConnId,
+      storeConnectionId: googleConnId,
+      googleStoreConnectionId: googleConnId,
+      appleStoreConnectionId: appleConnId,
       playStore: { status: playStatus, version: playVersion, lastUpdate: playDate },
       appStore: { status: appStatus, version: appVersion, lastUpdate: appDate },
     }
@@ -142,96 +143,8 @@ export function AppModal({ app, mode, region, onClose }: AppModalProps) {
         )}
 
         <div className="p-6 space-y-5">
-          {isDetails ? (
-            <div className="space-y-5">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-3 rounded-lg bg-zinc-800/40">
-                  <div className="flex items-center gap-1.5 text-[10px] text-zinc-600 uppercase tracking-wider mb-1">
-                    <Globe size={11} />
-                    {t('appModal.label.region')}
-                  </div>
-                  <div className="text-sm font-medium text-white">{app?.region}</div>
-                </div>
-                <div className="p-3 rounded-lg bg-zinc-800/40">
-                  <div className="flex items-center gap-1.5 text-[10px] text-zinc-600 uppercase tracking-wider mb-1">
-                    <Tag size={11} />
-                    {t('appModal.label.status')}
-                  </div>
-                  <div className="text-sm font-medium text-white">{app ? t('status.' + overallStatus(app)) : '---'}</div>
-                </div>
-              </div>
-
-              {(app?.packageName || app?.bundleId) && (
-                <div className="p-3 rounded-lg bg-zinc-800/40 space-y-1">
-                  <div className="flex items-center gap-1.5 text-[10px] text-zinc-600 uppercase tracking-wider mb-1">
-                    <Smartphone size={13} />
-                    {t('appModal.label.accounts')}
-                  </div>
-                  {app?.packageName && <div className="flex justify-between text-sm"><span className="text-zinc-500">Package</span><span className="font-mono text-xs text-white">{app.packageName}</span></div>}
-                  {app?.bundleId && <div className="flex justify-between text-sm"><span className="text-zinc-500">Bundle ID</span><span className="font-mono text-xs text-white">{app.bundleId}</span></div>}
-                  {app?.storeConnectionId && <div className="flex justify-between text-sm"><span className="text-zinc-500">Conexão</span><span className="text-white">{connections.find(c => c.id === app.storeConnectionId)?.label || `#${app.storeConnectionId}`}</span></div>}
-                </div>
-              )}
-
-              <div>
-                <div className="flex items-center gap-1.5 text-xs text-zinc-500 mb-2">
-                  <Smartphone size={13} />
-                  Contas
-                </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-zinc-500">{t('appModal.label.google')}</span>
-                    <span className="text-white">{ACCOUNTS.google.find(a => a.id === app?.googleAccount)?.name || '---'}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-zinc-500">{t('appModal.label.apple')}</span>
-                    <span className="text-white">{ACCOUNTS.apple.find(a => a.id === app?.appleAccount)?.name || '---'}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <div className="flex items-center gap-1.5 text-xs text-zinc-500 mb-2">
-                  <Smartphone size={13} />
-                  {t('appModal.section.playStore')}
-                </div>
-                <div className="p-3 rounded-lg bg-zinc-800/40 space-y-1">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-zinc-500">{t('appModal.label.status')}</span>
-                    <span className="text-white font-medium">{t('status.' + (app?.playStore?.status || 'unpublished'))}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-zinc-500">{t('appModal.label.version')}</span>
-                    <span className="text-white">{app?.playStore?.version || '--'}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-zinc-500">{t('appModal.label.date')}</span>
-                    <span className="text-white">{app ? formatDate(app.playStore.lastUpdate) : '--'}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <div className="flex items-center gap-1.5 text-xs text-zinc-500 mb-2">
-                  <Apple size={13} />
-                  {t('appModal.section.appStore')}
-                </div>
-                <div className="p-3 rounded-lg bg-zinc-800/40 space-y-1">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-zinc-500">{t('appModal.label.status')}</span>
-                    <span className="text-white font-medium">{t('status.' + (app?.appStore?.status || 'unpublished'))}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-zinc-500">{t('appModal.label.version')}</span>
-                    <span className="text-white">{app?.appStore?.version || '--'}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-zinc-500">{t('appModal.label.date')}</span>
-                    <span className="text-white">{app ? formatDate(app.appStore.lastUpdate) : '--'}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+          {isDetails && app ? (
+            <AppDetailView app={app} connections={connections} />
           ) : (
             <>
               <div>
@@ -262,14 +175,14 @@ export function AppModal({ app, mode, region, onClose }: AppModalProps) {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className={labelClass} htmlFor="app-conn-google">Conexão Google Play</label>
-                  <select id="app-conn-google" className={selectClass} value={storeConnId ?? ''} onChange={e => setStoreConnId(e.target.value ? Number(e.target.value) : null)}>
+                  <select id="app-conn-google" className={selectClass} value={googleConnId ?? ''} onChange={e => setGoogleConnId(e.target.value ? Number(e.target.value) : null)}>
                     <option value="">Nenhuma</option>
                     {googleConnections.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className={labelClass} htmlFor="app-conn-apple">Conexão App Store</label>
-                  <select id="app-conn-apple" className={selectClass} value={storeConnId ?? ''} onChange={e => setStoreConnId(e.target.value ? Number(e.target.value) : null)}>
+                  <select id="app-conn-apple" className={selectClass} value={appleConnId ?? ''} onChange={e => setAppleConnId(e.target.value ? Number(e.target.value) : null)}>
                     <option value="">Nenhuma</option>
                     {appleConnections.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
                   </select>

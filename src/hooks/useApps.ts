@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { App } from '@/types'
 import { appsService } from '@/services/apps.service'
 import { MOCK_APPS } from '@/lib/mock-data'
+import { logError } from '@/lib/logger'
 
 const APPS_KEY = ['apps'] as const
 
@@ -12,7 +13,7 @@ export function useApps() {
       try {
         const data = await appsService.list()
         if (data && data.length > 0) return data
-      } catch {}
+      } catch (e) { logError('useApps', e) }
       return MOCK_APPS as App[]
     },
     initialData: MOCK_APPS as App[],

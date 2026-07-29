@@ -18,7 +18,7 @@ export function PasswordReset({ onBack, onSuccess }: PasswordResetProps) {
   const { t } = useLang()
   const [email, setEmail] = useState('')
   const [sent, setSent] = useState(false)
-  const [code] = useState('000000')
+  const [code, setCode] = useState('')
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [showPw, setShowPw] = useState(false)
@@ -104,6 +104,12 @@ export function PasswordReset({ onBack, onSuccess }: PasswordResetProps) {
       </div>
 
       <form onSubmit={handleReset} className="space-y-3">
+        <input
+          className={inputClass}
+          type="text" inputMode="numeric" autoComplete="one-time-code" placeholder="Código de verificação"
+          value={code} onChange={e => setCode(e.target.value)}
+        />
+
         <div className="relative">
           <input
             className={`${inputClass} pr-10`}

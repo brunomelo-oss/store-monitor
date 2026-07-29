@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { storeConnectionsService } from '@/services/store-connections.service'
+import { logError } from '@/lib/logger'
 
 export const CONNECTIONS_KEY = ['store-connections'] as const
 
@@ -37,7 +38,7 @@ export function useStoreConnections() {
       try {
         const data = await storeConnectionsService.list()
         if (data && data.length > 0) return data
-      } catch {}
+      } catch (e) { logError('useStoreConnections', e) }
       return MOCK_CONNECTIONS
     },
     initialData: MOCK_CONNECTIONS,
@@ -57,6 +58,18 @@ export function useCreateConnection() {
   return useMutation({
     mutationFn: (data: { store: string; label: string; credentials: Record<string, unknown> }) =>
       storeConnectionsService.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: CONNECTIONS_KEY })
+    },
+  })
+}
+
+export function useUpdateConnection() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ id, ...data }: { id: number; label?: string; credentials?: Record<string, unknown> }) =>
+      storeConnectionsService.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CONNECTIONS_KEY })
     },

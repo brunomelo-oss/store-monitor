@@ -22,7 +22,7 @@ vi.mock('@/services/auth.service', () => ({
   },
 }))
 
-import { AuthProvider, useAuth, setRememberSession } from '@/contexts/AuthContext'
+import { AuthProvider, useAuth } from '@/contexts/AuthContext'
 
 function TestConsumer() {
   const auth = useAuth()
@@ -36,6 +36,7 @@ function TestConsumer() {
       <button data-testid="register" onClick={() => auth.register('test@test.com', 'pass123@')}>register</button>
       <button data-testid="checkEmail" onClick={() => auth.sendResetEmail('test@test.com')}>check</button>
       <button data-testid="resetPassword" onClick={() => auth.doResetPassword('test@test.com', 'code', 'newpass@1')}>reset</button>
+      <button data-testid="setRemember" onClick={() => auth.setRememberSession(true)}>setRemember</button>
     </div>
   )
 }
@@ -49,7 +50,6 @@ function renderProvider() {
 }
 
 beforeEach(() => {
-  setRememberSession(false)
   vi.clearAllMocks()
   mockMe.mockRejectedValue(new Error('no session'))
   mockRefresh.mockRejectedValue(new Error('no refresh'))
@@ -67,7 +67,7 @@ describe('AuthContext', () => {
   })
 
   it('sets user on successful me()', async () => {
-    mockMe.mockResolvedValueOnce({ user: { username: 'bruno', role: 'admin', email: 'b@b.com' } })
+    mockMe.mockResolvedValueOnce({ username: 'bruno', role: 'admin', email: 'b@b.com' })
 
     renderProvider()
 
@@ -85,7 +85,7 @@ describe('AuthContext', () => {
   })
 
   it('calls refresh when remember is set and me fails', async () => {
-    setRememberSession(true)
+    localStorage.setItem('sasi_remember', 'true')
     mockRefresh.mockReset()
     mockRefresh.mockResolvedValue({ user: { username: 'refreshed', role: 'user', email: 'r@b.com' } })
 
@@ -112,7 +112,7 @@ describe('AuthContext', () => {
   })
 
   it('logout clears user', async () => {
-    mockMe.mockResolvedValueOnce({ user: { username: 'bruno', role: 'admin', email: 'b@b.com' } })
+    mockMe.mockResolvedValueOnce({ username: 'bruno', role: 'admin', email: 'b@b.com' })
 
     renderProvider()
     await waitFor(() => expect(screen.getByTestId('user').textContent).toContain('bruno'))

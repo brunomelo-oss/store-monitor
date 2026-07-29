@@ -2,7 +2,7 @@ import { Fragment } from 'react'
 import { Clock, RefreshCw, CheckCircle, XCircle, UserPlus, Mail, LogIn, LogOut, Key, Star, MessageSquare, Upload, FileText, Bell, Terminal, type LucideIcon } from 'lucide-react'
 import { safeDate, formatLocaleDate } from '@/lib/utils'
 
-interface TimelineEvent {
+export interface TimelineEvent {
   id: string
   type: string
   description: string

@@ -51,11 +51,4 @@ export function decrypt(data: EncryptedData): string {
   return decrypted
 }
 
-export function rotateKey(data: EncryptedData, newKeyVersion: number): EncryptedData {
-  const plaintext = decrypt(data)
-  return encrypt(plaintext, newKeyVersion)
-}
 
-export function generateEncryptionKey(): string {
-  return crypto.randomBytes(32).toString('hex')
-}

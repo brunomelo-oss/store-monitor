@@ -8,18 +8,18 @@ export class AuditService {
   private logger = getLogger()
 
   async log(
-    userId: number | null,
+    userId: number | null | undefined,
     action: string,
     entity: string,
-    entityId: number | null,
+    entityId: number | null | undefined,
     metadata?: Record<string, unknown>,
     ip?: string,
     tx?: TxClient,
-    organizationId: number = 1,
+    organizationId: number | null | undefined = 1,
   ): Promise<void> {
     try {
       const data = {
-        userId,
+        userId: userId ?? null,
         organizationId,
         action,
         entity,

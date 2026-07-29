@@ -1,15 +1,14 @@
 import { useQuery } from '@tanstack/react-query'
 import { syncService } from '@/services/sync.service'
+import { logError } from '@/lib/logger'
 
-const SYNC_HISTORY_KEY = ['sync-history'] as const
-
-export function useSyncHistory() {
+export function useSyncHistory(appId?: number) {
   return useQuery({
-    queryKey: SYNC_HISTORY_KEY,
+    queryKey: appId ? ['sync-history', appId] : ['sync-history'],
     queryFn: async () => {
       try {
-        return await syncService.listHistory()
-      } catch {
+        return await syncService.listHistory(appId)
+      } catch (e) { logError('useSyncHistory', e)
         return []
       }
     },
@@ -20,7 +19,7 @@ export function useSyncHistory() {
 
 export function useSyncHistoryDetail(id: number) {
   return useQuery({
-    queryKey: [...SYNC_HISTORY_KEY, id] as const,
+    queryKey: ['sync-history', id] as const,
     queryFn: async () => {
       try {
         return await syncService.getHistory(id)

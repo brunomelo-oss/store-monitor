@@ -14,14 +14,18 @@ export const LanguageContext = createContext<LanguageContextType | null>(null)
 const STORAGE_KEY = 'sasi_lang'
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<LangCode>('pt')
-
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY)
-      if (isValidLangCode(saved)) setLangState(saved)
-    } catch {}
-  }, [])
+  const [lang, setLangState] = useState<LangCode>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY)
+        if (isValidLangCode(saved)) {
+          document.documentElement.dir = saved === 'ar' ? 'rtl' : 'ltr'
+          return saved
+        }
+      } catch {}
+    }
+    return 'pt'
+  })
 
   const t = useCallback(
     (key: string, params?: Record<string, string | number>): string => {

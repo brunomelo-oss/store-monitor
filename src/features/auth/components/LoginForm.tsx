@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useRef, useEffect, useCallback } from 'react'
-import { useAuth, setRememberSession } from '@/contexts/AuthContext'
+import { useState, useRef, useEffect } from 'react'
+import { useAuth } from '@/contexts/AuthContext'
 import { useTheme } from '@/contexts/ThemeContext'
-import { backendApi } from '@/lib/backend-api'
+import { usersService } from '@/services/users.service'
+import { useShake } from '@/hooks/useShake'
 import { Loader2, Eye, EyeOff, MailQuestion } from 'lucide-react'
 import { useLang } from '@/contexts/LanguageContext'
 
@@ -15,7 +16,7 @@ interface LoginFormProps {
 const inputClass = 'w-full px-4 py-3 rounded-lg bg-slate-100 dark:bg-white/10 border border-slate-200 dark:border-white/10 text-foreground placeholder:text-muted-foreground text-sm outline-none focus:outline-none focus:border-sasi-red/50 focus:bg-slate-200 dark:focus:bg-white/[0.12] transition'
 
 export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
-  const { login } = useAuth()
+  const { login, setRememberSession } = useAuth()
   const { isDark } = useTheme()
   const { t } = useLang()
   const [username, setUsername] = useState('')
@@ -24,7 +25,7 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [attempts, setAttempts] = useState(0)
-  const [shaking, setShaking] = useState(false)
+  const { shaking, trigger: triggerShake } = useShake()
   const [rememberMe, setRememberMe] = useState(false)
   const [hasInvite, setHasInvite] = useState(false)
   const passRef = useRef<HTMLInputElement>(null)
@@ -36,16 +37,11 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
     } catch {}
   }, [])
 
-  const triggerShake = useCallback(() => {
-    setShaking(true)
-    setTimeout(() => setShaking(false), 500)
-  }, [])
-
   const checkInvite = async () => {
     const val = username.trim().toLowerCase()
     if (!val || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) { setHasInvite(false); return }
     try {
-      const { invited } = await backendApi.checkInvite(val)
+      const { invited } = await usersService.checkInvite(val)
       setHasInvite(invited)
     } catch { setHasInvite(false) }
   }
@@ -60,10 +56,7 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
     setLoading(false)
     if (res.ok) {
       try { sessionStorage.removeItem('sasi_loginAttempts') } catch {}
-      if (rememberMe) {
-        setRememberSession(true)
-        try { localStorage.setItem('sasi_remember', 'true') } catch {}
-      }
+      if (rememberMe) setRememberSession(true)
       onSuccess()
     } else {
       const next = attempts + 1

@@ -1,24 +1,22 @@
 'use client'
 
 import { useState } from 'react'
-import { App } from '@/types'
 import { useApps } from '@/hooks/useApps'
 import { useAuth } from '@/contexts/AuthContext'
 import { useLang } from '@/contexts/LanguageContext'
+import { useModal } from '@/contexts/ModalContext'
 import { SearchBar } from './SearchBar'
 import { ModeToggle } from './ModeToggle'
 import { AppGrid } from './AppGrid'
-import { AppModal } from './AppModal'
-import Link from 'next/link'
 import { Plus } from 'lucide-react'
 
 export function AppsView() {
   const { t } = useLang()
   const { data: apps = [] } = useApps()
   const { isAdmin } = useAuth()
+  const { openModal } = useModal()
   const [mode, setMode] = useState<'view' | 'edit'>('view')
   const [search, setSearch] = useState('')
-  const [modal, setModal] = useState<{ app: App | null; mode: 'edit' | 'add' | 'details'; region: string } | null>(null)
 
   const q = search.toLowerCase().trim()
   const sorted = [...apps].sort((a, b) => {
@@ -36,12 +34,12 @@ export function AppsView() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <SearchBar value={search} onChange={setSearch} />
         <div className="flex items-center gap-3">
-          <Link
-            href="/apps/new"
+          <button
+            onClick={() => openModal({ app: null, mode: 'add', region: 'Brasil' })}
             className="sasi-btn-primary inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm shadow-sm"
           >
             <Plus size={15} /> {t('search.newApp')}
-          </Link>
+          </button>
           <ModeToggle mode={mode} onChange={setMode} show={isAdmin} />
         </div>
       </div>
@@ -51,8 +49,8 @@ export function AppsView() {
         region={t('appsView.sectionBrasil')}
         badge={t('appsView.badgeBrasil')}
         mode={mode}
-        onEdit={a => setModal({ app: a, mode: 'edit', region: a.region })}
-        onDetails={a => setModal({ app: a, mode: 'details', region: a.region })}
+        onEdit={a => openModal({ app: a, mode: 'edit', region: a.region })}
+        onDetails={a => openModal({ app: a, mode: 'details', region: a.region })}
       />
       <AppGrid
         apps={internacional}
@@ -60,18 +58,11 @@ export function AppsView() {
         badge={t('appsView.badgeInternacional')}
         badgeClass="bg-blue-500/10 text-blue-400"
         mode={mode}
-        onEdit={a => setModal({ app: a, mode: 'edit', region: a.region })}
-        onDetails={a => setModal({ app: a, mode: 'details', region: a.region })}
+        onEdit={a => openModal({ app: a, mode: 'edit', region: a.region })}
+        onDetails={a => openModal({ app: a, mode: 'details', region: a.region })}
       />
 
-      {modal && (
-        <AppModal
-          app={modal.app}
-          mode={modal.mode}
-          region={modal.region}
-          onClose={() => setModal(null)}
-        />
-      )}
+
     </div>
   )
 }

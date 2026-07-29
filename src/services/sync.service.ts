@@ -64,8 +64,9 @@ export const syncService = {
     return apiClient<{ ok: boolean }>(`/v1/sync/jobs/${id}`, { method: 'DELETE' })
   },
 
-  async listHistory() {
-    return apiClient<SyncHistoryItem[]>('/v1/sync/history')
+  async listHistory(appId?: number) {
+    const qs = appId ? `?appId=${appId}` : ''
+    return apiClient<SyncHistoryItem[]>(`/v1/sync/history${qs}`)
   },
 
   async getHistory(id: number) {

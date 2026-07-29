@@ -11,8 +11,10 @@ export interface NotificationItem {
 }
 
 export const notificationsService = {
-  async list(skip = 0, take = 20) {
-    return apiClient<NotificationItem[]>(`/v1/notifications?skip=${skip}&take=${take}`)
+  async list(skip = 0, take = 20, appId?: number) {
+    let path = `/v1/notifications?skip=${skip}&take=${take}`
+    if (appId) path += `&appId=${appId}`
+    return apiClient<NotificationItem[]>(path)
   },
 
   async countUnread() {

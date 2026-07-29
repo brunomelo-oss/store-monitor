@@ -1,9 +1,10 @@
-import { UserRole } from '@prisma/client'
+import { UserRole, User } from '@prisma/client'
 import { userRepository } from '../repositories'
 import { hashPassword } from '../lib/hash'
 import { NotFoundError, ConflictError, ValidationError } from '../lib/errors'
 import { withTx } from '../lib/prisma'
 import { getLogger } from '../lib/logger'
+import { toISO } from '../lib/utils'
 import { AuditService } from './audit.service'
 import { UserResponse, CreateUserRequest } from '../types'
 
@@ -15,14 +16,14 @@ export class UserService {
     this.audit = new AuditService()
   }
 
-  private toResponse(user: any): UserResponse {
+  private toResponse(user: Omit<User, 'password'>): UserResponse {
     return {
       id: user.id,
       username: user.username,
       email: user.email,
       role: user.role as UserRole,
       avatarUrl: user.avatarUrl,
-      createdAt: user.createdAt?.toISOString?.() || user.createdAt,
+      createdAt: toISO(user.createdAt) ?? '',
     }
   }
 
@@ -53,17 +54,7 @@ export class UserService {
       const created = await tx.user.create({
         data: { email, username: finalUsername, password: hashed, role },
       })
-      await tx.auditLog.create({
-        data: {
-          userId: adminId || null,
-          action: 'CREATE_USER',
-          entity: 'User',
-          entityId: created.id,
-          metadata: { email, role },
-          ip,
-          organizationId: created.organizationId,
-        } as any,
-      })
+      await this.audit.log(adminId, 'CREATE_USER', 'User', created.id, { email, role }, ip, tx, created.organizationId)
       return created
     })
 
@@ -79,17 +70,7 @@ export class UserService {
 
     const updated = await withTx(async (tx) => {
       const result = await tx.user.update({ where: { id }, data: { role } })
-      await tx.auditLog.create({
-        data: {
-          userId: adminId || null,
-          action: 'UPDATE_USER_ROLE',
-          entity: 'User',
-          entityId: id,
-          metadata: { oldRole: user.role, newRole: role },
-          ip,
-          organizationId: user.organizationId,
-        } as any,
-      })
+      await this.audit.log(adminId, 'UPDATE_USER_ROLE', 'User', id, { oldRole: user.role, newRole: role }, ip, tx, user.organizationId)
       return result
     })
 
@@ -108,17 +89,7 @@ export class UserService {
     await withTx(async (tx) => {
       await tx.user.update({ where: { id }, data: { password: hashed } })
       await tx.session.deleteMany({ where: { userId: id } })
-      await tx.auditLog.create({
-        data: {
-          userId: adminId || null,
-          action: 'UPDATE_USER_PASSWORD',
-          entity: 'User',
-          entityId: id,
-          metadata: {},
-          ip,
-          organizationId: user.organizationId,
-        } as any,
-      })
+      await this.audit.log(adminId, 'UPDATE_USER_PASSWORD', 'User', id, {}, ip, tx, user.organizationId)
     })
 
     this.logger.info({ userId: id }, 'User password updated by admin')
@@ -136,17 +107,7 @@ export class UserService {
 
     await withTx(async (tx) => {
       await tx.user.delete({ where: { id } })
-      await tx.auditLog.create({
-        data: {
-          userId: adminId || null,
-          action: 'DELETE_USER',
-          entity: 'User',
-          entityId: id,
-          metadata: { email: user.email },
-          ip,
-          organizationId: user.organizationId,
-        } as any,
-      })
+      await this.audit.log(adminId, 'DELETE_USER', 'User', id, { email: user.email }, ip, tx, user.organizationId)
     })
 
     this.logger.info({ userId: id, email: user.email }, 'User deleted')

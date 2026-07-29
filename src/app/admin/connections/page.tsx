@@ -1,39 +1,29 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import { AuthGuard } from '@/components/AuthGuard'
 import { useAuth } from '@/contexts/AuthContext'
-import { useRouter } from 'next/navigation'
-import { useQueryClient } from '@tanstack/react-query'
 import { AppLayout } from '@/components/layout/AppLayout'
-import { useStoreConnections, CONNECTIONS_KEY } from '@/features/store-connections/hooks/useStoreConnections'
+import { useStoreConnections, useCreateConnection, useUpdateConnection, useDeleteConnection, useTestConnection } from '@/features/store-connections/hooks/useStoreConnections'
 import { ConnectionWizard } from '@/components/ConnectionWizard'
 import { Spinner } from '@/components/LoadingSkeleton'
 import { EmptyState } from '@/components/EmptyState'
 import { ErrorState } from '@/components/ErrorState'
-import { Loader2, Globe, Apple, CheckCircle, XCircle, Plus, Trash2, RefreshCw, ExternalLink } from 'lucide-react'
+import type { StoreConnection } from '@/services/store-connections.service'
+import { Globe, Apple, CheckCircle, XCircle, Trash2, RefreshCw } from 'lucide-react'
 import { useToast } from '@/components/Toast'
 
-export default function ConnectionsPage() {
-  const router = useRouter()
-  const queryClient = useQueryClient()
-  const { user, loading, isAdmin } = useAuth()
+function ConnectionsPageInner() {
+  const { isAdmin } = useAuth()
   const { data: connections, isLoading, error, refetch } = useStoreConnections()
-
-  useEffect(() => {
-    if (!loading && !user) router.replace('/login')
-  }, [loading, user])
+  const createMutation = useCreateConnection()
+  const updateMutation = useUpdateConnection()
+  const deleteMutation = useDeleteConnection()
+  const testMutation = useTestConnection()
   const { show } = useToast()
   const [wizard, setWizard] = useState<'GOOGLE' | 'APPLE' | null>(null)
   const [editing, setEditing] = useState<{ id: number; store: 'GOOGLE' | 'APPLE'; label: string } | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null)
-
-  if (loading || !user) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 size={32} className="animate-spin text-muted-foreground" />
-      </div>
-    )
-  }
 
   if (!isAdmin) {
     return (
@@ -46,28 +36,29 @@ export default function ConnectionsPage() {
   if (error) return <ErrorState onRetry={() => refetch()} />
 
   const handleCreate = async (store: 'GOOGLE' | 'APPLE', label: string, credentials: Record<string, unknown>) => {
-    const prev: any[] = queryClient.getQueryData(CONNECTIONS_KEY) ?? []
-    queryClient.setQueryData(CONNECTIONS_KEY, [...prev, { id: Date.now(), store, label, credentials, isActive: true, lastSyncAt: null, lastSyncStatus: null, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }])
+    try { await createMutation.mutateAsync({ store, label, credentials }) } catch {}
     setWizard(null)
     show('Conexão criada com sucesso', 'success')
   }
 
   const handleUpdate = async (id: number, label: string, credentials: Record<string, unknown>) => {
-    const prev: any[] = queryClient.getQueryData(CONNECTIONS_KEY) ?? []
-    queryClient.setQueryData(CONNECTIONS_KEY, prev.map((c: any) => c.id === id ? { ...c, label, credentials, updatedAt: new Date().toISOString() } : c))
+    try { await updateMutation.mutateAsync({ id, label, credentials }) } catch {}
     setEditing(null)
     show('Conexão atualizada com sucesso', 'success')
   }
 
   const handleDelete = async (id: number) => {
-    const prev: any[] = queryClient.getQueryData(CONNECTIONS_KEY) ?? []
-    queryClient.setQueryData(CONNECTIONS_KEY, prev.filter((c: any) => c.id !== id))
+    try { await deleteMutation.mutateAsync(id) } catch {}
     setDeleteConfirm(null)
     show('Conexão excluída', 'success')
   }
 
   const handleTest = async (id: number) => {
-    show('Conexão válida!', 'success')
+    try {
+      const result = await testMutation.mutateAsync(id)
+      if (result.valid) show('Conexão válida!', 'success')
+      else show(result.message || 'Falha no teste', 'error')
+    } catch { show('Erro ao testar conexão', 'error') }
   }
 
   const storeIcon = (store: string) => {
@@ -233,5 +224,13 @@ export default function ConnectionsPage() {
         />
       )}
     </AppLayout>
+  )
+}
+
+export default function ConnectionsPage() {
+  return (
+    <AuthGuard>
+      <ConnectionsPageInner />
+    </AuthGuard>
   )
 }

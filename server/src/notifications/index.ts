@@ -1,5 +1,3 @@
 export { NotificationDispatcher } from './dispatcher'
 export { InAppChannel } from './channels/in-app.channel'
-export { EmailChannel } from './channels/email.channel'
-export { WebhookChannel } from './channels/webhook.channel'
 export type { NotificationChannel, NotificationPayload } from './channels/channel.interface'

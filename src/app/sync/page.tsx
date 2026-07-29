@@ -1,6 +1,6 @@
 'use client'
 
-import { useAuth } from '@/contexts/AuthContext'
+import { AuthGuard } from '@/components/AuthGuard'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { useSyncHistory } from '@/features/sync/hooks/useSyncHistory'
 import { useSyncJobs } from '@/features/sync/hooks/useSyncJobs'
@@ -18,19 +18,11 @@ const statusIcon: Record<string, React.ReactNode> = {
 }
 
 export default function SyncPage() {
-  const { user, loading } = useAuth()
   const { data: history, isLoading: historyLoading, error: historyError } = useSyncHistory()
   const { data: jobs, isLoading: jobsLoading, error: jobsError } = useSyncJobs()
 
-  if (loading || !user) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 size={32} className="animate-spin text-muted-foreground" />
-      </div>
-    )
-  }
-
   return (
+    <AuthGuard>
     <AppLayout>
       <div className="space-y-8">
         <ErrorBoundary>
@@ -135,5 +127,6 @@ export default function SyncPage() {
         </ErrorBoundary>
       </div>
     </AppLayout>
+    </AuthGuard>
   )
 }

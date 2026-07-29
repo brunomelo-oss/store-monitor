@@ -2,23 +2,16 @@
 
 import { Suspense, useMemo } from 'react'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
-import { MetricCard } from '@/components/MetricCard'
 import { Badge } from '@/components/Badge'
-import { Progress } from '@/components/Progress'
-import { Tooltip } from '@/components/Tooltip'
 import { EmptyState } from '@/components/EmptyState'
+import { Spinner } from '@/components/LoadingSkeleton'
 import { useApps } from '@/hooks/useApps'
 import { useActivity } from '@/features/activity/hooks/useActivity'
 import { useLang } from '@/contexts/LanguageContext'
-import { Spinner } from '@/components/LoadingSkeleton'
-import {
-  Smartphone, CheckCircle, XCircle, Clock,
-  BarChart3, Activity, Bell,
-  Download, Plus,
-  AlertTriangle, Hourglass, TrendingUp, Globe,
-  Apple, Edit, RefreshCw,
-  ArrowUpRight, ExternalLink,
-} from 'lucide-react'
+import { DashboardKPIs } from './DashboardKPIs'
+import { DashboardPriorities } from './DashboardPriorities'
+import { DashboardRecentStats } from './DashboardRecentStats'
+import { Download, CheckCircle, XCircle, Edit, Plus, RefreshCw, Activity, ArrowUpRight } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
@@ -34,7 +27,6 @@ export function DashboardView() {
 
 function DashboardSkeleton() {
   const shimmer = 'rounded-xl bg-muted animate-pulse'
-
   return (
     <div className="space-y-8">
       <div className={`h-24 ${shimmer}`} />
@@ -88,15 +80,6 @@ function CommandCenter() {
 
   const locale = lang === 'pt' ? 'pt-BR' : lang === 'en' ? 'en-US' : 'ar-SA'
 
-  const kpiCards = [
-    { label: t('dashboard.published'), value: publishedApps, icon: Smartphone, variant: 'success' as const, subtitle: t('dashboard.ofTotal', { count: totalApps }) },
-    { label: t('dashboard.inReview'), value: inReviewApps, icon: Clock, variant: 'warning' as const },
-    { label: t('dashboard.needsAttention'), value: needsAttentionApps, icon: AlertTriangle, variant: 'attention' as const },
-    { label: t('dashboard.rejected'), value: rejectedApps, icon: XCircle, variant: 'rejected' as const },
-    { label: t('dashboard.pendingBuilds'), value: pendingBuilds, icon: Hourglass, variant: 'pending' as const },
-    { label: t('dashboard.approvalRate'), value: `${approvalRate}%`, icon: TrendingUp, variant: 'rate' as const },
-  ]
-
   const statusDistribution = [
     { label: t('dashboard.published_singular'), count: publishedApps, color: 'bg-emerald-500', pct: totalApps > 0 ? (publishedApps / totalApps) * 100 : 0 },
     { label: t('dashboard.inReview'), count: inReviewApps, color: 'bg-amber-500', pct: totalApps > 0 ? (inReviewApps / totalApps) * 100 : 0 },
@@ -149,194 +132,32 @@ function CommandCenter() {
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6">
-        {kpiCards.map(card => (
-          <Link key={card.label} href={card.label === t('dashboard.published') ? '/apps?status=PUBLISHED' : card.label === t('dashboard.inReview') ? '/apps?status=REVIEW' : card.label === t('dashboard.rejected') ? '/apps?status=REJECTED' : '/apps'}>
-            <MetricCard
-              title={card.label}
-              value={card.value}
-              icon={<card.icon size={16} />}
-              variant={card.variant}
-              subtitle={'subtitle' in card ? card.subtitle : undefined}
-            />
-          </Link>
-        ))}
-      </div>
+      <DashboardKPIs
+        totalApps={totalApps}
+        publishedApps={publishedApps}
+        inReviewApps={inReviewApps}
+        rejectedApps={rejectedApps}
+        needsAttentionApps={needsAttentionApps}
+        pendingBuilds={pendingBuilds}
+        approvalRate={approvalRate}
+      />
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2 sasi-card-hover rounded-xl p-5">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="font-semibold text-foreground">{t('dashboard.priorities')}</h3>
-              <p className="text-xs text-muted-foreground mt-0.5">{t('dashboard.requiresAction')}</p>
-            </div>
-            <Link href="/apps" className="text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
-              {t('dashboard.viewAllPending')} <ArrowUpRight size={12} />
-            </Link>
-          </div>
-          <div className="space-y-2">
-            {priorities.length === 0 ? (
-              <div className="text-center py-8 text-sm text-muted-foreground/60">
-                {t('dashboard.noPendingItems')}
-              </div>
-            ) : (
-              priorities.map(app => {
-                const status = (app.playStatus || app.appStatus || '').toUpperCase()
-                const isRed = status === 'REJECTED' || status === 'FAILED'
-                const isYellow = status === 'PENDING'
-                const isGreen = status === 'PUBLISHED'
-                return (
-                  <Link
-                    key={app.id}
-                    href={`/apps/${app.id}`}
-                    className="flex items-center gap-4 p-3 rounded-lg sasi-card transition-all group"
-                  >
-                    <div className={`w-2 h-2 rounded-full shrink-0 ${isRed ? 'bg-red-500' : isYellow ? 'bg-amber-500' : isGreen ? 'bg-emerald-500' : 'bg-slate-400'}`} />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">{app.name}</p>
-                      <p className="text-xs text-muted-foreground truncate">
-                        {isRed ? t('dashboard.rejectedVersion') : isYellow ? t('dashboard.pendingDocumentation') : isGreen ? t('dashboard.readyToPublish') : status}
-                      </p>
-                    </div>
-                    <Badge variant={isRed ? 'danger' : isYellow ? 'warning' : isGreen ? 'success' : 'default'} size="sm" dot>
-                      {status}
-                    </Badge>
-                  </Link>
-                )
-              })
-            )}
-          </div>
-        </div>
+      <DashboardPriorities
+        priorities={priorities}
+        publishedApps={publishedApps}
+        inReviewApps={inReviewApps}
+        needsAttentionApps={needsAttentionApps}
+        totalApps={totalApps}
+      />
 
-        <div className="sasi-card-hover rounded-xl p-5">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="font-semibold text-foreground">{t('dashboard.platformHealth')}</h3>
-              <p className="text-xs text-muted-foreground mt-0.5">{t('dashboard.generalSummary')}</p>
-            </div>
-            <Link href="/apps" className="text-xs text-blue-600 dark:text-blue-400 hover:underline">
-              <ExternalLink size={13} />
-            </Link>
-          </div>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">{t('dashboard.published_singular')}</span>
-              <span className="font-medium text-foreground">{publishedApps}</span>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">{t('dashboard.inReview')}</span>
-              <span className="font-medium text-foreground">{inReviewApps}</span>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">{t('dashboard.requiresAttention')}</span>
-              <span className="font-medium text-red-500">{needsAttentionApps}</span>
-            </div>
-            <div className="border-t border-border pt-3 mt-3">
-              <div className="flex items-center justify-between text-sm">
-                <span className="font-semibold text-foreground">{t('dashboard.total')}</span>
-                <span className="font-semibold text-foreground">{totalApps}</span>
-              </div>
-            </div>
-          </div>
-          <Link
-            href="/apps"
-            className="sasi-btn-secondary mt-4 block text-center text-sm py-2 rounded-lg"
-          >
-            {t('dashboard.viewFullList')}
-          </Link>
-        </div>
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div className="sasi-card-hover rounded-xl p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-foreground">{t('dashboard.recentApps')}</h3>
-            <Link href="/apps" className="text-xs text-blue-600 dark:text-blue-400 hover:underline">
-              {t('dashboard.viewAll')}
-            </Link>
-          </div>
-          {recentApps.length === 0 ? (
-            <EmptyState icon={Smartphone} title={t('dashboard.noAppsFound')} description={t('dashboard.createFirstApp')} action={{ label: t('dashboard.createApp'), onClick: () => router.push('/apps/new') }} />
-          ) : (
-            <div className="space-y-2">
-              {recentApps.map(app => {
-                const status = (app.playStatus || app.appStatus || '').toUpperCase()
-                const statusVariant = status === 'PUBLISHED' ? 'success' as const : status === 'REVIEW' ? 'warning' as const : status === 'REJECTED' ? 'danger' as const : 'neutral' as const
-                return (
-                  <Link
-                    key={app.id}
-                    href={`/apps/${app.id}`}
-                    className="flex items-center justify-between p-3 rounded-lg sasi-card transition-all group"
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                        <Smartphone size={14} className="text-muted-foreground/60" />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium text-foreground truncate">{app.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          v{app.playVersion || app.appVersion || '-'} · {app.updatedAt ? new Date(app.updatedAt).toLocaleDateString(locale) : ''}
-                        </p>
-                      </div>
-                    </div>
-                    <Badge variant={statusVariant} size="sm" dot>
-                      {status}
-                    </Badge>
-                  </Link>
-                )
-              })}
-            </div>
-          )}
-        </div>
-
-        <div className="sasi-card-hover rounded-xl p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-foreground">{t('dashboard.statistics')}</h3>
-          </div>
-          <div className="space-y-6">
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-muted-foreground">{t('dashboard.statusDistribution')}</span>
-                <span className="text-xs text-muted-foreground/60">{t('dashboard.apps', { count: totalApps })}</span>
-              </div>
-              <div className="flex h-3 rounded-full overflow-hidden bg-muted">
-                {statusDistribution.filter(s => s.count > 0).map(s => (
-                  <Tooltip key={s.label} content={`${s.label}: ${s.count} (${Math.round(s.pct)}%)`}>
-                    <div className={s.color} style={{ width: `${s.pct}%` }} />
-                  </Tooltip>
-                ))}
-              </div>
-              <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
-                {statusDistribution.filter(s => s.count > 0).map(s => (
-                  <span key={s.label} className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <span className={`w-2 h-2 rounded-full ${s.color}`} />
-                    {s.label} ({s.count})
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-3 rounded-lg sasi-card">
-                <div className="flex items-center gap-2 mb-2">
-                  <Globe size={14} className="text-emerald-500" />
-                  <span className="text-xs text-muted-foreground">Google Play</span>
-                </div>
-                <p className="text-lg font-bold text-foreground">{googleCount}</p>
-                <p className="text-[10px] text-muted-foreground/60">{t('dashboard.publishedApps')}</p>
-              </div>
-              <div className="p-3 rounded-lg sasi-card">
-                <div className="flex items-center gap-2 mb-2">
-                  <Apple size={14} className="text-blue-500" />
-                  <span className="text-xs text-muted-foreground">App Store</span>
-                </div>
-                <p className="text-lg font-bold text-foreground">{appleCount}</p>
-                <p className="text-[10px] text-muted-foreground/60">{t('dashboard.publishedApps')}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <DashboardRecentStats
+        recentApps={recentApps}
+        statusDistribution={statusDistribution}
+        totalApps={totalApps}
+        googleCount={googleCount}
+        appleCount={appleCount}
+        locale={locale}
+      />
 
       <div className="sasi-card-hover rounded-xl p-5">
         <div className="flex items-center justify-between mb-4">

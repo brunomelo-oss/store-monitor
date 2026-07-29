@@ -1,13 +1,13 @@
 'use client'
 
-import { useAuth } from '@/contexts/AuthContext'
+import { AuthGuard } from '@/components/AuthGuard'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { useActivity } from '@/features/activity/hooks/useActivity'
 import { Timeline } from '@/components/Timeline'
 import { Spinner } from '@/components/LoadingSkeleton'
 import { EmptyState } from '@/components/EmptyState'
 import { ErrorState } from '@/components/ErrorState'
-import { Activity, RefreshCw, Filter } from 'lucide-react'
+import { Activity, RefreshCw } from 'lucide-react'
 import { useState } from 'react'
 
 type ActivityFilter = 'all' | 'audit_log' | 'sync' | 'notification' | 'job'
@@ -21,11 +21,9 @@ const filterLabels: Record<ActivityFilter, string> = {
 }
 
 export default function ActivityPage() {
-  const { user, loading } = useAuth()
   const { data: activity, isLoading, error, refetch } = useActivity(200)
   const [filter, setFilter] = useState<ActivityFilter>('all')
 
-  if (loading || !user) return <Spinner />
   if (error) return <ErrorState onRetry={() => refetch()} />
 
   const filtered = filter === 'all' ? (activity || []) : (activity || []).filter(a => a.type === filter)
@@ -44,6 +42,7 @@ export default function ActivityPage() {
   }))
 
   return (
+    <AuthGuard>
     <AppLayout>
       <div className="max-w-4xl mx-auto space-y-6">
         <div>
@@ -71,5 +70,6 @@ export default function ActivityPage() {
         )}
       </div>
     </AppLayout>
+    </AuthGuard>
   )
 }

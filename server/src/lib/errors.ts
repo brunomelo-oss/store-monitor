@@ -40,18 +40,6 @@ export class ConflictError extends AppError {
   }
 }
 
-export class ExternalApiError extends AppError {
-  constructor(message: string, public provider: string, details?: Record<string, unknown>) {
-    super(message, 502, 'EXTERNAL_API_ERROR', { provider, ...details })
-  }
-}
-
-export class DatabaseError extends AppError {
-  constructor(message: string = 'Erro de banco de dados', details?: Record<string, unknown>) {
-    super(message, 503, 'DATABASE_ERROR', details)
-  }
-}
-
 export class SyncError extends AppError {
   constructor(message: string, details?: Record<string, unknown>) {
     super(message, 500, 'SYNC_ERROR', details)

@@ -1,13 +1,17 @@
 'use client'
 
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react'
+import { createContext, useContext, useReducer, useEffect, useCallback, useState, ReactNode } from 'react'
 import { User } from '@/types'
 import { authService } from '@/services/auth.service'
 import { getErrorMessage } from '@/services/api-client'
+import { logError } from '@/lib/logger'
 
-interface AuthState {
+interface AuthData {
   user: { username: string; role: string; email: string; id?: number } | null
   loading: boolean
+}
+
+interface AuthState extends AuthData {
   login: (username: string, password: string) => Promise<{ ok: boolean; error?: string }>
   logout: () => void
   register: (email: string, password: string) => Promise<string | null>
@@ -16,76 +20,86 @@ interface AuthState {
   doResetPassword: (email: string, code: string, password: string) => Promise<string | null>
   findUserByEmail: (email: string) => User | undefined
   isAdmin: boolean
+  rememberSession: boolean
+  setRememberSession: (v: boolean) => void
 }
 
 const AuthContext = createContext<AuthState>(null!)
 
-let _rememberSession = false
+type Action =
+  | { type: 'SET_AUTH'; user: AuthData['user']; loading: boolean }
+  | { type: 'SET_USER'; user: AuthData['user'] }
 
-export function setRememberSession(v: boolean) {
-  _rememberSession = v
-  try { localStorage.setItem('sasi_remember', v ? 'true' : 'false') } catch {}
-}
-
-function getRememberSession(): boolean {
-  if (_rememberSession) return true
-  try { return localStorage.getItem('sasi_remember') === 'true' } catch { return false }
+function authReducer(state: AuthData, action: Action): AuthData {
+  switch (action.type) {
+    case 'SET_AUTH':
+      return { user: action.user, loading: action.loading }
+    case 'SET_USER':
+      return { ...state, user: action.user }
+  }
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthState['user']>(null)
-  const [loading, setLoading] = useState(true)
+  const [{ user, loading }, dispatch] = useReducer(authReducer, {
+    user: null,
+    loading: true,
+  })
+  const [rememberSession, setRememberSessionState] = useState(() => {
+    try { return localStorage.getItem('sasi_remember') === 'true' } catch { return false }
+  })
+
+  const setRememberSession = useCallback((v: boolean) => {
+    setRememberSessionState(v)
+    try { localStorage.setItem('sasi_remember', v ? 'true' : 'false') } catch {}
+  }, [])
+
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === 'sasi_remember') setRememberSessionState(e.newValue === 'true')
+    }
+    window.addEventListener('storage', onStorage)
+    return () => window.removeEventListener('storage', onStorage)
+  }, [])
 
   useEffect(() => {
     let cancelled = false
 
     async function init() {
-      const loggedOut = (() => { try { return localStorage.getItem('sasi_logged_out') === 'true' } catch { return false } })()
-
-      // Mock user imediatamente — UI renderiza sem delay
-      if (!loggedOut && !cancelled) {
-        setUser({ id: 1, username: 'bmelo9387', email: 'bmelo9387@gmail.com', role: 'OWNER' })
-      }
-
-      // Libera loading imediatamente
-      if (!cancelled) setLoading(false)
-
-      // Tenta API real em background (não bloqueia)
       try {
         const user = await authService.me()
-        if (!cancelled) setUser(user)
-        return
-      } catch {}
+        if (!cancelled) { dispatch({ type: 'SET_AUTH', user, loading: false }); return }
+      } catch (e) { logError('AuthProvider/me', e) }
 
-      if (getRememberSession()) {
+      if (rememberSession) {
         try {
           const user = await authService.refresh()
-          if (!cancelled) setUser(user)
-        } catch {}
+          if (!cancelled) { dispatch({ type: 'SET_AUTH', user, loading: false }); return }
+        } catch (e) { logError('AuthProvider/refresh', e) }
       }
+
+      if (!cancelled) dispatch({ type: 'SET_AUTH', user: null, loading: false })
     }
 
     init()
     return () => { cancelled = true }
-  }, [])
+  }, [rememberSession])
 
   const login = useCallback(async (username: string, password: string) => {
     try {
       const u = await authService.login(username, password)
-      setUser(u)
+      dispatch({ type: 'SET_USER', user: u })
       try { localStorage.removeItem('sasi_logged_out') } catch {}
       return { ok: true }
-    } catch {
-      try { localStorage.removeItem('sasi_logged_out') } catch {}
-      setUser({ id: 1, username, email: username.includes('@') ? username : `${username}@sasi.com.br`, role: 'OWNER' })
-      return { ok: true }
+    } catch (e) {
+      logError('AuthProvider/login', e)
+      return { ok: false, error: getErrorMessage(e) }
     }
   }, [])
 
   const logout = useCallback(async () => {
-    try { await authService.logout() } catch {}
+    try { await authService.logout() } catch (e) { logError('AuthProvider/logout', e) }
     try { localStorage.removeItem('sasi_remember'); localStorage.setItem('sasi_logged_out', 'true') } catch {}
-    setUser(null)
+    dispatch({ type: 'SET_USER', user: null })
   }, [])
 
   const register = useCallback(async (email: string, password: string) => {
@@ -135,7 +149,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider value={{
       user, loading,
       login, logout, register, inviteSetup, sendResetEmail, doResetPassword, findUserByEmail,
-      isAdmin,
+      isAdmin, rememberSession, setRememberSession,
     }}>
       {children}
     </AuthContext.Provider>

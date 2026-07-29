@@ -1,16 +1,17 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { notificationsService, type NotificationItem } from '@/services/notifications.service'
 import { MOCK_NOTIFICATIONS, MOCK_UNREAD_COUNT } from '@/lib/mock-data'
+import { logError } from '@/lib/logger'
 
 const NOTIFICATIONS_KEY = ['notifications'] as const
 
-export function useNotifications(take = 20) {
+export function useNotifications(take = 20, appId?: number) {
   return useQuery({
-    queryKey: [...NOTIFICATIONS_KEY, { take }] as const,
+    queryKey: appId ? [...NOTIFICATIONS_KEY, { take, appId }] : [...NOTIFICATIONS_KEY, { take }],
     queryFn: async () => {
       try {
-        return await notificationsService.list(0, take)
-      } catch {
+        return await notificationsService.list(0, take, appId)
+      } catch (e) { logError('useNotifications', e)
         return MOCK_NOTIFICATIONS as NotificationItem[]
       }
     },
@@ -25,7 +26,7 @@ export function useUnreadCount() {
     queryFn: async () => {
       try {
         return await notificationsService.countUnread()
-      } catch {
+      } catch (e) { logError('useNotifications/unread', e)
         return MOCK_UNREAD_COUNT
       }
     },

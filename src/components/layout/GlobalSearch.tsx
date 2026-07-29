@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useApps } from '@/hooks/useApps'
 import { useLang } from '@/contexts/LanguageContext'
+import { useModal } from '@/contexts/ModalContext'
 import { Search, Command, ChevronRight, FileText, BarChart3, Layers, Activity, Bell, Settings, Plus, UserPlus, Download, Users, Globe, type LucideIcon } from 'lucide-react'
 
 interface SearchResult {
@@ -18,6 +19,7 @@ interface SearchResult {
 export function GlobalSearch() {
   const router = useRouter()
   const { t } = useLang()
+  const { openModal } = useModal()
   const { data: apps = [] } = useApps()
   const inputRef = useRef<HTMLInputElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -92,8 +94,11 @@ export function GlobalSearch() {
 
   useEffect(() => { setSelectedIdx(0) }, [query])
 
-  const execute = useCallback((item: any) => {
+  const execute = useCallback((item: SearchResult) => {
     if (item.href) router.push(item.href)
+    else if (item.id === 'create-app') openModal({ app: null, mode: 'add', region: 'Brasil' })
+    else if (item.id === 'create-user') router.push('/admin')
+    else if (item.id === 'export') router.push('/apps')
     setQuery('')
     setFocused(false)
     inputRef.current?.blur()

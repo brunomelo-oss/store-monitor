@@ -66,9 +66,6 @@ export function getErrorMessage(error: unknown): string {
   return 'Erro inesperado'
 }
 
-/** @deprecated Use getErrorMessage() instead */
-export const extractError = getErrorMessage
-
 export const API_TIMEOUT = 3000
 
 export async function apiClient<T>(path: string, options?: RequestInit): Promise<T> {

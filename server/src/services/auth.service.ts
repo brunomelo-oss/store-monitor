@@ -38,17 +38,7 @@ export class AuthService {
       await tx.session.create({
         data: { token: refreshToken, expiresAt, user: { connect: { id: user.id } } },
       })
-      await tx.auditLog.create({
-        data: {
-          organizationId: user.organizationId,
-          userId: user.id,
-          action: 'LOGIN',
-          entity: 'User',
-          entityId: user.id,
-          metadata: {},
-          ip,
-        } as any,
-      })
+      await this.audit.log(user.id, 'LOGIN', 'User', user.id, {}, ip, tx, user.organizationId)
     })
 
     this.logger.info({ userId: user.id }, 'User logged in')
@@ -91,17 +81,7 @@ export class AuthService {
         await tx.invite.deleteMany({ where: { email } })
       }
 
-      await tx.auditLog.create({
-        data: {
-          organizationId: user.organizationId,
-          userId: user.id,
-          action: 'REGISTER',
-          entity: 'User',
-          entityId: user.id,
-          metadata: { email },
-          ip,
-        } as any,
-      })
+      await this.audit.log(user.id, 'REGISTER', 'User', user.id, { email }, ip, tx, user.organizationId)
     })
 
     this.logger.info({ email }, 'User registered')
@@ -130,17 +110,7 @@ export class AuthService {
       await tx.session.create({
         data: { token: refreshToken, expiresAt, user: { connect: { id: user.id } } },
       })
-      await tx.auditLog.create({
-        data: {
-          organizationId: user.organizationId,
-          userId: user.id,
-          action: 'REFRESH_TOKEN',
-          entity: 'User',
-          entityId: user.id,
-          metadata: {},
-          ip,
-        } as any,
-      })
+      await this.audit.log(user.id, 'REFRESH_TOKEN', 'User', user.id, {}, ip, tx, user.organizationId)
     })
 
     return {
@@ -173,17 +143,7 @@ export class AuthService {
     await withTx(async (tx) => {
       await tx.user.update({ where: { id: userId }, data: { password: hashed } })
       await tx.session.deleteMany({ where: { userId } })
-      await tx.auditLog.create({
-        data: {
-          organizationId: user.organizationId,
-          userId,
-          action: 'CHANGE_PASSWORD',
-          entity: 'User',
-          entityId: userId,
-          metadata: {},
-          ip,
-        } as any,
-      })
+      await this.audit.log(userId, 'CHANGE_PASSWORD', 'User', userId, {}, ip, tx, user.organizationId)
     })
 
     this.logger.info({ userId }, 'Password changed')
@@ -205,17 +165,7 @@ export class AuthService {
     await withTx(async (tx) => {
       await tx.user.update({ where: { id: user.id }, data: { password: hashed } })
       await tx.session.deleteMany({ where: { userId: user.id } })
-      await tx.auditLog.create({
-        data: {
-          organizationId: user.organizationId,
-          userId: user.id,
-          action: 'RESET_PASSWORD',
-          entity: 'User',
-          entityId: user.id,
-          metadata: {},
-          ip,
-        } as any,
-      })
+      await this.audit.log(user.id, 'RESET_PASSWORD', 'User', user.id, {}, ip, tx, user.organizationId)
     })
 
     this.logger.info({ userId: user.id }, 'Password reset')

@@ -6,13 +6,14 @@ const mockLogin = vi.hoisted(() => vi.fn())
 const mockCheckInvite = vi.hoisted(() => vi.fn())
 
 vi.mock('@/contexts/AuthContext', () => ({
-  useAuth: () => ({ login: mockLogin }),
+  useAuth: () => ({ login: mockLogin, setRememberSession: vi.fn() }),
 }))
 
-vi.mock('@/lib/backend-api', () => ({
-  backendApi: { checkInvite: mockCheckInvite },
+vi.mock('@/services/users.service', () => ({
+  usersService: { checkInvite: mockCheckInvite },
 }))
 
+import { ThemeProvider } from '@/contexts/ThemeContext'
 import { LoginForm } from '@/features/auth/components/LoginForm'
 
 const onSwitch = vi.fn()
@@ -24,8 +25,12 @@ beforeEach(() => {
   localStorage.clear()
 })
 
-function renderLogin() {
-  return render(<LoginForm onSwitch={onSwitch} onSuccess={onSuccess} />)
+function renderLogin(overrides?: { onSwitch?: typeof onSwitch; onSuccess?: typeof onSuccess }) {
+  return render(
+    <ThemeProvider>
+      <LoginForm onSwitch={overrides?.onSwitch ?? onSwitch} onSuccess={overrides?.onSuccess ?? onSuccess} />
+    </ThemeProvider>
+  )
 }
 
 describe('LoginForm', () => {
@@ -80,7 +85,7 @@ describe('LoginForm', () => {
   it('redirects to password reset after 5 failed attempts', async () => {
     mockLogin.mockResolvedValue({ ok: false, error: 'Credenciais inválidas' })
     const mockOnSwitch = vi.fn()
-    render(<LoginForm onSwitch={mockOnSwitch} onSuccess={onSuccess} />)
+    renderLogin({ onSwitch: mockOnSwitch })
     const usernameInput = screen.getByPlaceholderText('Usuário ou e-mail')
     const passwordInput = screen.getByPlaceholderText('Senha')
 

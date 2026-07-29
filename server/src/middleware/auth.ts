@@ -33,22 +33,22 @@ export function requireOrgAccess(organizationId: number) {
   }
 }
 
-export function requireAdmin(_req: Request, _res: Response, next: NextFunction): void {
-  if (!_req.user) {
+export function requireAdmin(req: Request, _res: Response, next: NextFunction): void {
+  if (!req.user) {
     throw new AuthenticationError('Não autenticado')
   }
-  if (_req.user.role !== UserRole.ADMIN && _req.user.role !== UserRole.OWNER) {
+  if (req.user.role !== UserRole.ADMIN && req.user.role !== UserRole.OWNER) {
     throw new AuthorizationError('Acesso restrito a administradores')
   }
   next()
 }
 
-export function requireManager(_req: Request, _res: Response, next: NextFunction): void {
-  if (!_req.user) {
+export function requireManager(req: Request, _res: Response, next: NextFunction): void {
+  if (!req.user) {
     throw new AuthenticationError('Não autenticado')
   }
   const allowedRoles: UserRole[] = [UserRole.OWNER, UserRole.ADMIN, UserRole.MANAGER]
-  if (!allowedRoles.includes(_req.user.role as UserRole)) {
+  if (!allowedRoles.includes(req.user.role as UserRole)) {
     throw new AuthorizationError('Acesso restrito')
   }
   next()

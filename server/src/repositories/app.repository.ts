@@ -56,7 +56,7 @@ export class AppRepository extends BaseRepository<AppModel, AppCreateInput, AppU
 
   async findById(id: number): Promise<AppModel | null> {
     return this.model.findUnique({
-      where: { id } as any,
+      where: { id },
       include: {
         syncHistory: { orderBy: { startedAt: 'desc' }, take: 1 },
       },

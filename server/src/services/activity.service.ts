@@ -53,7 +53,7 @@ export class ActivityService {
         description: this.describeAuditAction(log.action, log.entity, log.metadata as Record<string, unknown> | null),
         metadata: log.metadata as Record<string, unknown> | null,
         userId: log.userId,
-        username: (log as any).user?.username || null,
+        username: log.user?.username ?? null,
         createdAt: log.createdAt.toISOString(),
       })),
       ...syncHistory.map((sync) => ({

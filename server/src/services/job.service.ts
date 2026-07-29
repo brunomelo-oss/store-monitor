@@ -1,6 +1,7 @@
-import { JobType, JobStatus, SyncTriggerType } from '@prisma/client'
+import { JobType, JobStatus, SyncTriggerType, Job } from '@prisma/client'
 import { jobRepository } from '../repositories'
 import { getLogger } from '../lib/logger'
+import { toISO } from '../lib/utils'
 import { AuditService } from './audit.service'
 import { SyncEngineService } from './sync-engine.service'
 import { JobResponse } from '../types'
@@ -21,25 +22,25 @@ export class JobService {
     this.syncEngine = new SyncEngineService()
   }
 
-  private toResponse(job: any): JobResponse {
+  private toResponse(job: Job): JobResponse {
     return {
       id: job.id,
       type: job.type as JobType,
       status: job.status as JobStatus,
-      payload: job.payload || undefined,
-      result: job.result || undefined,
+      payload: (job.payload ?? undefined) as Record<string, unknown> | undefined,
+      result: (job.result ?? undefined) as Record<string, unknown> | undefined,
       error: job.lastError || undefined,
       retryCount: job.retryCount ?? 0,
       maxRetries: job.maxRetries ?? 3,
       lastError: job.lastError || undefined,
       stack: job.stack || undefined,
       duration: job.duration || undefined,
-      lastRetryAt: job.lastRetryAt?.toISOString?.() || job.lastRetryAt || undefined,
+      lastRetryAt: toISO(job.lastRetryAt) ?? undefined,
       triggerType: job.triggerType as SyncTriggerType,
-      scheduledAt: job.scheduledAt?.toISOString?.() || job.scheduledAt || undefined,
-      startedAt: job.startedAt?.toISOString?.() || job.startedAt || undefined,
-      completedAt: job.completedAt?.toISOString?.() || job.completedAt || undefined,
-      createdAt: job.createdAt?.toISOString?.() || job.createdAt,
+      scheduledAt: toISO(job.scheduledAt) ?? undefined,
+      startedAt: toISO(job.startedAt) ?? undefined,
+      completedAt: toISO(job.completedAt) ?? undefined,
+      createdAt: toISO(job.createdAt) ?? '',
     }
   }
 

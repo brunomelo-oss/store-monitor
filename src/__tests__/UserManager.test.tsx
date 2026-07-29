@@ -2,25 +2,25 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-const mockGetUsers = vi.hoisted(() => vi.fn())
+const mockList = vi.hoisted(() => vi.fn())
 const mockGetInvites = vi.hoisted(() => vi.fn())
 const mockCreateInvite = vi.hoisted(() => vi.fn())
 const mockDeleteInvite = vi.hoisted(() => vi.fn())
 const mockDeleteUser = vi.hoisted(() => vi.fn())
-const mockUpdateUserRole = vi.hoisted(() => vi.fn())
-const mockUpdateUserPassword = vi.hoisted(() => vi.fn())
-const mockCreateUser = vi.hoisted(() => vi.fn())
+const mockUpdateRole = vi.hoisted(() => vi.fn())
+const mockUpdatePassword = vi.hoisted(() => vi.fn())
+const mockCreate = vi.hoisted(() => vi.fn())
 
-vi.mock('@/lib/backend-api', () => ({
-  backendApi: {
-    getUsers: mockGetUsers,
+vi.mock('@/services/users.service', () => ({
+  usersService: {
+    list: mockList,
     getInvites: mockGetInvites,
     createInvite: mockCreateInvite,
     deleteInvite: mockDeleteInvite,
-    deleteUser: mockDeleteUser,
-    updateUserRole: mockUpdateUserRole,
-    updateUserPassword: mockUpdateUserPassword,
-    createUser: mockCreateUser,
+    delete: mockDeleteUser,
+    updateRole: mockUpdateRole,
+    updatePassword: mockUpdatePassword,
+    create: mockCreate,
   },
 }))
 
@@ -59,95 +59,83 @@ const mockInvites = [
 
 beforeEach(() => {
   vi.clearAllMocks()
-  mockGetUsers.mockResolvedValue(mockUsers)
+  mockList.mockResolvedValue(mockUsers)
   mockGetInvites.mockResolvedValue(mockInvites)
   mockAuthState.isAdmin = true
 })
 
 describe('UserManager', () => {
-  describe('non-admin access', () => {
-    it('shows restricted message for non-admins', async () => {
-      mockAuthState.isAdmin = false
-      render(<UserManager />)
-      expect(await screen.findByText('Acesso restrito a administradores')).toBeInTheDocument()
-    })
+  it('loads and displays users and invites', async () => {
+    render(<UserManager />)
+
+    expect(await screen.findByText('bruno@sasi.com.br')).toBeInTheDocument()
+    expect(screen.getByText('user@sasi.com.br')).toBeInTheDocument()
+    expect(screen.getByText('invited@test.com')).toBeInTheDocument()
   })
 
-  describe('admin access', () => {
-    it('loads and displays users and invites', async () => {
-      render(<UserManager />)
+  it('sends invite on valid email', async () => {
+    mockCreateInvite.mockResolvedValueOnce({ id: 2, email: 'new@test.com' })
+    render(<UserManager />)
 
-      expect(await screen.findByText('bruno@sasi.com.br')).toBeInTheDocument()
-      expect(screen.getByText('user@sasi.com.br')).toBeInTheDocument()
-      expect(screen.getByText('invited@test.com')).toBeInTheDocument()
-    })
+    await screen.findByText('Convidar')
+    const input = screen.getByPlaceholderText('E-mail do usuário')
+    await userEvent.type(input, 'new@test.com')
+    await userEvent.click(screen.getByText('Convidar'))
 
-    it('sends invite on valid email', async () => {
-      mockCreateInvite.mockResolvedValueOnce({ id: 2, email: 'new@test.com' })
-      render(<UserManager />)
+    await waitFor(() => expect(mockCreateInvite).toHaveBeenCalledWith('new@test.com'))
+  })
 
-      await screen.findByText('Convidar')
-      const input = screen.getByPlaceholderText('E-mail do usuário')
-      await userEvent.type(input, 'new@test.com')
-      await userEvent.click(screen.getByText('Convidar'))
+  it('rejects empty invite email', async () => {
+    render(<UserManager />)
+    await screen.findByText('Convidar')
+    await userEvent.click(screen.getByText('Convidar'))
+    expect(mockShow).toHaveBeenCalledWith('E-mail inválido', 'error')
+  })
 
-      await waitFor(() => expect(mockCreateInvite).toHaveBeenCalledWith('new@test.com'))
-    })
+  it('deletes invite', async () => {
+    mockDeleteInvite.mockResolvedValueOnce(undefined)
+    render(<UserManager />)
 
-    it('rejects empty invite email', async () => {
-      render(<UserManager />)
-      await screen.findByText('Convidar')
-      await userEvent.click(screen.getByText('Convidar'))
-      expect(mockShow).toHaveBeenCalledWith('E-mail inválido', 'error')
-    })
+    await screen.findByText('invited@test.com')
+    const deleteBtn = screen.getByText('Pendente').closest('div')!.querySelector('button')
+    expect(deleteBtn).toBeInTheDocument()
+    await userEvent.click(deleteBtn!)
+    await waitFor(() => expect(mockDeleteInvite).toHaveBeenCalledWith(1))
+  })
 
-    it('deletes invite', async () => {
-      mockDeleteInvite.mockResolvedValueOnce(undefined)
-      render(<UserManager />)
+  it('toggles user role', async () => {
+    mockUpdateRole.mockResolvedValueOnce(undefined)
+    render(<UserManager />)
 
-      await screen.findByText('invited@test.com')
-      const deleteBtn = screen.getByText('Pendente').closest('div')!.querySelector('button')
-      expect(deleteBtn).toBeInTheDocument()
-      await userEvent.click(deleteBtn!)
-      await waitFor(() => expect(mockDeleteInvite).toHaveBeenCalledWith(1))
-    })
+    await screen.findByText('user@sasi.com.br')
+    const selects = screen.getAllByRole('combobox')
+    await userEvent.selectOptions(selects[1], 'ADMIN')
 
-    it('toggles user role', async () => {
-      const updatedUser = { id: 2, username: 'user', email: 'user@sasi.com.br', role: 'admin' }
-      mockUpdateUserRole.mockResolvedValueOnce(updatedUser)
-      render(<UserManager />)
+    await waitFor(() => expect(mockUpdateRole).toHaveBeenCalledWith(2, 'ADMIN'))
+  })
 
-      await screen.findByText('user@sasi.com.br')
-      const toggleBtns = screen.getAllByTitle('Promover para admin')
-      await userEvent.click(toggleBtns[0])
+  it('shows create user form when clicking Novo', async () => {
+    render(<UserManager />)
+    await screen.findByText('Novo')
 
-      await waitFor(() => expect(mockUpdateUserRole).toHaveBeenCalledWith(2, 'admin'))
-      expect(mockShow).toHaveBeenCalledWith('Agora é Administrador', 'success')
-    })
+    await userEvent.click(screen.getByText('Novo'))
+    expect(screen.getByPlaceholderText('E-mail')).toBeInTheDocument()
+    expect(screen.getByText('Criar')).toBeInTheDocument()
+  })
 
-    it('shows create user form when clicking Novo', async () => {
-      render(<UserManager />)
-      await screen.findByText('Novo')
+  it('creates a new user', async () => {
+    const newUser = { id: 3, username: 'newguy', email: 'newguy@test.com', role: 'user' }
+    mockCreate.mockResolvedValueOnce(newUser)
+    render(<UserManager />)
 
-      await userEvent.click(screen.getByText('Novo'))
-      expect(screen.getByPlaceholderText('E-mail')).toBeInTheDocument()
-      expect(screen.getByText('Criar')).toBeInTheDocument()
-    })
+    await screen.findByText('Novo')
+    await userEvent.click(screen.getByText('Novo'))
 
-    it('creates a new user', async () => {
-      const newUser = { id: 3, username: 'newguy', email: 'newguy@test.com', role: 'user' }
-      mockCreateUser.mockResolvedValueOnce(newUser)
-      render(<UserManager />)
+    await userEvent.type(screen.getByPlaceholderText('E-mail'), 'newguy@test.com')
+    const passwordInput = screen.getByPlaceholderText('Senha')
+    await userEvent.type(passwordInput, 'Admin123@')
+    await userEvent.click(screen.getByText('Criar'))
 
-      await screen.findByText('Novo')
-      await userEvent.click(screen.getByText('Novo'))
-
-      await userEvent.type(screen.getByPlaceholderText('E-mail'), 'newguy@test.com')
-      const passwordInput = screen.getByPlaceholderText('Senha')
-      await userEvent.type(passwordInput, 'Admin123@')
-      await userEvent.click(screen.getByText('Criar'))
-
-      await waitFor(() => expect(mockCreateUser).toHaveBeenCalledWith('newguy@test.com', 'Admin123@', 'user'))
-    })
+    await waitFor(() => expect(mockCreate).toHaveBeenCalledWith('newguy@test.com', 'Admin123@', 'VIEWER'))
   })
 })

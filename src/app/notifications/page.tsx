@@ -1,9 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { Bell, CheckCheck, Filter, Search, AlertTriangle, Info, Star, RefreshCw, XCircle, CheckCircle, ArrowLeft, Home } from 'lucide-react'
+import { Bell, CheckCheck, Search, Info, Star, RefreshCw, XCircle, CheckCircle, ArrowLeft, Home } from 'lucide-react'
 import Link from 'next/link'
-import { useAuth } from '@/contexts/AuthContext'
+import { AuthGuard } from '@/components/AuthGuard'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { useNotifications, useMarkAsRead, useMarkAllAsRead } from '@/features/notifications/hooks/useNotifications'
 import { Spinner } from '@/components/LoadingSkeleton'
@@ -38,7 +38,6 @@ const typeColors: Record<string, string> = {
 type Category = 'all' | 'unread' | 'review' | 'build' | 'sync' | 'other'
 
 export default function NotificationsPage() {
-  const { user, loading } = useAuth()
   const { data: notifications, isLoading, error, refetch } = useNotifications(100)
   const markAsRead = useMarkAsRead()
   const markAllAsRead = useMarkAllAsRead()
@@ -46,7 +45,6 @@ export default function NotificationsPage() {
   const [category, setCategory] = useState<Category>('all')
   const [priority, setPriority] = useState<'all' | 'high' | 'normal'>('all')
 
-  if (loading || !user) return <Spinner />
   if (error) return <ErrorState onRetry={() => refetch()} />
 
   const q = search.toLowerCase()
@@ -70,6 +68,7 @@ export default function NotificationsPage() {
   ]
 
   return (
+    <AuthGuard>
     <AppLayout>
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -159,5 +158,6 @@ export default function NotificationsPage() {
         )}
       </div>
     </AppLayout>
+    </AuthGuard>
   )
 }

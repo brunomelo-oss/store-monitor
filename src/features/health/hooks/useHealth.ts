@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { healthService, type HealthStatus } from '@/services/health.service'
+import { logError } from '@/lib/logger'
 
 const MOCK_HEALTH: HealthStatus = {
   status: 'healthy', timestamp: new Date().toISOString(), uptime: 86400,
@@ -25,7 +26,7 @@ export function useHealth() {
     queryFn: async () => {
       try {
         return await healthService.check()
-      } catch {
+      } catch (e) { logError('useHealth', e)
         return MOCK_HEALTH
       }
     },

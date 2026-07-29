@@ -133,6 +133,8 @@ export const ar: Record<string, string> = {
   'appCard.playStore': 'Google Play',
   'appCard.appStore': 'App Store',
   'appCard.syncTriggered': 'تم تشغيل المزامنة!',
+  'appCard.syncFailed': 'فشلت المزامنة لكلتا المتجرين',
+  'appCard.syncPartial': 'فشلت المزامنة لمتجر واحد',
   'appCard.syncTooltip': 'تشغيل المزامنة',
 
   'search.placeholder': 'بحث عن تطبيق...',

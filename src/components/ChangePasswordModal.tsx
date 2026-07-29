@@ -6,7 +6,7 @@ import { useLang } from '@/contexts/LanguageContext'
 import { useToast } from '@/components/Toast'
 import { getErrorMessage } from '@/services/api-client'
 import { validatePassword } from '@/lib/utils'
-import { backendApi } from '@/lib/backend-api'
+import { authService } from '@/services/auth.service'
 import { X, Eye, EyeOff, Loader2 } from 'lucide-react'
 
 interface Props {
@@ -34,7 +34,7 @@ export function ChangePasswordModal({ onClose }: Props) {
 
     setLoading(true)
     try {
-      await backendApi.changePassword(current, newPw)
+      await authService.changePassword(current, newPw)
       setLoading(false)
       show(t('changePassword.success'), 'success')
       onClose()

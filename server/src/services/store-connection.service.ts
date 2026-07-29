@@ -1,7 +1,8 @@
-import { StoreType } from '@prisma/client'
+import { StoreType, StoreConnection } from '@prisma/client'
 import { storeConnectionRepository, connectionConfigRepository } from '../repositories'
 import { encrypt } from '../lib/encryption'
 import { getLogger } from '../lib/logger'
+import { toISO } from '../lib/utils'
 import { AuditService } from './audit.service'
 import { withTx } from '../lib/prisma'
 import { ProviderRegistry } from '../providers'
@@ -16,13 +17,13 @@ export class StoreConnectionService {
     this.audit = new AuditService()
   }
 
-  private toResponse(connection: any): StoreConnectionResponse {
+  private toResponse(connection: StoreConnection): StoreConnectionResponse {
     return {
       id: connection.id,
       store: connection.store as StoreType,
       label: connection.label,
       isActive: connection.isActive,
-      lastSyncAt: connection.lastSyncAt?.toISOString?.() || connection.lastSyncAt || null,
+      lastSyncAt: toISO(connection.lastSyncAt, null),
     }
   }
 
@@ -73,17 +74,7 @@ export class StoreConnectionService {
         },
       })
 
-      await tx.auditLog.create({
-        data: {
-          organizationId,
-          userId,
-          action: 'CREATE_STORE_CONNECTION',
-          entity: 'StoreConnection',
-          entityId: conn.id,
-          metadata: { store: data.store, label: data.label },
-          ip,
-        } as any,
-      })
+      await this.audit.log(userId!, 'CREATE_STORE_CONNECTION', 'StoreConnection', conn.id, { store: data.store, label: data.label }, ip, tx, organizationId)
 
       return conn
     })
@@ -135,17 +126,7 @@ export class StoreConnectionService {
         })
       }
 
-      await tx.auditLog.create({
-        data: {
-          organizationId,
-          userId,
-          action: 'UPDATE_STORE_CONNECTION',
-          entity: 'StoreConnection',
-          entityId: id,
-          metadata: { changes: Object.keys(updateData) },
-          ip,
-        } as any,
-      })
+      await this.audit.log(userId!, 'UPDATE_STORE_CONNECTION', 'StoreConnection', id, { changes: Object.keys(updateData) }, ip, tx, organizationId)
 
       return conn
     })
@@ -173,17 +154,7 @@ export class StoreConnectionService {
     await withTx(async (tx) => {
       await tx.connectionConfig.delete({ where: { storeConnectionId: id } })
       await tx.storeConnection.delete({ where: { id } })
-      await tx.auditLog.create({
-        data: {
-          organizationId,
-          userId,
-          action: 'DELETE_STORE_CONNECTION',
-          entity: 'StoreConnection',
-          entityId: id,
-          metadata: { store: connection.store, label: connection.label },
-          ip,
-        } as any,
-      })
+      await this.audit.log(userId!, 'DELETE_STORE_CONNECTION', 'StoreConnection', id, { store: connection.store, label: connection.label }, ip, tx, organizationId)
     })
 
     this.logger.info({ connectionId: id }, 'Store connection deleted')

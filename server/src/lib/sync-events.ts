@@ -35,45 +35,35 @@ export interface SyncEvent {
 
 export type SyncEventHandler = (event: SyncEvent) => Promise<void>
 
-export class SyncEventBus {
-  private handlers = new Map<SyncEventType, Set<SyncEventHandler>>()
+type HandlerMap = Map<SyncEventType, Set<SyncEventHandler>>
 
+const handlers: HandlerMap = new Map()
+
+export const syncEventBus = {
   on(type: SyncEventType, handler: SyncEventHandler): void {
-    if (!this.handlers.has(type)) {
-      this.handlers.set(type, new Set())
-    }
-    this.handlers.get(type)!.add(handler)
-  }
+    if (!handlers.has(type)) handlers.set(type, new Set())
+    handlers.get(type)!.add(handler)
+  },
 
   off(type: SyncEventType, handler: SyncEventHandler): void {
-    this.handlers.get(type)?.delete(handler)
-  }
+    handlers.get(type)?.delete(handler)
+  },
 
   async emit(event: SyncEvent): Promise<void> {
-    const handlers = this.handlers.get(event.type)
-    if (!handlers || handlers.size === 0) {
+    const h = handlers.get(event.type)
+    if (!h || h.size === 0) {
       logger().debug({ type: event.type, executionId: event.executionId }, 'No handlers for sync event')
       return
     }
-
-    const results = await Promise.allSettled(
-      Array.from(handlers).map((handler) => handler(event)),
-    )
-
+    const results = await Promise.allSettled(Array.from(h).map((fn) => fn(event)))
     for (const result of results) {
       if (result.status === 'rejected') {
-        logger().error({
-          err: result.reason,
-          type: event.type,
-          executionId: event.executionId,
-        }, 'Sync event handler failed')
+        logger().error({ err: result.reason, type: event.type, executionId: event.executionId }, 'Sync event handler failed')
       }
     }
-  }
+  },
 
   removeAll(): void {
-    this.handlers.clear()
-  }
+    handlers.clear()
+  },
 }
-
-export const syncEventBus = new SyncEventBus()

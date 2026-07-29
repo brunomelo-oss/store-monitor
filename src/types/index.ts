@@ -31,6 +31,8 @@ export interface App {
   sortOrder?: number
   organizationId?: number
   storeConnectionId?: number | null
+  googleStoreConnectionId?: number | null
+  appleStoreConnectionId?: number | null
   lastSyncAt?: string | null
   lastSyncStatus?: string | null
   createdAt?: string

@@ -133,6 +133,8 @@ export const en: Record<string, string> = {
   'appCard.playStore': 'Google Play',
   'appCard.appStore': 'App Store',
   'appCard.syncTriggered': 'Sync triggered!',
+  'appCard.syncFailed': 'Sync failed for both stores',
+  'appCard.syncPartial': 'Sync failed for one store',
   'appCard.syncTooltip': 'Trigger sync',
 
   'search.placeholder': 'Search app...',

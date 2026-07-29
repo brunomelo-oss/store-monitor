@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import type { ReactNode } from 'react'
 
 interface MetricCardProps {
@@ -19,7 +20,7 @@ const variantText: Record<string, string> = {
   default:  'text-emerald-500',
 }
 
-export function MetricCard({ title, value, subtitle, icon, trend, variant = 'default' }: MetricCardProps) {
+function MetricCardInner({ title, value, subtitle, icon, trend, variant = 'default' }: MetricCardProps) {
   return (
     <div className="rounded-xl p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md border border-border bg-card backdrop-blur-xl">
       <div className="flex items-start justify-between mb-2">
@@ -39,3 +40,13 @@ export function MetricCard({ title, value, subtitle, icon, trend, variant = 'def
     </div>
   )
 }
+
+export const MetricCard = memo(MetricCardInner, (prev, next) =>
+  prev.title === next.title &&
+  prev.value === next.value &&
+  prev.subtitle === next.subtitle &&
+  prev.variant === next.variant &&
+  prev.trend?.value === next.trend?.value &&
+  prev.trend?.direction === next.trend?.direction &&
+  prev.trend?.label === next.trend?.label
+)

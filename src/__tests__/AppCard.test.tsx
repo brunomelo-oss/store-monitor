@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { App } from '@/types'
 
 const mockTogglePin = vi.fn()
@@ -39,6 +40,7 @@ const baseApp: App = {
 
 const onEdit = vi.fn()
 const onDetails = vi.fn()
+const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
 
 beforeEach(() => {
   vi.clearAllMocks()
@@ -46,7 +48,11 @@ beforeEach(() => {
 })
 
 function renderCard(app = baseApp, mode: 'view' | 'edit' = 'view') {
-  return render(<AppCard app={app} mode={mode} onEdit={onEdit} onDetails={onDetails} />)
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <AppCard app={app} mode={mode} onEdit={onEdit} onDetails={onDetails} />
+    </QueryClientProvider>
+  )
 }
 
 describe('AppCard', () => {
