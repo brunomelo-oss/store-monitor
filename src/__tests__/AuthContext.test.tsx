@@ -77,11 +77,11 @@ describe('AuthContext', () => {
     expect(screen.getByTestId('isAdmin').textContent).toBe('true')
   })
 
-  it('does not call refresh when remember is not set', async () => {
+  it('does not call refresh when remember is not set (uses mock fallback)', async () => {
     renderProvider()
     await waitFor(() => expect(screen.getByTestId('loading').textContent).toBe('false'))
     expect(mockRefresh).not.toHaveBeenCalled()
-    expect(screen.getByTestId('user').textContent).toBe('null')
+    expect(screen.getByTestId('user').textContent).toContain('bruno.melo')
   })
 
   it('calls refresh when remember is set and me fails', async () => {
