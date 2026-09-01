@@ -18,10 +18,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     if (typeof window !== 'undefined') {
       try {
         const saved = localStorage.getItem(STORAGE_KEY)
-        if (isValidLangCode(saved)) {
-          document.documentElement.dir = saved === 'ar' ? 'rtl' : 'ltr'
-          return saved
-        }
+        if (isValidLangCode(saved)) return saved
       } catch {}
     }
     return 'pt'
@@ -30,9 +27,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const t = useCallback(
     (key: string, params?: Record<string, string | number>): string => {
       let value = dictionaries[lang]?.[key]
-      if (!value) {
-        value = dictionaries.pt[key]
-      }
+      if (!value) value = dictionaries.pt[key]
       if (!value) return key
       if (params) {
         for (const [k, v] of Object.entries(params)) {
@@ -47,12 +42,11 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const setLang = useCallback((code: LangCode) => {
     setLangState(code)
     try { localStorage.setItem(STORAGE_KEY, code) } catch {}
-    document.documentElement.dir = code === 'ar' ? 'rtl' : 'ltr'
   }, [])
 
   useEffect(() => {
-    document.title = t('layout.title')
     document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr'
+    document.title = t('layout.title')
   }, [lang, t])
 
   return (

@@ -6,18 +6,15 @@ import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useLang } from '@/contexts/LanguageContext'
-import { LayoutDashboard, Layers, Users, Shield, Settings } from 'lucide-react'
+import { LayoutDashboard, Layers, Users, Settings } from 'lucide-react'
 import type { LangCode } from '@/lib/i18n'
 
 export function Sidebar() {
   const pathname = usePathname()
-  const { user } = useAuth()
+  const { isAdmin } = useAuth()
   const { isDark, toggle } = useTheme()
   const { lang, setLang, t } = useLang()
   const [settingsOpen, setSettingsOpen] = useState(false)
-  const settingsRef = useRef<HTMLDivElement>(null)
-
-  const isAdmin = user?.role === 'OWNER' || user?.role === 'ADMIN'
 
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/'
@@ -33,7 +30,6 @@ export function Sidebar() {
   const navItems = [
     { id: '/apps', label: t('nav.apps'), icon: Layers },
     { id: '/admin', label: t('nav.users'), icon: Users },
-    ...(isAdmin ? [{ id: '/admin/connections', label: t('nav.connections'), icon: Shield }] : []),
   ]
 
   return (
@@ -57,9 +53,16 @@ export function Sidebar() {
             </Link>
           )
         })}
+
+        {isAdmin && (
+          <Link href="/admin/connections" className={`sasi-nav-item ${isActive('/admin/connections') ? 'active' : ''}`}>
+            <Settings size={20} />
+            <span>{t('nav.connections')}</span>
+          </Link>
+        )}
       </nav>
 
-      <div className="relative shrink-0 p-2 border-t border-[var(--surface-glass-border)]" ref={settingsRef}>
+      <div className="relative shrink-0 p-2 border-t border-[var(--surface-glass-border)]">
         <button
           onClick={() => setSettingsOpen(!settingsOpen)}
           className={`sasi-nav-item w-full ${pathname.startsWith('/admin') ? 'active' : ''}`}
@@ -76,16 +79,10 @@ export function Sidebar() {
                 className="absolute h-[calc(100%-4px)] top-0.5 rounded-md bg-card shadow-sm transition-transform duration-200"
                 style={{ width: '50%', transform: `translateX(${isDark ? '100%' : '0%'})` }}
               />
-              <button
-                onClick={() => { if (isDark) toggle(); setSettingsOpen(false) }}
-                className="relative z-10 flex-1 h-8 text-xs font-medium rounded-md transition-colors"
-              >
+              <button onClick={() => { if (isDark) toggle(); setSettingsOpen(false) }} className="relative z-10 flex-1 h-8 text-xs font-medium rounded-md transition-colors">
                 Light
               </button>
-              <button
-                onClick={() => { if (!isDark) toggle(); setSettingsOpen(false) }}
-                className="relative z-10 flex-1 h-8 text-xs font-medium rounded-md transition-colors"
-              >
+              <button onClick={() => { if (!isDark) toggle(); setSettingsOpen(false) }} className="relative z-10 flex-1 h-8 text-xs font-medium rounded-md transition-colors">
                 Dark
               </button>
             </div>
@@ -99,11 +96,7 @@ export function Sidebar() {
                 style={{ width: `${100 / languages.length}%`, transform: `translateX(${languages.findIndex(l => l.code === lang) * 100}%)` }}
               />
               {languages.map(l => (
-                <button
-                  key={l.code}
-                  onClick={() => { setLang(l.code); setSettingsOpen(false) }}
-                  className="relative z-10 flex-1 h-8 text-xs font-medium rounded-md transition-colors"
-                >
+                <button key={l.code} onClick={() => { setLang(l.code); setSettingsOpen(false) }} className="relative z-10 flex-1 h-8 text-xs font-medium rounded-md transition-colors">
                   {l.label}
                 </button>
               ))}

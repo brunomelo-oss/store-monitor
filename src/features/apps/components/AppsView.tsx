@@ -8,13 +8,14 @@ import { useModal } from '@/contexts/ModalContext'
 import { SearchBar } from './SearchBar'
 import { ModeToggle } from './ModeToggle'
 import { AppGrid } from './AppGrid'
+import { AppModal } from './AppModal'
 import { Plus } from 'lucide-react'
 
 export function AppsView() {
   const { t } = useLang()
   const { data: apps = [] } = useApps()
   const { isAdmin } = useAuth()
-  const { openModal } = useModal()
+  const { open } = useModal()
   const [mode, setMode] = useState<'view' | 'edit'>('view')
   const [search, setSearch] = useState('')
 
@@ -29,13 +30,19 @@ export function AppsView() {
   const brasil = filtered.filter(a => a.region === 'Brasil')
   const internacional = filtered.filter(a => a.region === 'Internacional')
 
+  const openAdd = (region: 'Brasil' | 'Internacional') =>
+    open({
+      title: `${t('search.newApp')} · ${region}`,
+      content: <AppModal mode="add" region={region} />,
+    })
+
   return (
     <div>
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <SearchBar value={search} onChange={setSearch} />
         <div className="flex items-center gap-3">
           <button
-            onClick={() => openModal({ app: null, mode: 'add', region: 'Brasil' })}
+            onClick={() => openAdd('Brasil')}
             className="sasi-btn-primary inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm shadow-sm"
           >
             <Plus size={15} /> {t('search.newApp')}
@@ -49,8 +56,7 @@ export function AppsView() {
         region={t('appsView.sectionBrasil')}
         badge={t('appsView.badgeBrasil')}
         mode={mode}
-        onEdit={a => openModal({ app: a, mode: 'edit', region: a.region })}
-        onDetails={a => openModal({ app: a, mode: 'details', region: a.region })}
+        onEdit={a => open({ title: t('appModal.title.edit'), content: <AppModal app={a} mode="edit" region={a.region} /> })}
       />
       <AppGrid
         apps={internacional}
@@ -58,11 +64,8 @@ export function AppsView() {
         badge={t('appsView.badgeInternacional')}
         badgeClass="bg-blue-500/10 text-blue-400"
         mode={mode}
-        onEdit={a => openModal({ app: a, mode: 'edit', region: a.region })}
-        onDetails={a => openModal({ app: a, mode: 'details', region: a.region })}
+        onEdit={a => open({ title: t('appModal.title.edit'), content: <AppModal app={a} mode="edit" region={a.region} /> })}
       />
-
-
     </div>
   )
 }

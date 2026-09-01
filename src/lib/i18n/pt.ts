@@ -127,6 +127,8 @@ export const pt: Record<string, string> = {
   'appCard.syncTooltip': 'Iniciar sincronização',
 
   'search.placeholder': 'Buscar app...',
+  'search.sync': 'Sincronização',
+  'search.health': 'Saúde do sistema',
 
   'modeToggle.view': 'Visualizador',
   'modeToggle.edit': 'Editor',
@@ -154,6 +156,9 @@ export const pt: Record<string, string> = {
   'appModal.error.region': 'Selecione a região do app',
   'appModal.error.versionPlay': 'Versão Play Store inválida (use x.y.z)',
   'appModal.error.versionApp': 'Versão App Store inválida (use x.y.z)',
+  'appModal.success.created': 'App criado com sucesso',
+  'appModal.success.updated': 'App atualizado com sucesso',
+  'appModal.success.error': 'Falha ao salvar o app',
 
   'emailPreview.title': 'Preview do E-mail',
   'emailPreview.to': 'Para: ',

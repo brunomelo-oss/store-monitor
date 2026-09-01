@@ -1,13 +1,12 @@
 'use client'
 
-import { createContext, useContext, useReducer, useEffect, useCallback, useState, ReactNode } from 'react'
-import { User } from '@/types'
-import { authService } from '@/services/auth.service'
-import { getErrorMessage } from '@/services/api-client'
-import { logError } from '@/lib/logger'
+import { createContext, useContext, useReducer, useEffect, useCallback, useState, type ReactNode } from 'react'
+import { gateways } from '@/data'
+import { getErrorMessage } from '@/data/api-client'
+import type { AuthUser, Role } from '@/lib/types'
 
 interface AuthData {
-  user: { username: string; role: string; email: string; id?: number } | null
+  user: AuthUser | null
   loading: boolean
   ready: boolean
 }
@@ -16,9 +15,9 @@ interface AuthState extends AuthData {
   login: (username: string, password: string) => Promise<{ ok: boolean; error?: string }>
   logout: () => void
   inviteSetup: (email: string, password: string) => Promise<string | null>
+  resetPassword: (email: string, password: string) => Promise<string | null>
   sendResetEmail: (email: string) => Promise<string | null>
-  doResetPassword: (email: string, code: string, password: string) => Promise<string | null>
-  findUserByEmail: (email: string) => User | undefined
+  doResetPassword: (email: string, password: string) => Promise<string | null>
   isAdmin: boolean
   rememberSession: boolean
   setRememberSession: (v: boolean) => void
@@ -27,16 +26,23 @@ interface AuthState extends AuthData {
 const AuthContext = createContext<AuthState>(null!)
 
 type Action =
-  | { type: 'SET_AUTH'; user: AuthData['user']; loading: boolean; ready: boolean }
-  | { type: 'SET_USER'; user: AuthData['user'] }
+  | { type: 'SET_AUTH'; user: AuthUser | null; ready: boolean }
+  | { type: 'SET_USER'; user: AuthUser | null }
 
 function authReducer(state: AuthData, action: Action): AuthData {
   switch (action.type) {
     case 'SET_AUTH':
-      return { user: action.user, loading: action.loading, ready: action.ready }
+      return { user: action.user, loading: false, ready: action.ready }
     case 'SET_USER':
       return { ...state, user: action.user }
   }
+}
+
+const STORAGE_REMEMBER = 'sasi_remember'
+const STORAGE_LOGGED_OUT = 'sasi_logged_out'
+
+function readLocal(key: string, fallback: boolean): boolean {
+  try { return localStorage.getItem(key) === 'true' } catch { return fallback }
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -45,100 +51,89 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     loading: true,
     ready: false,
   })
-  const [rememberSession, setRememberSessionState] = useState(() => {
-    try { return localStorage.getItem('sasi_remember') === 'true' } catch { return false }
-  })
+  const [rememberSession, setRememberSessionState] = useState<boolean>(() => readLocal(STORAGE_REMEMBER, false))
 
   const setRememberSession = useCallback((v: boolean) => {
     setRememberSessionState(v)
-    try { localStorage.setItem('sasi_remember', v ? 'true' : 'false') } catch {}
-  }, [])
-
-  useEffect(() => {
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === 'sasi_remember') setRememberSessionState(e.newValue === 'true')
-    }
-    window.addEventListener('storage', onStorage)
-    return () => window.removeEventListener('storage', onStorage)
+    try { localStorage.setItem(STORAGE_REMEMBER, v ? 'true' : 'false') } catch {}
   }, [])
 
   useEffect(() => {
     let cancelled = false
 
     async function init() {
-      try {
-        const user = await authService.me()
-        if (!cancelled) { dispatch({ type: 'SET_AUTH', user, loading: false, ready: true }); return }
-      } catch (e) { logError('AuthProvider/me', e) }
-
-      if (rememberSession) {
-        try {
-          const user = await authService.refresh()
-          if (!cancelled) { dispatch({ type: 'SET_AUTH', user, loading: false, ready: true }); return }
-        } catch (e) { logError('AuthProvider/refresh', e) }
-      }
-
-      const loggedOut = (() => { try { return localStorage.getItem('sasi_logged_out') === 'true' } catch { return false } })()
-      if (!cancelled && !loggedOut) {
-        dispatch({ type: 'SET_AUTH', user: { id: 1, username: 'bruninho', email: 'bruninho@sasi.com.br', role: 'OWNER' }, loading: false, ready: true })
+      const loggedOut = readLocal(STORAGE_LOGGED_OUT, false)
+      if (loggedOut) {
+        if (!cancelled) dispatch({ type: 'SET_AUTH', user: null, ready: true })
         return
       }
-
-      if (!cancelled) dispatch({ type: 'SET_AUTH', user: null, loading: false, ready: true })
+      try {
+        const user = await gateways.auth.me()
+        if (!cancelled) { dispatch({ type: 'SET_AUTH', user, ready: true }); return }
+      } catch {
+        /* fallthrough: no session */
+      }
+      if (!cancelled) dispatch({ type: 'SET_AUTH', user: null, ready: true })
     }
 
     init()
     return () => { cancelled = true }
-  }, [rememberSession])
+  }, [])
 
   const login = useCallback(async (username: string, password: string) => {
     try {
-      const u = await authService.login(username, password)
+      const u = await gateways.auth.login(username, password)
+      try { localStorage.removeItem(STORAGE_LOGGED_OUT) } catch {}
       dispatch({ type: 'SET_USER', user: u })
-      try { localStorage.removeItem('sasi_logged_out') } catch {}
       return { ok: true }
     } catch (e) {
-      logError('AuthProvider/login', e)
-      try { localStorage.removeItem('sasi_logged_out') } catch {}
-      dispatch({ type: 'SET_USER', user: { id: 1, username, email: username.includes('@') ? username : `${username}@sasi.com.br`, role: 'OWNER' } })
-      return { ok: true }
+      return { ok: false, error: getErrorMessage(e) }
     }
   }, [])
 
-  const logout = useCallback(async () => {
-    try { await authService.logout() } catch (e) { logError('AuthProvider/logout', e) }
-    try { localStorage.removeItem('sasi_remember'); localStorage.setItem('sasi_logged_out', 'true') } catch {}
+  const logout = useCallback(() => {
+    try {
+      localStorage.removeItem(STORAGE_REMEMBER)
+      localStorage.setItem(STORAGE_LOGGED_OUT, 'true')
+    } catch {}
     dispatch({ type: 'SET_USER', user: null })
   }, [])
 
   const inviteSetup = useCallback(async (email: string, password: string) => {
     try {
-      await authService.setupAccount(email, password)
+      await gateways.auth.setupAccount(email, password)
       return null
-    } catch { return null }
+    } catch (e) {
+      return getErrorMessage(e)
+    }
+  }, [])
+
+  const resetPassword = useCallback(async (email: string, password: string) => {
+    try {
+      await gateways.auth.resetPassword(email, password)
+      return null
+    } catch (e) {
+      return getErrorMessage(e)
+    }
   }, [])
 
   const sendResetEmail = useCallback(async (email: string) => {
     try {
-      const { registered } = await authService.checkEmail(email)
-      if (!registered) return 'E-mail não encontrado'
+      const { registered } = await gateways.auth.checkEmail(email)
+      if (!registered) return 'Email não registrado'
       return null
     } catch (e) {
       return getErrorMessage(e)
     }
   }, [])
 
-  const doResetPassword = useCallback(async (email: string, _code: string, password: string) => {
+  const doResetPassword = useCallback(async (email: string, password: string) => {
     try {
-      await authService.resetPassword(email, password)
+      await gateways.auth.resetPassword(email, password)
       return null
     } catch (e) {
       return getErrorMessage(e)
     }
-  }, [])
-
-  const findUserByEmail = useCallback((_email: string) => {
-    return undefined
   }, [])
 
   const isAdmin = user?.role?.toUpperCase() === 'ADMIN' || user?.role?.toUpperCase() === 'OWNER'
@@ -146,8 +141,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <AuthContext.Provider value={{
       user, loading, ready,
-      login, logout, inviteSetup, sendResetEmail, doResetPassword, findUserByEmail,
-      isAdmin, rememberSession, setRememberSession,
+      login, logout, inviteSetup, resetPassword, sendResetEmail, doResetPassword, isAdmin, rememberSession, setRememberSession,
     }}>
       {children}
     </AuthContext.Provider>
@@ -156,6 +150,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const ctx = useContext(AuthContext)
-  if (!ctx) throw new Error('useAuth must be inside AuthProvider')
+  if (!ctx) throw new Error('useAuth must be used within AuthProvider')
   return ctx
 }
+
+export type { Role }

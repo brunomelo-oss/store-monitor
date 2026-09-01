@@ -1,75 +1,18 @@
 'use client'
 
-import { AuthGuard } from '@/components/AuthGuard'
+import { AuthGuard } from '@/components/ui/AuthGuard'
 import { AppLayout } from '@/components/layout/AppLayout'
-import { useActivity } from '@/features/activity/hooks/useActivity'
-import { Timeline } from '@/components/Timeline'
-import { Spinner } from '@/components/LoadingSkeleton'
-import { EmptyState } from '@/components/EmptyState'
-import { ErrorState } from '@/components/ErrorState'
-import { Activity, RefreshCw } from 'lucide-react'
-import { useState } from 'react'
-
-type ActivityFilter = 'all' | 'audit_log' | 'sync' | 'notification' | 'job'
-
-const filterLabels: Record<ActivityFilter, string> = {
-  all: 'Todas',
-  audit_log: 'Ações',
-  sync: 'Sincronizações',
-  notification: 'Notificações',
-  job: 'Jobs',
-}
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary'
+import { ActivityView } from '@/features/activity/ActivityView'
 
 export default function ActivityPage() {
-  const { data: activity, isLoading, error, refetch } = useActivity(200)
-  const [filter, setFilter] = useState<ActivityFilter>('all')
-
-  if (error) return <ErrorState onRetry={() => refetch()} />
-
-  const filtered = filter === 'all' ? (activity || []) : (activity || []).filter(a => a.type === filter)
-
-  const timelineEvents = filtered.map(a => ({
-    id: a.id,
-    type: a.type,
-    action: a.action,
-    entity: a.entity,
-    entityId: a.entityId,
-    description: a.description,
-    metadata: a.metadata,
-    userId: a.userId,
-    username: a.username,
-    timestamp: a.createdAt,
-  }))
-
   return (
     <AuthGuard>
-    <AppLayout>
-      <div className="max-w-4xl mx-auto space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold">Feed de Atividade</h1>
-          <p className="text-muted-foreground mt-1">Todas as ações, sincronizações e eventos do sistema</p>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <RefreshCw size={16} className="text-muted-foreground" />
-          {(['all', 'audit_log', 'sync', 'notification', 'job'] as ActivityFilter[]).map(f => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${filter === f ? 'bg-muted/50 font-medium' : 'text-muted-foreground hover:text-foreground'}`}
-            >
-              {filterLabels[f]}
-            </button>
-          ))}
-        </div>
-
-        {isLoading ? <Spinner /> : timelineEvents.length === 0 ? (
-          <EmptyState icon={Activity} title="Nenhuma atividade" description="Nenhuma atividade registrada ainda" />
-        ) : (
-          <Timeline events={timelineEvents} />
-        )}
-      </div>
-    </AppLayout>
+      <AppLayout>
+        <ErrorBoundary>
+          <ActivityView />
+        </ErrorBoundary>
+      </AppLayout>
     </AuthGuard>
   )
 }

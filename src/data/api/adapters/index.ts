@@ -1,0 +1,8 @@
+export { apiAuthGateway } from './auth'
+export { apiAppsGateway } from './apps'
+export { apiUsersGateway } from './users'
+export { apiStoreConnectionsGateway } from './store-connections'
+export { apiActivityGateway } from './activity'
+export { apiNotificationsGateway } from './notifications'
+export { apiSyncGateway } from './sync'
+export { apiHealthGateway } from './health'

@@ -1,7 +1,7 @@
 'use client'
 
 import { useLang } from '@/contexts/LanguageContext'
-import { App } from '@/types'
+import type { App } from '@/lib/types'
 import { AppCard } from './AppCard'
 
 interface AppGridProps {
@@ -11,10 +11,9 @@ interface AppGridProps {
   badgeClass?: string
   mode: 'view' | 'edit'
   onEdit: (app: App) => void
-  onDetails: (app: App) => void
 }
 
-export function AppGrid({ apps, region, badge, badgeClass, mode, onEdit, onDetails }: AppGridProps) {
+export function AppGrid({ apps, region, badge, badgeClass, mode, onEdit }: AppGridProps) {
   const { t } = useLang()
   if (apps.length === 0) return null
 
@@ -31,7 +30,7 @@ export function AppGrid({ apps, region, badge, badgeClass, mode, onEdit, onDetai
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
         {apps.map((app, i) => (
-          <AppCard key={app.id} app={app} mode={mode} onEdit={onEdit} onDetails={onDetails} index={i} />
+          <AppCard key={app.id} app={app} mode={mode} onEdit={onEdit} index={i} />
         ))}
       </div>
     </div>

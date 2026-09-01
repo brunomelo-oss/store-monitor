@@ -7,19 +7,13 @@ import { GlobalSearch } from './GlobalSearch'
 import { Sidebar } from './Sidebar'
 import { NotificationsDropdown } from './NotificationsDropdown'
 import { ProfileDropdown } from './ProfileDropdown'
-import { useModal } from '@/contexts/ModalContext'
-import { AppModal } from '@/features/apps/components/AppModal'
 import { Smartphone } from 'lucide-react'
+import type { ReactNode } from 'react'
 
-interface AppLayoutProps {
-  children: React.ReactNode
-}
-
-export function AppLayout({ children }: AppLayoutProps) {
+export function AppLayout({ children }: { children: ReactNode }) {
   const { user } = useAuth()
   const { data: apps = [] } = useApps()
   const { t } = useLang()
-  const { modal, closeModal } = useModal()
   if (!user) return <>{children}</>
 
   return (
@@ -49,15 +43,6 @@ export function AppLayout({ children }: AppLayoutProps) {
           {children}
         </div>
       </main>
-
-      {modal && (
-        <AppModal
-          app={modal.app}
-          mode={modal.mode}
-          region={modal.region}
-          onClose={closeModal}
-        />
-      )}
     </div>
   )
 }

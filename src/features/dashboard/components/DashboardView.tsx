@@ -1,13 +1,14 @@
 'use client'
 
 import { Suspense, useMemo } from 'react'
-import { ErrorBoundary } from '@/components/ErrorBoundary'
-import { Badge } from '@/components/Badge'
-import { EmptyState } from '@/components/EmptyState'
-import { Spinner } from '@/components/LoadingSkeleton'
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary'
+import { Badge } from '@/components/ui/Badge'
+import { EmptyState } from '@/components/ui/EmptyState'
+import { Spinner } from '@/components/ui/LoadingSkeleton'
 import { useApps } from '@/hooks/useApps'
-import { useActivity } from '@/features/activity/hooks/useActivity'
+import { useActivity } from '@/hooks/useActivity'
 import { useLang } from '@/contexts/LanguageContext'
+import { overallStatus } from '@/lib/utils'
 import { DashboardKPIs } from './DashboardKPIs'
 import { DashboardPriorities } from './DashboardPriorities'
 import { DashboardRecentStats } from './DashboardRecentStats'
@@ -18,9 +19,7 @@ import { useRouter } from 'next/navigation'
 export function DashboardView() {
   return (
     <Suspense fallback={<DashboardSkeleton />}>
-      <div className="space-y-8">
-        <ErrorBoundary><CommandCenter /></ErrorBoundary>
-      </div>
+      <ErrorBoundary><CommandCenter /></ErrorBoundary>
     </Suspense>
   )
 }
@@ -30,7 +29,6 @@ function DashboardSkeleton() {
   return (
     <div className="space-y-8">
       <div className={`h-24 ${shimmer}`} />
-      <div className={`h-10 ${shimmer}`} />
       <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6">
         {Array.from({ length: 6 }).map((_, i) => <div key={i} className={`h-28 ${shimmer}`} />)}
       </div>
@@ -38,44 +36,38 @@ function DashboardSkeleton() {
         <div className={`h-80 lg:col-span-2 ${shimmer}`} />
         <div className={`h-80 ${shimmer}`} />
       </div>
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div className={`h-64 ${shimmer}`} />
-        <div className={`h-64 ${shimmer}`} />
-      </div>
     </div>
   )
 }
 
 function CommandCenter() {
-  const router = useRouter()
   const { t, lang } = useLang()
   const { data: apps = [], isLoading: appsLoading } = useApps()
-  const { data: activity = [] } = useActivity(20)
+  const { data: activity = [] } = useActivity({ limit: 20 })
 
   const totalApps = apps.length
-  const publishedApps = apps.filter(a => a.playStatus === 'PUBLISHED' || a.appStatus === 'PUBLISHED').length
-  const inReviewApps = apps.filter(a => a.playStatus === 'REVIEW' || a.appStatus === 'REVIEW').length
-  const rejectedApps = apps.filter(a => a.playStatus === 'REJECTED' || a.appStatus === 'REJECTED').length
+  const publishedApps = apps.filter(a => overallStatus(a) === 'published').length
+  const inReviewApps = apps.filter(a => overallStatus(a) === 'review').length
+  const rejectedApps = apps.filter(a => overallStatus(a) === 'rejected').length
   const needsAttentionApps = apps.filter(a => {
-    const s = (a.playStatus || a.appStatus || '').toUpperCase()
-    return s === 'REJECTED' || s === 'FAILED' || s === 'PENDING'
+    const s = overallStatus(a)
+    return s === 'rejected' || s === 'pending'
   }).length
   const pendingBuilds = apps.filter(a => {
-    const s = (a.playStatus || a.appStatus || '').toUpperCase()
-    return s === 'PENDING' || s === 'REVIEW'
+    const s = overallStatus(a)
+    return s === 'pending' || s === 'review'
   }).length
-
   const approvalRate = totalApps > 0 ? Math.round((publishedApps / totalApps) * 100) : 0
 
   const recentApps = [...apps].sort((a, b) => {
-    const aDate = a.updatedAt || a.createdAt
-    const bDate = b.updatedAt || b.createdAt
+    const aDate = a.lastSyncAt || a.createdAt
+    const bDate = b.lastSyncAt || b.createdAt
     return new Date(bDate || 0).getTime() - new Date(aDate || 0).getTime()
   }).slice(0, 8)
 
   const priorities = apps.filter(a => {
-    const s = (a.playStatus || a.appStatus || '').toUpperCase()
-    return s === 'REJECTED' || s === 'PENDING' || s === 'FAILED' || s === 'PUBLISHED'
+    const s = overallStatus(a)
+    return s === 'rejected' || s === 'pending' || s === 'published'
   }).slice(0, 5)
 
   const locale = lang === 'pt' ? 'pt-BR' : lang === 'en' ? 'en-US' : 'ar-SA'
@@ -87,15 +79,15 @@ function CommandCenter() {
     { label: t('dashboard.others'), count: totalApps - publishedApps - inReviewApps - rejectedApps, color: 'bg-slate-400', pct: totalApps > 0 ? ((totalApps - publishedApps - inReviewApps - rejectedApps) / totalApps) * 100 : 0 },
   ]
 
-  const googleCount = apps.filter(a => a.playVersion && a.playVersion !== '-').length
-  const appleCount = apps.filter(a => a.appVersion && a.appVersion !== '-').length
+  const googleCount = apps.filter(a => a.playStore.version && a.playStore.version !== '-').length
+  const appleCount = apps.filter(a => a.appStore.version && a.appStore.version !== '-').length
 
   const filteredActivity = useMemo(() =>
     activity.filter(a => !['SIGN_IN', 'SIGN_OUT'].some(s => a.action.toUpperCase().includes(s))),
   [activity])
 
   const timeSinceLastUpdate = useMemo(() => {
-    const dates = ([activity.map(a => a.createdAt), apps.map(a => a.updatedAt || a.createdAt)].flat().filter(Boolean) as string[])
+    const dates = ([activity.map(a => a.createdAt), apps.map(a => a.lastSyncAt || a.createdAt)].flat().filter(Boolean) as string[])
     if (!dates.length) return null
     const latest = new Date(Math.max(...dates.map(d => new Date(d).getTime()).filter(n => !isNaN(n)), 0))
     const diff = Date.now() - latest.getTime()
@@ -159,44 +151,57 @@ function CommandCenter() {
         locale={locale}
       />
 
-      <div className="sasi-card-hover rounded-xl p-5">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-foreground">{t('dashboard.timeline')}</h3>
-          <Link href="/activity" className="text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
-            {t('dashboard.viewAll')} <ArrowUpRight size={12} />
-          </Link>
-        </div>
-        {filteredActivity.length === 0 ? (
-          <EmptyState icon={Activity} title={t('dashboard.noEvents')} description={t('dashboard.noEventsDesc')} action={{ label: t('dashboard.viewActivity'), onClick: () => router.push('/activity'), variant: 'outline' }} />
-        ) : (
-          <div className="space-y-0">
-            {filteredActivity.slice(0, 10).map((event, idx) => {
-              const action = event.action.toUpperCase()
-              const Icon = action.includes('SUCCESS') || action.includes('APPROVED') ? CheckCircle :
-                action.includes('REJECT') || action.includes('FAILED') ? XCircle :
-                action.includes('EDIT') || action.includes('UPDATE') ? Edit :
-                action.includes('CREATE') ? Plus : RefreshCw
-              const iconColor = action.includes('SUCCESS') || action.includes('APPROVED') ? 'text-emerald-500' :
-                action.includes('REJECT') || action.includes('FAILED') ? 'text-red-500' : 'text-blue-500'
+      <ActivityTimeline events={filteredActivity} locale={locale} />
+    </div>
+  )
+}
 
-              return (
-                <div key={event.id} className="flex items-start gap-3 py-2.5 border-b border-border/50 last:border-0">
-                  <div className={`w-6 h-6 rounded-full bg-muted flex items-center justify-center shrink-0 mt-0.5 ${iconColor}`}>
-                    <Icon size={12} />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm text-foreground/80 truncate">{event.description}</p>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <span className="text-xs text-muted-foreground/60">{new Date(event.createdAt).toLocaleString(locale)}</span>
-                      {event.username && <><span className="text-xs text-muted-foreground/30">·</span><span className="text-xs text-muted-foreground/60">{event.username}</span></>}
-                    </div>
+function ActivityTimeline({ events, locale }: { events: ReturnType<typeof useActivity> extends { data: infer D } ? D : never; locale: string }) {
+  const { t } = useLang()
+  const router = useRouter()
+
+  const iconMap = (action: string) => {
+    const a = action.toUpperCase()
+    if (a.includes('SUCCESS') || a.includes('APPROVED')) return { Icon: CheckCircle, color: 'text-emerald-500' }
+    if (a.includes('REJECT') || a.includes('FAILED')) return { Icon: XCircle, color: 'text-red-500' }
+    if (a.includes('EDIT') || a.includes('UPDATE')) return { Icon: Edit, color: 'text-blue-500' }
+    if (a.includes('CREATE')) return { Icon: Plus, color: 'text-blue-500' }
+    return { Icon: RefreshCw, color: 'text-muted-foreground' }
+  }
+
+  const list = (events ?? []) as Array<{ id: string; action: string; description: string; username?: string | null; createdAt: string }>
+
+  return (
+    <div className="sasi-card rounded-xl p-5">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="font-semibold text-foreground">{t('dashboard.timeline')}</h3>
+        <Link href="/activity" className="text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
+          {t('dashboard.viewAll')} <ArrowUpRight size={12} />
+        </Link>
+      </div>
+      {list.length === 0 ? (
+        <EmptyState icon={Activity} title={t('dashboard.noEvents')} description={t('dashboard.noEventsDesc')} />
+      ) : (
+        <div className="space-y-0">
+          {list.slice(0, 10).map(event => {
+            const { Icon, color } = iconMap(event.action)
+            return (
+              <div key={event.id} className="flex items-start gap-3 py-2.5 border-b border-border/50 last:border-0">
+                <div className={`w-6 h-6 rounded-full bg-surface flex items-center justify-center shrink-0 mt-0.5 ${color}`}>
+                  <Icon size={12} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm text-foreground/80 truncate">{event.description}</p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="text-xs text-muted-foreground/60">{new Date(event.createdAt).toLocaleString(locale)}</span>
+                    {event.username && <><span className="text-xs text-muted-foreground/30">·</span><span className="text-xs text-muted-foreground/60">{event.username}</span></>}
                   </div>
                 </div>
-              )
-            })}
-          </div>
-        )}
-      </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }

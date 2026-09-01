@@ -4,11 +4,10 @@ import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useApps } from '@/hooks/useApps'
 import { useLang } from '@/contexts/LanguageContext'
-import { useModal } from '@/contexts/ModalContext'
-import { Search, Command, ChevronRight, FileText, BarChart3, Layers, Activity, Bell, Settings, Plus, UserPlus, Download, Users, Globe, type LucideIcon } from 'lucide-react'
+import { Search, Command, ChevronRight, BarChart3, Layers, Activity, Bell, Globe, FileText, RefreshCw, HeartPulse, type LucideIcon } from 'lucide-react'
 
 interface SearchResult {
-  type: 'page' | 'action' | 'app' | 'settings'
+  type: 'page' | 'app'
   id: string
   label: string
   href?: string
@@ -19,7 +18,6 @@ interface SearchResult {
 export function GlobalSearch() {
   const router = useRouter()
   const { t } = useLang()
-  const { openModal } = useModal()
   const { data: apps = [] } = useApps()
   const inputRef = useRef<HTMLInputElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -27,24 +25,14 @@ export function GlobalSearch() {
   const [focused, setFocused] = useState(false)
   const [selectedIdx, setSelectedIdx] = useState(0)
 
-  const searchPages: Omit<SearchResult, 'badge'>[] = [
+  const searchPages: SearchResult[] = [
     { id: '/', label: t('search.dashboard'), icon: BarChart3, type: 'page' },
     { id: '/apps', label: t('nav.apps'), icon: Layers, type: 'page' },
     { id: '/activity', label: t('search.activities'), icon: Activity, type: 'page' },
     { id: '/notifications', label: t('notifications.title'), icon: Bell, type: 'page' },
-    { id: '/admin/connections', label: t('search.connections'), icon: Settings, type: 'page' },
-  ]
-
-  const searchActions: Omit<SearchResult, 'badge'>[] = [
-    { id: 'create-app', label: t('search.newApp'), icon: Plus, type: 'action' },
-    { id: 'create-user', label: t('search.newUser'), icon: UserPlus, type: 'action' },
-    { id: 'export', label: t('search.exportData'), icon: Download, type: 'action' },
-  ]
-
-  const searchSettings: Omit<SearchResult, 'badge'>[] = [
-    { id: 'manage-users', label: t('search.manageUsers'), icon: Users, type: 'settings' },
-    { id: 'connections', label: t('search.connections'), icon: Globe, type: 'settings' },
-    { id: 'activity', label: t('search.activityLog'), icon: Activity, type: 'settings' },
+    { id: '/sync', label: t('search.sync'), icon: RefreshCw, type: 'page' },
+    { id: '/health', label: t('search.health'), icon: HeartPulse, type: 'page' },
+    { id: '/admin/connections', label: t('search.connections'), icon: Globe, type: 'page' },
   ]
 
   const q = query.toLowerCase().trim()
@@ -61,14 +49,8 @@ export function GlobalSearch() {
     }
 
     const pages: SearchResult[] = searchPages
-      .map(p => ({ ...p, type: 'page' as const, score: score(p.label) }))
+      .map(p => ({ ...p, score: score(p.label) }))
       .filter(p => p.score > 0)
-      .sort((a, b) => b.score - a.score)
-      .map(({ score: _, ...rest }) => rest)
-
-    const actions: SearchResult[] = searchActions
-      .map(a => ({ ...a, type: 'action' as const, score: score(a.label) }))
-      .filter(a => a.score > 0)
       .sort((a, b) => b.score - a.score)
       .map(({ score: _, ...rest }) => rest)
 
@@ -76,29 +58,19 @@ export function GlobalSearch() {
       .map(a => ({
         type: 'app' as const, id: String(a.id), label: a.name,
         href: `/apps/${a.id}`, icon: FileText,
-        badge: (a.playStatus || a.appStatus) ?? undefined,
         score: score(a.name),
       }))
       .filter(a => a.score > 0)
       .sort((a, b) => b.score - a.score)
       .map(({ score: _, ...rest }) => rest)
 
-    const settings: SearchResult[] = searchSettings
-      .map(s => ({ ...s, type: 'settings' as const, score: score(s.label) }))
-      .filter(s => s.score > 0)
-      .sort((a, b) => b.score - a.score)
-      .map(({ score: _, ...rest }) => rest)
-
-    return [...pages, ...actions, ...appResults, ...settings]
+    return [...pages, ...appResults]
   }, [q, apps, t])
 
   useEffect(() => { setSelectedIdx(0) }, [query])
 
   const execute = useCallback((item: SearchResult) => {
     if (item.href) router.push(item.href)
-    else if (item.id === 'create-app') openModal({ app: null, mode: 'add', region: 'Brasil' })
-    else if (item.id === 'create-user') router.push('/admin')
-    else if (item.id === 'export') router.push('/apps')
     setQuery('')
     setFocused(false)
     inputRef.current?.blur()
@@ -122,18 +94,6 @@ export function GlobalSearch() {
     return () => window.removeEventListener('keydown', handler)
   }, [focused, selectedIdx, results, execute])
 
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node) &&
-          inputRef.current && !inputRef.current.contains(e.target as Node)) {
-        setFocused(false)
-        setQuery('')
-      }
-    }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [])
-
   const showDropdown = focused && query.length > 0
 
   return (
@@ -144,7 +104,7 @@ export function GlobalSearch() {
           ref={inputRef}
           value={query}
           onChange={e => setQuery(e.target.value)}
-          onFocus={() => setFocused(true)}
+          onFocus={() => { setFocused(true) }}
           placeholder={t('search.placeholder')}
           className="flex-1 bg-transparent outline-none text-sm text-foreground placeholder:text-muted-foreground/50 min-w-0"
         />
@@ -154,10 +114,7 @@ export function GlobalSearch() {
       </div>
 
       {showDropdown && (
-        <div
-          ref={dropdownRef}
-          className="absolute right-0 top-full mt-2 w-80 glass-dropdown rounded-xl overflow-hidden z-50"
-        >
+        <div ref={dropdownRef} className="absolute right-0 top-full mt-2 w-80 glass-dropdown rounded-xl overflow-hidden z-50">
           <div className="max-h-80 overflow-y-auto p-1.5 space-y-0.5">
             {results.length === 0 && (
               <div className="text-center py-6 text-sm text-muted-foreground/60">

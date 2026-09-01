@@ -2,9 +2,9 @@
 
 import { useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
-import { Loader2, ArrowLeft, Eye, EyeOff, Mail } from 'lucide-react'
-import { PasswordChecklist } from './PasswordChecklist'
 import { useLang } from '@/contexts/LanguageContext'
+import { Loader2, ArrowLeft, Eye, EyeOff, Mail } from 'lucide-react'
+import { PasswordChecklist } from './primitives'
 
 interface PasswordResetProps {
   onBack: () => void
@@ -18,16 +18,16 @@ export function PasswordReset({ onBack, onSuccess }: PasswordResetProps) {
   const { t } = useLang()
   const [email, setEmail] = useState('')
   const [sent, setSent] = useState(false)
-  const [code, setCode] = useState('')
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [showPw, setShowPw] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const pwOk = password.length >= 8 && /[a-zA-Z]/.test(password) && /[!@#$%^&*()_+\-=\[\]{}|;':",.\/<>\?`~]/.test(password)
+  const pwOk = password.length >= 8 && /[a-zA-Z]/.test(password) && /[^A-Za-z0-9]/.test(password)
 
-  const handleSend = async () => {
+  const handleSend = async (e: React.FormEvent) => {
+    e.preventDefault()
     setError('')
     if (!email) { setError(t('reset.error.email')); return }
     setLoading(true)
@@ -43,7 +43,7 @@ export function PasswordReset({ onBack, onSuccess }: PasswordResetProps) {
     if (!pwOk) { setError(t('reset.error.password')); return }
     if (password !== confirm) { setError(t('reset.error.match')); return }
     setLoading(true)
-    const err = await doResetPassword(email, code, password)
+    const err = await doResetPassword(email, password)
     setLoading(false)
     if (err) { setError(err); return }
     onSuccess()
@@ -51,7 +51,7 @@ export function PasswordReset({ onBack, onSuccess }: PasswordResetProps) {
 
   if (!sent) {
     return (
-      <div className="space-y-5 animate-in fade-in slide-in-from-bottom-3 duration-300">
+      <div className="space-y-5">
         <button onClick={onBack} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition">
           <ArrowLeft size={14} />
           {t('common.back')}
@@ -65,32 +65,32 @@ export function PasswordReset({ onBack, onSuccess }: PasswordResetProps) {
           <div className="text-sm text-muted-foreground mt-1">{t('reset.subtitle.email')}</div>
         </div>
 
-        <input
-          className={inputClass}
-          type="email" autoComplete="email" placeholder={t('reset.email')}
-          value={email} onChange={e => setEmail(e.target.value)}
-        />
-
-        {error && (
-          <div className="flex items-center gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
-            <div className="w-1.5 h-1.5 rounded-full bg-red-400 shrink-0" />
-            <p className="text-red-400 text-xs">{error}</p>
-          </div>
-        )}
-
-        <button onClick={handleSend} disabled={loading}
-          className="w-full py-3 rounded-lg bg-gradient-to-r from-sasi-red to-red-500 text-white font-semibold text-sm hover:opacity-90 disabled:opacity-50 transition flex items-center justify-center gap-2 shadow-lg shadow-sasi-red/20"
-        >
-          {loading && <Loader2 size={16} className="animate-spin" />}
-          {t('reset.send')}
-        </button>
+        <form onSubmit={handleSend} className="space-y-3">
+          <input
+            className={inputClass}
+            type="email" autoComplete="email" placeholder={t('reset.email')}
+            value={email} onChange={e => setEmail(e.target.value)}
+          />
+          {error && (
+            <div className="flex items-center gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
+              <div className="w-1.5 h-1.5 rounded-full bg-red-400 shrink-0" />
+              <p className="text-red-400 text-xs">{error}</p>
+            </div>
+          )}
+          <button type="submit" disabled={loading}
+            className="w-full py-3 rounded-lg bg-gradient-to-r from-sasi-red to-red-500 text-white font-semibold text-sm hover:opacity-90 disabled:opacity-50 transition flex items-center justify-center gap-2 shadow-lg shadow-sasi-red/20"
+          >
+            {loading && <Loader2 size={16} className="animate-spin" />}
+            {t('reset.send')}
+          </button>
+        </form>
       </div>
     )
   }
 
   return (
-    <div className="space-y-5 animate-in fade-in slide-in-from-bottom-3 duration-300">
-        <button onClick={() => setSent(false)} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition">
+    <div className="space-y-5">
+      <button onClick={() => setSent(false)} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition">
         <ArrowLeft size={14} />
         {t('common.back')}
       </button>
@@ -100,23 +100,17 @@ export function PasswordReset({ onBack, onSuccess }: PasswordResetProps) {
           <Mail size={20} className="text-emerald-400" />
         </div>
         <div className="text-lg font-semibold text-foreground dark:text-white mt-3">{t('reset.title.reset')}</div>
-          <div className="text-sm text-muted-foreground mt-1">{t('reset.subtitle.reset', { email })}</div>
+        <div className="text-sm text-muted-foreground mt-1">{t('reset.subtitle.reset', { email })}</div>
       </div>
 
       <form onSubmit={handleReset} className="space-y-3">
-        <input
-          className={inputClass}
-          type="text" inputMode="numeric" autoComplete="one-time-code" placeholder="Código de verificação"
-          value={code} onChange={e => setCode(e.target.value)}
-        />
-
         <div className="relative">
           <input
             className={`${inputClass} pr-10`}
             type={showPw ? 'text' : 'password'} autoComplete="new-password" placeholder={t('reset.newPassword')}
             value={password} onChange={e => setPassword(e.target.value)}
           />
-          <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition" onClick={() => setShowPw(!showPw)}>
+          <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition" onClick={() => setShowPw(!showPw)} aria-label="Mostrar senha">
             {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>
         </div>

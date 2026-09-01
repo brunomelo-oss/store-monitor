@@ -1,19 +1,18 @@
 'use client'
 
+import { memo, useEffect, useMemo, useState } from 'react'
 import { useLang } from '@/contexts/LanguageContext'
-import { App } from '@/types'
+import type { App } from '@/lib/types'
 import { useAuth } from '@/contexts/AuthContext'
-import { overallStatus, daysLabel, statusColor, statusBgColor, appImagePath, getAccountName } from '@/lib/utils'
-import { StatusBadge } from '@/components/StatusBadge'
+import { overallStatus, daysLabel, statusColor, appIcon, getAccountName } from '@/lib/utils'
 import { AppCardActions } from './AppCardActions'
 import { Pin, Star, Download } from 'lucide-react'
-import { useEffect, useRef, useState, useMemo, memo } from 'react'
+import Link from 'next/link'
 
 interface AppCardProps {
   app: App
   mode: 'view' | 'edit'
   onEdit: (app: App) => void
-  onDetails: (app: App) => void
   index?: number
 }
 
@@ -22,13 +21,23 @@ const storeIcons = {
   apple: '/assets/app-store-icon.png',
 }
 
-export const AppCard = memo(function AppCard({ app, mode, onEdit, onDetails, index = 0 }: AppCardProps) {
+function statusClass(status: string): string {
+  const base = {
+    published: 'bg-emerald-500/10 text-emerald-500',
+    review: 'bg-yellow-500/10 text-yellow-500',
+    rejected: 'bg-red-500/10 text-red-500',
+    pending: 'bg-blue-500/10 text-blue-500',
+    unpublished: 'bg-zinc-500/10 text-zinc-400',
+  }
+  return base[status as keyof typeof base] ?? 'bg-zinc-500/10 text-zinc-400'
+}
+
+export const AppCard = memo(function AppCard({ app, mode, onEdit, index = 0 }: AppCardProps) {
   const { t } = useLang()
   const { isAdmin } = useAuth()
   const isEdit = mode === 'edit' && isAdmin
-  const imgSrc = appImagePath(app.name)
+  const imgSrc = appIcon(app)
   const [visible, setVisible] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
   const placeholderColor = useMemo(() => {
     let hash = 0
     for (let i = 0; i < app.name.length; i++) {
@@ -43,34 +52,18 @@ export const AppCard = memo(function AppCard({ app, mode, onEdit, onDetails, ind
     return () => clearTimeout(timer)
   }, [index])
 
+  const status = overallStatus(app)
+
   return (
     <div
-      ref={ref}
-      className={`relative bg-card border border-border rounded-2xl overflow-hidden card-glass shadow-sm transition-all duration-300 group hover:shadow-md hover:-translate-y-0.5 ${app.pinned ? 'border-amber-400/50 shadow-amber-400/10 shadow-md' : ''} ${
-        visible ? 'opacity-100' : 'opacity-0'
-      }`}
+      className={`relative bg-card border border-border rounded-2xl overflow-hidden shadow-sm transition-all duration-300 group hover:shadow-md hover:-translate-y-0.5 ${app.pinned ? 'border-amber-400/50 shadow-md' : ''} ${visible ? 'opacity-100' : 'opacity-0'}`}
     >
-      <div
-        className="app-card-bg"
-        style={imgSrc ? { backgroundImage: `url('${imgSrc}')` } : {
-          background: `linear-gradient(135deg, ${placeholderColor.from}, ${placeholderColor.to})`
-        }}
-      />
-
-      <div className="relative h-36 overflow-hidden" style={imgSrc ? {} : {
-        background: `linear-gradient(135deg, ${placeholderColor.from}, ${placeholderColor.to})`
-      }}>
+      <div className="relative h-36 overflow-hidden" style={imgSrc ? {} : { background: `linear-gradient(135deg, ${placeholderColor.from}, ${placeholderColor.to})` }}>
         {imgSrc ? (
-          <img
-            src={imgSrc}
-            alt={app.name}
-            className="w-full h-full object-cover opacity-50 group-hover:opacity-70 transition duration-500"
-          />
+          <img src={imgSrc} alt={app.name} className="w-full h-full object-cover opacity-50 group-hover:opacity-70 transition duration-500" />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <span className="text-5xl font-bold text-white/20 select-none">
-              {app.name.charAt(0)}
-            </span>
+            <span className="text-5xl font-bold text-white/20 select-none">{app.name.charAt(0)}</span>
           </div>
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
@@ -82,8 +75,8 @@ export const AppCard = memo(function AppCard({ app, mode, onEdit, onDetails, ind
               {t('appCard.pinned')}
             </div>
           )}
-          <div className={`text-[10px] font-medium px-1.5 py-0.5 rounded-md shadow-lg backdrop-blur-sm ${statusBgColor(overallStatus(app))} ${statusColor(overallStatus(app))}`}>
-            {t('status.' + overallStatus(app))}
+          <div className={`text-[10px] font-medium px-1.5 py-0.5 rounded-md shadow-lg backdrop-blur-sm ${statusClass(status)} capitalize`}>
+            {t('status.' + status)}
           </div>
         </div>
 
@@ -94,19 +87,17 @@ export const AppCard = memo(function AppCard({ app, mode, onEdit, onDetails, ind
 
       <div className="p-5 space-y-3 relative z-[1] bg-card">
         <div className="flex items-center justify-between gap-2">
-          <h3 className="font-semibold text-foreground text-sm leading-tight truncate">{app.name}</h3>
+          <Link href={`/apps/${app.id}`} className="font-semibold text-foreground text-sm leading-tight truncate hover:underline">
+            {app.name}
+          </Link>
         </div>
 
         <div className="space-y-2">
           <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-surface">
             <img src={storeIcons.play} alt="" className="w-4 h-4 shrink-0 opacity-70" />
             <div className="flex-1 min-w-0 flex items-center gap-1.5">
-              <span className={`text-xs font-medium ${statusColor(app.playStore.status)}`}>
-                {t('status.' + app.playStore.status)}
-              </span>
-              <span className="text-xs text-muted-foreground">
-                {app.playStore.version ? `v${app.playStore.version}` : '--'}
-              </span>
+              <span className={`text-xs font-medium ${statusColor(app.playStore.status)} capitalize`}>{t('status.' + app.playStore.status)}</span>
+              <span className="text-xs text-muted-foreground">{app.playStore.version ? `v${app.playStore.version}` : '--'}</span>
             </div>
             <span className="text-[10px] text-muted-foreground truncate max-w-[80px]">{getAccountName('google', app.googleAccount)}</span>
           </div>
@@ -114,12 +105,8 @@ export const AppCard = memo(function AppCard({ app, mode, onEdit, onDetails, ind
           <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-surface">
             <img src={storeIcons.apple} alt="" className="w-4 h-4 shrink-0 opacity-70" />
             <div className="flex-1 min-w-0 flex items-center gap-1.5">
-              <span className={`text-xs font-medium ${statusColor(app.appStore.status)}`}>
-                {t('status.' + app.appStore.status)}
-              </span>
-              <span className="text-xs text-muted-foreground">
-                {app.appStore.version ? `v${app.appStore.version}` : '--'}
-              </span>
+              <span className={`text-xs font-medium ${statusColor(app.appStore.status)} capitalize`}>{t('status.' + app.appStore.status)}</span>
+              <span className="text-xs text-muted-foreground">{app.appStore.version ? `v${app.appStore.version}` : '--'}</span>
             </div>
             <span className="text-[10px] text-muted-foreground truncate max-w-[80px]">{getAccountName('apple', app.appleAccount)}</span>
           </div>
@@ -138,14 +125,9 @@ export const AppCard = memo(function AppCard({ app, mode, onEdit, onDetails, ind
               {app.installations.toLocaleString('pt-BR')}
             </span>
           )}
-          {app.lastSyncStatus && (
-            <span className="flex items-center gap-1 ml-auto">
-              <StatusBadge status={app.lastSyncStatus} />
-            </span>
-          )}
         </div>
 
-        <AppCardActions app={app} isEdit={isEdit} onEdit={onEdit} onDetails={onDetails} />
+        <AppCardActions app={app} isEdit={isEdit} onEdit={onEdit} />
       </div>
     </div>
   )

@@ -2,269 +2,178 @@
 
 import { useState, useEffect } from 'react'
 import { useLang } from '@/contexts/LanguageContext'
-import { App, AppStatus } from '@/types'
-import { useApps, useCreateApp, useUpdateApp } from '@/hooks/useApps'
-import { useStoreConnections } from '@/features/store-connections/hooks/useStoreConnections'
-import { ACCOUNTS } from '@/lib/mock-data'
-import { validateVersion } from '@/lib/utils'
+import type { App, AppStatus, Region } from '@/lib/types'
+import { useCreateApp, useUpdateApp } from '@/hooks/useApps'
 import { useShake } from '@/hooks/useShake'
-import { AppDetailView } from './AppDetailView'
-import { X, Loader2, Smartphone, Apple } from 'lucide-react'
-import { useToast } from '@/components/Toast'
+import { useModal } from '@/contexts/ModalContext'
+import { useToast } from '@/components/ui/Toast'
+import { validateVersion } from '@/lib/utils'
+import { Input, Select, Field, Button } from '@/components/ui/primitives'
+import { Loader2, Smartphone, Apple } from 'lucide-react'
 
 export interface AppModalProps {
-  app: App | null
-  mode: 'edit' | 'add' | 'details'
-  region: string
-  onClose: () => void
+  app?: App | null
+  mode: 'edit' | 'add'
+  region: Region
 }
 
-const inputClass = 'w-full px-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700 text-white text-sm placeholder-zinc-500 outline-none focus:border-zinc-500 transition'
-const selectClass = inputClass
-const labelClass = 'block text-xs text-zinc-500 mb-1.5'
+const STATUSES: AppStatus[] = ['published', 'review', 'rejected', 'pending', 'unpublished']
 
-export function AppModal({ app, mode, region, onClose }: AppModalProps) {
+export function AppModal({ app, mode, region }: AppModalProps) {
   const { t } = useLang()
-  const { data: apps = [] } = useApps()
-  const { data: connections = [] } = useStoreConnections()
+  const { close } = useModal()
+  const { show } = useToast()
   const createAppMutation = useCreateApp()
   const updateAppMutation = useUpdateApp()
-  const { show } = useToast()
+  const { shaking, trigger: triggerShake } = useShake()
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
-  const [animIn, setAnimIn] = useState(false)
-  const { shaking, trigger: triggerShake } = useShake()
-
-  useEffect(() => {
-    const timer = setTimeout(() => setAnimIn(true), 10)
-    return () => clearTimeout(timer)
-  }, [])
-
-  const isDetails = mode === 'details'
-  const isAdd = mode === 'add'
 
   const [name, setName] = useState('')
-  const [appRegion, setAppRegion] = useState('')
-  const [packageName, setPackageName] = useState('')
-  const [bundleId, setBundleId] = useState('')
-  const [googleConnId, setGoogleConnId] = useState<number | null>(null)
-  const [appleConnId, setAppleConnId] = useState<number | null>(null)
+  const [appRegion, setAppRegion] = useState<Region>(region)
+  const [googleAccount, setGoogleAccount] = useState('sasiHoldings')
+  const [appleAccount, setAppleAccount] = useState('sasTech')
   const [playStatus, setPlayStatus] = useState<AppStatus>('unpublished')
   const [playVersion, setPlayVersion] = useState('')
   const [playDate, setPlayDate] = useState('')
   const [appStatus, setAppStatus] = useState<AppStatus>('unpublished')
   const [appVersion, setAppVersion] = useState('')
   const [appDate, setAppDate] = useState('')
-  const [googleAccount, setGoogleAccount] = useState('sasiHoldings')
-  const [appleAccount, setAppleAccount] = useState('sasTech')
 
   useEffect(() => {
     if (app) {
-      setName(app.name); setAppRegion(app.region)
-      setPackageName(app.packageName || '')
-      setBundleId(app.bundleId || '')
-      setGoogleConnId(app.googleStoreConnectionId ?? app.storeConnectionId ?? null)
-      setAppleConnId(app.appleStoreConnectionId ?? app.storeConnectionId ?? null)
-      setPlayStatus(app.playStore.status); setPlayVersion(app.playStore.version); setPlayDate(app.playStore.lastUpdate)
-      setAppStatus(app.appStore.status); setAppVersion(app.appStore.version); setAppDate(app.appStore.lastUpdate)
-      setGoogleAccount(app.googleAccount); setAppleAccount(app.appleAccount)
-    } else if (isAdd) {
-      setName(''); setAppRegion('')
-      setPackageName(''); setBundleId(''); setGoogleConnId(null); setAppleConnId(null)
-      setPlayStatus('unpublished'); setPlayVersion(''); setPlayDate('')
-      setAppStatus('unpublished'); setAppVersion(''); setAppDate('')
-      setGoogleAccount('sasiHoldings'); setAppleAccount('sasTech')
+      setName(app.name)
+      setAppRegion(app.region)
+      setGoogleAccount(app.googleAccount)
+      setAppleAccount(app.appleAccount)
+      setPlayStatus(app.playStore.status)
+      setPlayVersion(app.playStore.version)
+      setPlayDate(app.playStore.lastUpdate)
+      setAppStatus(app.appStore.status)
+      setAppVersion(app.appStore.version)
+      setAppDate(app.appStore.lastUpdate)
     }
-  }, [app, isAdd, region])
+  }, [app])
 
   const handleSave = async () => {
     setError('')
     const n = name.trim()
     if (!n) { setError(t('appModal.error.name')); triggerShake(); return }
-    if (isAdd && !appRegion) { setError(t('appModal.error.region')); triggerShake(); return }
+    if (!appRegion) { setError(t('appModal.error.region')); triggerShake(); return }
     if (playVersion && !validateVersion(playVersion)) { setError(t('appModal.error.versionPlay')); triggerShake(); return }
     if (appVersion && !validateVersion(appVersion)) { setError(t('appModal.error.versionApp')); triggerShake(); return }
 
     setSaving(true)
-    const data: Record<string, unknown> = {
-      name: n, region: appRegion as 'Brasil' | 'Internacional',
-      googleAccount, appleAccount,
-      packageName: packageName || undefined,
-      bundleId: bundleId || undefined,
-      storeConnectionId: googleConnId,
-      googleStoreConnectionId: googleConnId,
-      appleStoreConnectionId: appleConnId,
-      playStore: { status: playStatus, version: playVersion, lastUpdate: playDate },
-      appStore: { status: appStatus, version: appVersion, lastUpdate: appDate },
+    const input = {
+      name: n,
+      region: appRegion,
+      googleAccount,
+      appleAccount,
+      playStatus,
+      playVersion,
+      playLastUpdate: playDate,
+      appStatus,
+      appVersion,
+      appLastUpdate: appDate,
     }
-
     try {
-      if (isAdd) {
-        const maxOrder = apps.reduce((m, a) => Math.max(m, a.sortOrder || 0), 0)
-        const newId = apps.reduce((m, a) => Math.max(m, a.id), 0) + 1
-        await createAppMutation.mutateAsync({ id: newId, ...data, installations: 0, rating: 0, pinned: false, sortOrder: maxOrder + 1 })
-        show('App criado com sucesso', 'success')
+      if (mode === 'add') {
+        await createAppMutation.mutateAsync(input)
+        show(t('appModal.success.created'), 'success')
       } else if (app) {
-        await updateAppMutation.mutateAsync({ id: app.id, data })
-        show('App atualizado com sucesso', 'success')
+        await updateAppMutation.mutateAsync({ id: app.id, input })
+        show(t('appModal.success.updated'), 'success')
       }
-      onClose()
+      close()
     } catch {
-      show('Erro ao salvar', 'error')
+      show(t('appModal.success.error'), 'error')
     } finally {
       setSaving(false)
     }
   }
 
-  const googleConnections = connections.filter(c => c.store === 'GOOGLE')
-  const appleConnections = connections.filter(c => c.store === 'APPLE')
-
   return (
-    <div
-      className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-200 ${animIn ? 'bg-overlay' : 'bg-transparent'}`}
-      onClick={e => { if (e.target === e.currentTarget) onClose() }}
-      role="dialog" aria-modal="true" aria-label={isAdd ? t('appModal.title.add') : (isDetails ? app?.name || '' : t('appModal.title.edit'))}
-    >
-      <div className={`w-full max-w-lg bg-zinc-900 border border-border rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto transition-all duration-200 ${animIn ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-          <h3 className="text-base font-semibold text-white">{isAdd ? (appRegion ? t('appModal.title.addRegion', { region: appRegion }) : t('appModal.title.add')) : (isDetails ? app?.name || '' : t('appModal.title.edit'))}</h3>
-          <button onClick={onClose} className="p-1.5 rounded-lg text-zinc-500 hover:text-white hover:bg-zinc-800 transition" aria-label={t('appModal.title.close') || 'Close'}>
-            <X size={16} />
-          </button>
-        </div>
+    <div className="space-y-5">
+      <div className={shaking ? 'animate-shake' : 'space-y-5'}>
+        <Field label={t('appModal.label.name')}>
+          <Input value={name} onChange={e => setName(e.target.value)} placeholder={t('appModal.placeholder.name')} />
+        </Field>
 
-        {error && (
-          <div className="mx-6 mt-4">
-            <div className="flex items-center gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
-              <div className="w-1.5 h-1.5 rounded-full bg-red-400 shrink-0" />
-              <p className="text-xs text-red-400">{error}</p>
-            </div>
+        <Field label={t('appModal.label.region')}>
+          <Select value={appRegion} onChange={e => setAppRegion(e.target.value as Region)}>
+            <option value="Brasil">{t('appModal.option.brasil')}</option>
+            <option value="Internacional">{t('appModal.option.internacional')}</option>
+          </Select>
+        </Field>
+
+        <div className="space-y-3 p-4 bg-surface/60 rounded-xl border border-border">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            <Smartphone size={13} />
+            {t('appModal.section.playStore')}
           </div>
-        )}
-
-        <div className="p-6 space-y-5">
-          {isDetails && app ? (
-            <AppDetailView app={app} connections={connections} />
-          ) : (
-            <>
-              <div>
-                <label className={labelClass} htmlFor="app-name">{t('appModal.label.name')}</label>
-                <input id="app-name" className={inputClass} value={name} onChange={e => setName(e.target.value)} placeholder={t('appModal.placeholder.name')} />
-              </div>
-
-              <div className={shaking ? 'animate-shake' : ''}>
-                <label className={labelClass} htmlFor="app-region">{t('appModal.label.region')} <span className="text-red-500">*</span></label>
-                <select id="app-region" className={selectClass} value={appRegion} onChange={e => setAppRegion(e.target.value)}>
-                  {isAdd && <option value="">{t('appModal.placeholder.region')}</option>}
-                  <option value="Brasil">{t('appModal.option.brasil')}</option>
-                  <option value="Internacional">{t('appModal.option.internacional')}</option>
-                </select>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className={labelClass} htmlFor="app-package">Package Name (Google)</label>
-                  <input id="app-package" className={inputClass} value={packageName} onChange={e => setPackageName(e.target.value)} placeholder="com.example.app" />
-                </div>
-                <div>
-                  <label className={labelClass} htmlFor="app-bundle">Bundle ID (Apple)</label>
-                  <input id="app-bundle" className={inputClass} value={bundleId} onChange={e => setBundleId(e.target.value)} placeholder="com.example.app" />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className={labelClass} htmlFor="app-conn-google">Conexão Google Play</label>
-                  <select id="app-conn-google" className={selectClass} value={googleConnId ?? ''} onChange={e => setGoogleConnId(e.target.value ? Number(e.target.value) : null)}>
-                    <option value="">Nenhuma</option>
-                    {googleConnections.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className={labelClass} htmlFor="app-conn-apple">Conexão App Store</label>
-                  <select id="app-conn-apple" className={selectClass} value={appleConnId ?? ''} onChange={e => setAppleConnId(e.target.value ? Number(e.target.value) : null)}>
-                    <option value="">Nenhuma</option>
-                    {appleConnections.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
-                  </select>
-                </div>
-              </div>
-
-              <div className="space-y-3 p-4 bg-zinc-800/40 rounded-xl border border-zinc-700/50">
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-zinc-400 uppercase tracking-wider">
-                  <Smartphone size={13} />
-                  {t('appModal.section.playStore')}
-                </div>
-                <div className="grid grid-cols-3 gap-3">
-                  <div>
-                    <label className={labelClass} htmlFor="play-status">{t('appModal.label.status')}</label>
-                    <select id="play-status" className={selectClass} value={playStatus} onChange={e => setPlayStatus(e.target.value as AppStatus)}>
-                      {['published', 'review', 'rejected', 'pending', 'unpublished'].map(k => <option key={k} value={k}>{t('status.' + k)}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label className={labelClass} htmlFor="play-version">{t('appModal.label.version')}</label>
-                    <input id="play-version" className={inputClass} placeholder={t('appModal.placeholder.version')} value={playVersion} onChange={e => setPlayVersion(e.target.value)} />
-                  </div>
-                  <div>
-                    <label className={labelClass} htmlFor="play-date">{t('appModal.label.date')}</label>
-                    <input id="play-date" className={inputClass} type="date" value={playDate} onChange={e => setPlayDate(e.target.value)} />
-                  </div>
-                </div>
-                <div>
-                  <label className={labelClass} htmlFor="play-account">{t('appModal.label.account')}</label>
-                  <select id="play-account" className={selectClass} value={googleAccount} onChange={e => setGoogleAccount(e.target.value)}>
-                    {ACCOUNTS.google.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
-                  </select>
-                </div>
-              </div>
-
-              <div className="space-y-3 p-4 bg-zinc-800/40 rounded-xl border border-zinc-700/50">
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-zinc-400 uppercase tracking-wider">
-                  <Apple size={13} />
-                  {t('appModal.section.appStore')}
-                </div>
-                <div className="grid grid-cols-3 gap-3">
-                  <div>
-                    <label className={labelClass} htmlFor="app-status">{t('appModal.label.status')}</label>
-                    <select id="app-status" className={selectClass} value={appStatus} onChange={e => setAppStatus(e.target.value as AppStatus)}>
-                      {['published', 'review', 'rejected', 'pending', 'unpublished'].map(k => <option key={k} value={k}>{t('status.' + k)}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label className={labelClass} htmlFor="app-version">{t('appModal.label.version')}</label>
-                    <input id="app-version" className={inputClass} placeholder={t('appModal.placeholder.version')} value={appVersion} onChange={e => setAppVersion(e.target.value)} />
-                  </div>
-                  <div>
-                    <label className={labelClass} htmlFor="app-date">{t('appModal.label.date')}</label>
-                    <input id="app-date" className={inputClass} type="date" value={appDate} onChange={e => setAppDate(e.target.value)} />
-                  </div>
-                </div>
-                <div>
-                  <label className={labelClass} htmlFor="app-account">{t('appModal.label.account')}</label>
-                  <select id="app-account" className={selectClass} value={appleAccount} onChange={e => setAppleAccount(e.target.value)}>
-                    {ACCOUNTS.apple.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
-                  </select>
-                </div>
-              </div>
-            </>
-          )}
+          <div className="grid grid-cols-3 gap-3">
+            <Field label={t('appModal.label.status')}>
+              <Select value={playStatus} onChange={e => setPlayStatus(e.target.value as AppStatus)}>
+                {STATUSES.map(k => <option key={k} value={k}>{t('status.' + k)}</option>)}
+              </Select>
+            </Field>
+            <Field label={t('appModal.label.version')}>
+              <Input placeholder={t('appModal.placeholder.version')} value={playVersion} onChange={e => setPlayVersion(e.target.value)} />
+            </Field>
+            <Field label={t('appModal.label.date')}>
+              <Input type="date" value={playDate} onChange={e => setPlayDate(e.target.value)} />
+            </Field>
+          </div>
+          <Field label={t('appModal.label.account')}>
+            <Select value={googleAccount} onChange={e => setGoogleAccount(e.target.value)}>
+              <option value="sasTech">SAS TECH SOLUTIONS LLC</option>
+              <option value="sasiHoldings">SASI Holdings Limited</option>
+            </Select>
+          </Field>
         </div>
 
-        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-border">
-          <button onClick={onClose} className="px-4 py-2 text-sm text-zinc-400 hover:text-white transition">
-            {isDetails ? t('common.close') : t('common.cancel')}
-          </button>
-          {!isDetails && (
-            <button
-              onClick={handleSave}
-              disabled={saving}
-              className="px-5 py-2 rounded-lg bg-sasi-red text-white text-sm font-semibold hover:opacity-90 disabled:opacity-50 transition flex items-center gap-2"
-            >
-              {saving && <Loader2 size={14} className="animate-spin" />}
-              {t('common.save')}
-            </button>
-          )}
+        <div className="space-y-3 p-4 bg-surface/60 rounded-xl border border-border">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            <Apple size={13} />
+            {t('appModal.section.appStore')}
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            <Field label={t('appModal.label.status')}>
+              <Select value={appStatus} onChange={e => setAppStatus(e.target.value as AppStatus)}>
+                {STATUSES.map(k => <option key={k} value={k}>{t('status.' + k)}</option>)}
+              </Select>
+            </Field>
+            <Field label={t('appModal.label.version')}>
+              <Input placeholder={t('appModal.placeholder.version')} value={appVersion} onChange={e => setAppVersion(e.target.value)} />
+            </Field>
+            <Field label={t('appModal.label.date')}>
+              <Input type="date" value={appDate} onChange={e => setAppDate(e.target.value)} />
+            </Field>
+          </div>
+          <Field label={t('appModal.label.account')}>
+            <Select value={appleAccount} onChange={e => setAppleAccount(e.target.value)}>
+              <option value="sasTech">SAS TECH SOLUTIONS LLC</option>
+              <option value="semedPvh">SEMED PVH</option>
+              <option value="sebraeRo">SEBRAE - RO</option>
+              <option value="sasiComunicacao">SASI COMUNICACAO AGIL LTDA</option>
+            </Select>
+          </Field>
         </div>
+      </div>
+
+      {error && (
+        <div className="flex items-center gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
+          <div className="w-1.5 h-1.5 rounded-full bg-red-400 shrink-0" />
+          <p className="text-red-400 text-xs">{error}</p>
+        </div>
+      )}
+
+      <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
+        <Button variant="ghost" onClick={close}>{t('common.cancel')}</Button>
+        <Button onClick={handleSave} disabled={saving}>
+          {saving && <Loader2 size={14} className="animate-spin" />}
+          {t('common.save')}
+        </Button>
       </div>
     </div>
   )

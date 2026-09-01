@@ -2,9 +2,9 @@
 
 import { useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
-import { Loader2, ArrowLeft, Eye, EyeOff, Lock } from 'lucide-react'
-import { PasswordChecklist } from './PasswordChecklist'
 import { useLang } from '@/contexts/LanguageContext'
+import { Loader2, ArrowLeft, Eye, EyeOff, Lock } from 'lucide-react'
+import { PasswordChecklist } from './primitives'
 
 interface InviteSetupProps {
   email: string
@@ -38,7 +38,7 @@ export function InviteSetup({ email, onSuccess, onBack }: InviteSetupProps) {
   }
 
   return (
-    <div className="space-y-5 animate-in fade-in slide-in-from-bottom-3 duration-300">
+    <div className="space-y-5">
       <button onClick={onBack} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition">
         <ArrowLeft size={14} />
         {t('common.back')}
@@ -59,7 +59,7 @@ export function InviteSetup({ email, onSuccess, onBack }: InviteSetupProps) {
             type={showPw ? 'text' : 'password'} autoComplete="new-password" placeholder={t('invite.password')}
             value={password} onChange={e => setPassword(e.target.value)}
           />
-          <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition" onClick={() => setShowPw(!showPw)}>
+          <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition" onClick={() => setShowPw(!showPw)} aria-label="Mostrar senha">
             {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>
         </div>

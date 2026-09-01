@@ -1,22 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { App } from '@/types'
-import { appsService } from '@/services/apps.service'
-import { MOCK_APPS } from '@/lib/mock-data'
-import { logError } from '@/lib/logger'
+import { gateways } from '@/data'
+import type { App } from '@/lib/types'
 
-const APPS_KEY = ['apps'] as const
+export const APPS_KEY = ['apps'] as const
 
 export function useApps() {
   return useQuery({
     queryKey: APPS_KEY,
-    queryFn: async () => {
-      try {
-        const data = await appsService.list()
-        if (data && data.length > 0) return data
-      } catch (e) { logError('useApps', e) }
-      return MOCK_APPS as App[]
-    },
-    initialData: MOCK_APPS as App[],
+    queryFn: () => gateways.apps.list(),
     staleTime: 30_000,
   })
 }
@@ -24,73 +15,48 @@ export function useApps() {
 export function useApp(id: number) {
   return useQuery({
     queryKey: [...APPS_KEY, id] as const,
-    queryFn: () => appsService.getById(id),
+    queryFn: () => gateways.apps.getById(id),
     enabled: !!id,
   })
 }
 
 export function useCreateApp() {
   const queryClient = useQueryClient()
-
   return useMutation({
-    mutationFn: (data: Partial<App>) => appsService.create(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: APPS_KEY })
-    },
+    mutationFn: (input: Parameters<typeof gateways.apps.create>[0]) => gateways.apps.create(input),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: APPS_KEY }),
   })
 }
 
 export function useUpdateApp() {
   const queryClient = useQueryClient()
-
   return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: Partial<App> }) => appsService.update(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: APPS_KEY })
-    },
+    mutationFn: ({ id, input }: { id: number; input: Parameters<typeof gateways.apps.update>[1] }) =>
+      gateways.apps.update(id, input),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: APPS_KEY }),
   })
 }
 
 export function useDeleteApp() {
   const queryClient = useQueryClient()
-
   return useMutation({
-    mutationFn: (id: number) => appsService.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: APPS_KEY })
-    },
+    mutationFn: (id: number) => gateways.apps.remove(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: APPS_KEY }),
   })
 }
 
 export function useTogglePin() {
   const queryClient = useQueryClient()
-
   return useMutation({
-    mutationFn: (id: number) => appsService.togglePin(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: APPS_KEY })
-    },
+    mutationFn: (id: number) => gateways.apps.togglePin(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: APPS_KEY }),
   })
 }
 
 export function useMoveApp() {
   const queryClient = useQueryClient()
-
   return useMutation({
-    mutationFn: ({ id, direction }: { id: number; direction: 1 | -1 }) => appsService.move(id, direction),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: APPS_KEY })
-    },
-  })
-}
-
-export function useBulkReplace() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: (apps: Partial<App>[]) => appsService.bulkReplace(apps),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: APPS_KEY })
-    },
+    mutationFn: ({ id, direction }: { id: number; direction: 'up' | 'down' }) => gateways.apps.move(id, direction),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: APPS_KEY }),
   })
 }

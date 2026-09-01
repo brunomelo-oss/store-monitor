@@ -127,6 +127,8 @@ export const ar: Record<string, string> = {
   'appCard.syncTooltip': 'تشغيل المزامنة',
 
   'search.placeholder': 'بحث عن تطبيق...',
+  'search.sync': 'المزامنة',
+  'search.health': 'صحة النظام',
 
   'modeToggle.view': 'مشاهد',
   'modeToggle.edit': 'محرر',
@@ -154,6 +156,9 @@ export const ar: Record<string, string> = {
   'appModal.error.region': 'اختر منطقة التطبيق',
   'appModal.error.versionPlay': 'إصدار متجر Play غير صالح (استخدم x.y.z)',
   'appModal.error.versionApp': 'إصدار متجر App Store غير صالح (استخدم x.y.z)',
+  'appModal.success.created': 'تم إنشاء التطبيق بنجاح',
+  'appModal.success.updated': 'تم تحديث التطبيق بنجاح',
+  'appModal.success.error': 'فشل حفظ التطبيق',
 
   'emailPreview.title': 'معاينة البريد الإلكتروني',
   'emailPreview.to': 'إلى: ',

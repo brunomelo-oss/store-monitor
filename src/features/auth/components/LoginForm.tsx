@@ -3,10 +3,10 @@
 import { useState, useRef, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useTheme } from '@/contexts/ThemeContext'
-import { usersService } from '@/services/users.service'
-import { useShake } from '@/hooks/useShake'
-import { Loader2, Eye, EyeOff, MailQuestion } from 'lucide-react'
 import { useLang } from '@/contexts/LanguageContext'
+import { useShake } from '@/hooks/useShake'
+import { gateways } from '@/data'
+import { Loader2, Eye, EyeOff, MailQuestion } from 'lucide-react'
 
 interface LoginFormProps {
   onSwitch: (step: string, data?: string) => void
@@ -41,7 +41,7 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
     const val = username.trim().toLowerCase()
     if (!val || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) { setHasInvite(false); return }
     try {
-      const { invited } = await usersService.checkInvite(val)
+      const { invited } = await gateways.users.checkInvite(val)
       setHasInvite(invited)
     } catch { setHasInvite(true) }
   }
@@ -109,6 +109,7 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
             type="button"
             className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition"
             onClick={() => setShowPw(!showPw)}
+            aria-label="Mostrar senha"
           >
             {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>
@@ -152,8 +153,6 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
           {t('login.signIn')}
         </button>
       </form>
-
-      
     </div>
   )
 }

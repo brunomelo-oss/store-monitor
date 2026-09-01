@@ -1,16 +1,16 @@
 'use client'
 
-import { AuthGuard } from '@/components/AuthGuard'
+import { AuthGuard } from '@/components/ui/AuthGuard'
 import { AppLayout } from '@/components/layout/AppLayout'
-import { UserManager } from '@/features/admin/components/UserManager'
-import { ErrorBoundary } from '@/components/ErrorBoundary'
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary'
+import { UsersManager } from '@/features/admin/UsersManager'
 
 export default function AdminPage() {
   return (
     <AuthGuard>
       <AppLayout>
         <ErrorBoundary>
-          <UserManager />
+          <UsersManager />
         </ErrorBoundary>
       </AppLayout>
     </AuthGuard>

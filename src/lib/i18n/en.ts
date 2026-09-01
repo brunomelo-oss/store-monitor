@@ -127,6 +127,8 @@ export const en: Record<string, string> = {
   'appCard.syncTooltip': 'Trigger sync',
 
   'search.placeholder': 'Search app...',
+  'search.sync': 'Sync',
+  'search.health': 'System health',
 
   'modeToggle.view': 'Viewer',
   'modeToggle.edit': 'Editor',
@@ -154,6 +156,9 @@ export const en: Record<string, string> = {
   'appModal.error.region': 'Select the app region',
   'appModal.error.versionPlay': 'Invalid Play Store version (use x.y.z)',
   'appModal.error.versionApp': 'Invalid App Store version (use x.y.z)',
+  'appModal.success.created': 'App created successfully',
+  'appModal.success.updated': 'App updated successfully',
+  'appModal.success.error': 'Failed to save app',
 
   'emailPreview.title': 'Email Preview',
   'emailPreview.to': 'To: ',
