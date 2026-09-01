@@ -9,6 +9,7 @@ import { logError } from '@/lib/logger'
 interface AuthData {
   user: { username: string; role: string; email: string; id?: number } | null
   loading: boolean
+  ready: boolean
 }
 
 interface AuthState extends AuthData {
@@ -26,22 +27,23 @@ interface AuthState extends AuthData {
 const AuthContext = createContext<AuthState>(null!)
 
 type Action =
-  | { type: 'SET_AUTH'; user: AuthData['user']; loading: boolean }
+  | { type: 'SET_AUTH'; user: AuthData['user']; loading: boolean; ready: boolean }
   | { type: 'SET_USER'; user: AuthData['user'] }
 
 function authReducer(state: AuthData, action: Action): AuthData {
   switch (action.type) {
     case 'SET_AUTH':
-      return { user: action.user, loading: action.loading }
+      return { user: action.user, loading: action.loading, ready: action.ready }
     case 'SET_USER':
       return { ...state, user: action.user }
   }
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [{ user, loading }, dispatch] = useReducer(authReducer, {
+  const [{ user, loading, ready }, dispatch] = useReducer(authReducer, {
     user: null,
     loading: true,
+    ready: false,
   })
   const [rememberSession, setRememberSessionState] = useState(() => {
     try { return localStorage.getItem('sasi_remember') === 'true' } catch { return false }
@@ -66,23 +68,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async function init() {
       try {
         const user = await authService.me()
-        if (!cancelled) { dispatch({ type: 'SET_AUTH', user, loading: false }); return }
+        if (!cancelled) { dispatch({ type: 'SET_AUTH', user, loading: false, ready: true }); return }
       } catch (e) { logError('AuthProvider/me', e) }
 
       if (rememberSession) {
         try {
           const user = await authService.refresh()
-          if (!cancelled) { dispatch({ type: 'SET_AUTH', user, loading: false }); return }
+          if (!cancelled) { dispatch({ type: 'SET_AUTH', user, loading: false, ready: true }); return }
         } catch (e) { logError('AuthProvider/refresh', e) }
       }
 
       const loggedOut = (() => { try { return localStorage.getItem('sasi_logged_out') === 'true' } catch { return false } })()
       if (!cancelled && !loggedOut) {
-        dispatch({ type: 'SET_AUTH', user: { id: 1, username: 'bruninho', email: 'bruninho@sasi.com.br', role: 'OWNER' }, loading: false })
+        dispatch({ type: 'SET_AUTH', user: { id: 1, username: 'bruninho', email: 'bruninho@sasi.com.br', role: 'OWNER' }, loading: false, ready: true })
         return
       }
 
-      if (!cancelled) dispatch({ type: 'SET_AUTH', user: null, loading: false })
+      if (!cancelled) dispatch({ type: 'SET_AUTH', user: null, loading: false, ready: true })
     }
 
     init()
@@ -143,7 +145,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider value={{
-      user, loading,
+      user, loading, ready,
       login, logout, inviteSetup, sendResetEmail, doResetPassword, findUserByEmail,
       isAdmin, rememberSession, setRememberSession,
     }}>
