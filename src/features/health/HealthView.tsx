@@ -11,7 +11,7 @@ const VARIANT = { ok: 'success', degraded: 'warning', down: 'danger' } as const
 const REPORT_VARIANT = { healthy: 'success', degraded: 'warning', down: 'danger' } as const
 
 export function HealthView() {
-  const { t, lang } = useLang()
+  const { lang } = useLang()
   const locale = lang === 'pt' ? 'pt-BR' : lang === 'en' ? 'en-US' : 'ar-SA'
   const { data: report, isLoading } = useHealth()
 

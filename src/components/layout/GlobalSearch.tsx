@@ -67,11 +67,14 @@ export function GlobalSearch() {
     return [...pages, ...appResults]
   }, [q, apps, t])
 
-  useEffect(() => { setSelectedIdx(0) }, [query])
+  const updateQuery = (value: string) => {
+    setQuery(value)
+    setSelectedIdx(0)
+  }
 
   const execute = useCallback((item: SearchResult) => {
     if (item.href) router.push(item.href)
-    setQuery('')
+    updateQuery('')
     setFocused(false)
     inputRef.current?.blur()
   }, [router])
@@ -88,7 +91,7 @@ export function GlobalSearch() {
       if (e.key === 'ArrowDown') { e.preventDefault(); setSelectedIdx(i => Math.min(i + 1, results.length - 1)) }
       if (e.key === 'ArrowUp') { e.preventDefault(); setSelectedIdx(i => Math.max(i - 1, 0)) }
       if (e.key === 'Enter' && results[selectedIdx]) { e.preventDefault(); execute(results[selectedIdx]) }
-      if (e.key === 'Escape') { setFocused(false); setQuery(''); inputRef.current?.blur() }
+      if (e.key === 'Escape') { setFocused(false); updateQuery(''); inputRef.current?.blur() }
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
@@ -103,7 +106,7 @@ export function GlobalSearch() {
         <input
           ref={inputRef}
           value={query}
-          onChange={e => setQuery(e.target.value)}
+          onChange={e => updateQuery(e.target.value)}
           onFocus={() => { setFocused(true) }}
           placeholder={t('search.placeholder')}
           className="flex-1 bg-transparent outline-none text-sm text-foreground placeholder:text-muted-foreground/50 min-w-0"

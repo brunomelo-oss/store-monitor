@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/Badge'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { formatLocaleDate } from '@/lib/utils'
 import type { ActivityItem, ActivityType } from '@/lib/types'
-import { ScrollText, Activity as ActivityIcon } from 'lucide-react'
+import { ScrollText } from 'lucide-react'
 
 const TYPES: { id: ActivityType | 'all'; label: string; color: string }[] = [
   { id: 'all', label: 'Tudo', color: 'neutral' },

@@ -1,4 +1,3 @@
-import { Badge } from './Badge'
 import { Loader2 } from 'lucide-react'
 
 export function LoadingSkeleton({ className = '' }: { className?: string }) {

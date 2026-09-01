@@ -17,7 +17,7 @@ import { RefreshCw, RotateCcw, Trash2 } from 'lucide-react'
 const STATUS_FILTERS: (SyncJobStatus | 'all')[] = ['all', 'PENDING', 'RUNNING', 'SUCCESS', 'PARTIAL', 'FAILED', 'IGNORED']
 
 export function SyncView() {
-  const { t, lang } = useLang()
+  const { lang } = useLang()
   const locale = lang === 'pt' ? 'pt-BR' : lang === 'en' ? 'en-US' : 'ar-SA'
   const { show } = useToast()
   const [status, setStatus] = useState<SyncJobStatus | 'all'>('all')
@@ -130,7 +130,6 @@ export function SyncView() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
         {(['SUCCESS', 'FAILED', 'PARTIAL', 'PENDING'] as SyncJobStatus[]).map(s => {
           const count = jobs.filter(j => j.status === s).length
-          const variant = s === 'SUCCESS' ? 'success' : s === 'FAILED' ? 'danger' : s === 'PARTIAL' ? 'warning' : 'neutral'
           return (
             <div key={s} className="sasi-card rounded-xl p-4">
               <div className="flex items-center justify-between">

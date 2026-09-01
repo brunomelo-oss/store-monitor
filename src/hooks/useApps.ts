@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { gateways } from '@/data'
-import type { App } from '@/lib/types'
 
 export const APPS_KEY = ['apps'] as const
 

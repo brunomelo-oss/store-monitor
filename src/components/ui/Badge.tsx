@@ -1,5 +1,3 @@
-import { Loader2 } from 'lucide-react'
-
 export function Badge({
   variant = 'default',
   size = 'md',

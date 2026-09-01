@@ -11,7 +11,7 @@ import { Button, Input, Select } from '@/components/ui/primitives'
 import { formatLocaleDate } from '@/lib/utils'
 import type { StoreConnection, StoreKind } from '@/lib/types'
 import { useShake } from '@/hooks/useShake'
-import { Plus, Globe, Loader2, Trash2, Zap, Smartphone } from 'lucide-react'
+import { Plus, Globe, Trash2, Zap, Smartphone } from 'lucide-react'
 
 function ConnectionForm({ conn }: { conn: StoreConnection | null }) {
   const { t } = useLang()

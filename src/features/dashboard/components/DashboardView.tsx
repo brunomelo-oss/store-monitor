@@ -1,6 +1,6 @@
 'use client'
 
-import { Suspense, useMemo } from 'react'
+import { Suspense, useMemo, useEffect, useState } from 'react'
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary'
 import { Badge } from '@/components/ui/Badge'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -14,7 +14,6 @@ import { DashboardPriorities } from './DashboardPriorities'
 import { DashboardRecentStats } from './DashboardRecentStats'
 import { Download, CheckCircle, XCircle, Edit, Plus, RefreshCw, Activity, ArrowUpRight } from 'lucide-react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 
 export function DashboardView() {
   return (
@@ -86,16 +85,23 @@ function CommandCenter() {
     activity.filter(a => !['SIGN_IN', 'SIGN_OUT'].some(s => a.action.toUpperCase().includes(s))),
   [activity])
 
+  const [now, setNow] = useState(() => Date.now())
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 60_000)
+    return () => clearInterval(id)
+  }, [])
+
   const timeSinceLastUpdate = useMemo(() => {
     const dates = ([activity.map(a => a.createdAt), apps.map(a => a.lastSyncAt || a.createdAt)].flat().filter(Boolean) as string[])
     if (!dates.length) return null
     const latest = new Date(Math.max(...dates.map(d => new Date(d).getTime()).filter(n => !isNaN(n)), 0))
-    const diff = Date.now() - latest.getTime()
+    const diff = now - latest.getTime()
     const mins = Math.floor(diff / 60000)
     if (mins < 1) return t('dashboard.justNow')
     if (mins < 60) return t('dashboard.minAgo', { mins })
     return t('dashboard.hoursAgo', { hours: Math.floor(mins / 60) })
-  }, [activity, apps, t])
+  }, [activity, apps, t, now])
 
   if (appsLoading) return <Spinner />
 
@@ -158,7 +164,6 @@ function CommandCenter() {
 
 function ActivityTimeline({ events, locale }: { events: ReturnType<typeof useActivity> extends { data: infer D } ? D : never; locale: string }) {
   const { t } = useLang()
-  const router = useRouter()
 
   const iconMap = (action: string) => {
     const a = action.toUpperCase()

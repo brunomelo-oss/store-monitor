@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useLang } from '@/contexts/LanguageContext'
@@ -24,18 +24,17 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
   const [showPw, setShowPw] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [attempts, setAttempts] = useState(0)
+  const [attempts, setAttempts] = useState<number>(() => {
+    try {
+      return parseInt(sessionStorage.getItem('sasi_loginAttempts') || '0', 10)
+    } catch {
+      return 0
+    }
+  })
   const { shaking, trigger: triggerShake } = useShake()
   const [rememberMe, setRememberMe] = useState(false)
   const [hasInvite, setHasInvite] = useState(false)
   const passRef = useRef<HTMLInputElement>(null)
-
-  useEffect(() => {
-    try {
-      const saved = parseInt(sessionStorage.getItem('sasi_loginAttempts') || '0', 10)
-      setAttempts(saved)
-    } catch {}
-  }, [])
 
   const checkInvite = async () => {
     const val = username.trim().toLowerCase()

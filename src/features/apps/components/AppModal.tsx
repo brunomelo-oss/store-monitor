@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useLang } from '@/contexts/LanguageContext'
 import type { App, AppStatus, Region } from '@/lib/types'
 import { useCreateApp, useUpdateApp } from '@/hooks/useApps'
@@ -29,31 +29,16 @@ export function AppModal({ app, mode, region }: AppModalProps) {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
-  const [name, setName] = useState('')
-  const [appRegion, setAppRegion] = useState<Region>(region)
-  const [googleAccount, setGoogleAccount] = useState('sasiHoldings')
-  const [appleAccount, setAppleAccount] = useState('sasTech')
-  const [playStatus, setPlayStatus] = useState<AppStatus>('unpublished')
-  const [playVersion, setPlayVersion] = useState('')
-  const [playDate, setPlayDate] = useState('')
-  const [appStatus, setAppStatus] = useState<AppStatus>('unpublished')
-  const [appVersion, setAppVersion] = useState('')
-  const [appDate, setAppDate] = useState('')
-
-  useEffect(() => {
-    if (app) {
-      setName(app.name)
-      setAppRegion(app.region)
-      setGoogleAccount(app.googleAccount)
-      setAppleAccount(app.appleAccount)
-      setPlayStatus(app.playStore.status)
-      setPlayVersion(app.playStore.version)
-      setPlayDate(app.playStore.lastUpdate)
-      setAppStatus(app.appStore.status)
-      setAppVersion(app.appStore.version)
-      setAppDate(app.appStore.lastUpdate)
-    }
-  }, [app])
+  const [name, setName] = useState(app?.name ?? '')
+  const [appRegion, setAppRegion] = useState<Region>(app?.region ?? region)
+  const [googleAccount, setGoogleAccount] = useState(app?.googleAccount ?? 'sasiHoldings')
+  const [appleAccount, setAppleAccount] = useState(app?.appleAccount ?? 'sasTech')
+  const [playStatus, setPlayStatus] = useState<AppStatus>(app?.playStore.status ?? 'unpublished')
+  const [playVersion, setPlayVersion] = useState(app?.playStore.version || '')
+  const [playDate, setPlayDate] = useState(app?.playStore.lastUpdate || '')
+  const [appStatus, setAppStatus] = useState<AppStatus>(app?.appStore.status ?? 'unpublished')
+  const [appVersion, setAppVersion] = useState(app?.appStore.version || '')
+  const [appDate, setAppDate] = useState(app?.appStore.lastUpdate || '')
 
   const handleSave = async () => {
     setError('')
