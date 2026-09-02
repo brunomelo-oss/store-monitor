@@ -1,10 +1,11 @@
 import { Request, Response } from 'express'
 import { prisma } from '../lib/prisma'
 import { ok } from '../lib/response'
+import { currentOrganizationId } from '../middleware/auth'
 
 export class AuditLogController {
   async list(req: Request, res: Response) {
-    const organizationId = req.user!.organizationId
+    const organizationId = currentOrganizationId(req)
     const entity = req.query.entity as string | undefined
     const entityId = req.query.entityId ? Number(req.query.entityId) : undefined
     const action = req.query.action as string | undefined
