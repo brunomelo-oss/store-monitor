@@ -5,7 +5,14 @@
 !.yarn/releases
 !.yarn/versions
 .DS_Store
-.env*
+# Env files — never track secrets. Only allow the example templates.
+.env
+.env.*
+!.env.example
+!.env.production.example
+!.env.staging.example
+# Vercel-generated env/credential dumps must never enter the tree (VERCEL_OIDC_TOKEN, Supabase keys, etc.)
+.vercel/.env*
 .pnp.*
 .pnpm-debug.log*
 .vercel
