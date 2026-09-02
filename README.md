@@ -153,6 +153,50 @@ npm test            # Vitest
 cd server && npm run typecheck   # TypeScript check
 ```
 
+## Git Workflow (test → stg → main)
+
+The project uses a **three-environment promotion flow**. Vercel deploys a preview for every branch automatically; only `main` triggers the production deployment.
+
+| Branch | Environment | Deploy |
+|--------|-------------|--------|
+| `test` | Dev (sandbox) | Vercel preview |
+| `stg` | Staging | Vercel preview |
+| `main` | Production | Vercel production |
+
+### Rules
+
+- **Never commit directly to `main`** — it is production, everything arrives via merge.
+- **Never commit directly to `stg`** unless it is a documented hotfix.
+- All work happens on `test` (or short-lived feature branches merged into `test`).
+- Promote `test → stg → main` in order, always forward, using merges (not rebases).
+- Every promotion reaching `main` is tagged (`git tag -a vX.Y.Z`) and released on GitHub.
+
+### Promoting a release
+
+```bash
+# 1. Verify locally
+npm run build && npm test && npm run lint
+
+# 2. test → stg
+git checkout stg && git merge test && git push
+
+# 3. stg → main
+git checkout main && git merge stg && git push
+
+# 4. Tag + release
+git tag -a vX.Y.Z -m "chore: release vX.Y.Z" && git push origin vX.Y.Z
+gh release create vX.Y.Z --title "vX.Y.Z" --notes-from-tag
+```
+
+### Environment data mode
+
+`src/data/index.ts` switches data sources via `NEXT_PUBLIC_DATA_MODE`:
+
+- `mock` (default) — instant mock data, no backend needed.
+- `api` — talks to the real backend (`NEXT_PUBLIC_BACKEND_URL`).
+
+Test/staging may use either; **production should use `api`** once the backend is stable.
+
 ## Deployment
 
 ### Frontend (Vercel)
