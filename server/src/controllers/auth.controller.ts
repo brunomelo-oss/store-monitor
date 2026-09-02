@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import { authService } from '../services'
 import { clearAuthCookies, getRefreshToken, setAuthCookies } from '../lib/jwt'
-import { loginSchema, registerSchema, changePasswordSchema, checkEmailSchema, resetPasswordSchema } from '../validators'
+import { loginSchema, registerSchema, changePasswordSchema, checkEmailSchema, forgotPasswordSchema, resetPasswordSchema } from '../validators'
 import { ok, created, fail } from '../lib/response'
 
 export class AuthController {
@@ -60,13 +60,19 @@ export class AuthController {
 
   async checkEmail(req: Request, res: Response) {
     const { email } = checkEmailSchema.parse(req.body)
-    const registered = await authService.checkEmail(email)
-    ok(res, { registered })
+    await authService.forgotPassword(email)
+    ok(res, { ok: true })
+  }
+
+  async forgotPassword(req: Request, res: Response) {
+    const { email } = forgotPasswordSchema.parse(req.body)
+    await authService.forgotPassword(email)
+    ok(res, { ok: true })
   }
 
   async resetPassword(req: Request, res: Response) {
     const data = resetPasswordSchema.parse(req.body)
-    await authService.resetPassword(data.email, data.password, req.ip)
+    await authService.resetPassword(data.token, data.password, req.ip)
     ok(res, { ok: true })
   }
 }

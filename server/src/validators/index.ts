@@ -24,8 +24,12 @@ export const checkEmailSchema = z.object({
   email: z.string().email('E-mail inválido'),
 })
 
-export const resetPasswordSchema = z.object({
+export const forgotPasswordSchema = z.object({
   email: z.string().email('E-mail inválido'),
+})
+
+export const resetPasswordSchema = z.object({
+  token: z.string().min(1, 'Token é obrigatório'),
   password: z.string().min(8, 'Mínimo de 8 caracteres'),
 })
 

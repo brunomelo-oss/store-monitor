@@ -21,7 +21,13 @@ export const apiAuthGateway: AuthGateway = {
   checkEmail(email) {
     return apiClient<{ registered: boolean }>('/auth/check-email', { method: 'POST', body: JSON.stringify({ email }) })
   },
-  resetPassword(email, password) {
-    return apiClient<void>('/auth/reset-password', { method: 'POST', body: JSON.stringify({ email, password }) })
+  forgotPassword(email) {
+    return apiClient<void>('/auth/forgot-password', { method: 'POST', body: JSON.stringify({ email }) })
+  },
+  resetPassword(token, password) {
+    return apiClient<void>('/auth/reset-password', { method: 'POST', body: JSON.stringify({ token, password }) })
+  },
+  changePassword(currentPassword, newPassword) {
+    return apiClient<void>('/auth/change-password', { method: 'POST', body: JSON.stringify({ currentPassword, newPassword }) })
   },
 }

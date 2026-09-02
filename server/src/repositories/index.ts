@@ -8,6 +8,7 @@ import { AuditLogRepository } from './audit-log.repository'
 import { JobRepository } from './job.repository'
 import { StoreConnectionRepository } from './store-connection.repository'
 import { ConnectionConfigRepository } from './connection-config.repository'
+import { PasswordResetTokenRepository } from './password-reset-token.repository'
 
 export const appRepository = new AppRepository()
 export const userRepository = new UserRepository()
@@ -19,3 +20,4 @@ export const auditLogRepository = new AuditLogRepository()
 export const jobRepository = new JobRepository()
 export const storeConnectionRepository = new StoreConnectionRepository()
 export const connectionConfigRepository = new ConnectionConfigRepository()
+export const passwordResetTokenRepository = new PasswordResetTokenRepository()

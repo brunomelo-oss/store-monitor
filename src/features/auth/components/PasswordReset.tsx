@@ -1,9 +1,10 @@
 'use client'
 
 import { useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { useLang } from '@/contexts/LanguageContext'
-import { Loader2, ArrowLeft, Eye, EyeOff, Mail } from 'lucide-react'
+import { Loader2, ArrowLeft, Eye, EyeOff, Mail, KeyRound } from 'lucide-react'
 import { PasswordChecklist } from './primitives'
 
 interface PasswordResetProps {
@@ -14,10 +15,17 @@ interface PasswordResetProps {
 const inputClass = 'w-full px-4 py-3 rounded-lg bg-slate-100 dark:bg-white/10 border border-slate-200 dark:border-white/10 text-foreground placeholder:text-muted-foreground text-sm outline-none focus:border-sasi-red/50 focus:bg-slate-200 dark:focus:bg-white/[0.12] transition'
 
 export function PasswordReset({ onBack, onSuccess }: PasswordResetProps) {
-  const { sendResetEmail, doResetPassword } = useAuth()
+  const { forgotPassword, resetPassword } = useAuth()
   const { t } = useLang()
-  const [email, setEmail] = useState('')
-  const [sent, setSent] = useState(false)
+  const searchParams = useSearchParams()
+
+  const urlToken = searchParams.get('resetToken') || ''
+  const urlEmail = searchParams.get('resetEmail') || ''
+
+  const hasToken = urlToken.length > 0
+
+  const [email, setEmail] = useState(urlEmail)
+  const [step, setStep] = useState<'email' | 'sent' | 'reset'>(hasToken ? 'reset' : 'email')
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [showPw, setShowPw] = useState(false)
@@ -31,10 +39,10 @@ export function PasswordReset({ onBack, onSuccess }: PasswordResetProps) {
     setError('')
     if (!email) { setError(t('reset.error.email')); return }
     setLoading(true)
-    const err = await sendResetEmail(email)
+    const err = await forgotPassword(email)
     setLoading(false)
     if (err) { setError(err); return }
-    setSent(true)
+    setStep('sent')
   }
 
   const handleReset = async (e: React.FormEvent) => {
@@ -42,14 +50,15 @@ export function PasswordReset({ onBack, onSuccess }: PasswordResetProps) {
     setError('')
     if (!pwOk) { setError(t('reset.error.password')); return }
     if (password !== confirm) { setError(t('reset.error.match')); return }
+    if (!urlToken) { setError('Token não encontrado'); return }
     setLoading(true)
-    const err = await doResetPassword(email, password)
+    const err = await resetPassword(urlToken, password)
     setLoading(false)
     if (err) { setError(err); return }
     onSuccess()
   }
 
-  if (!sent) {
+  if (step === 'email') {
     return (
       <div className="space-y-5">
         <button onClick={onBack} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition">
@@ -88,19 +97,45 @@ export function PasswordReset({ onBack, onSuccess }: PasswordResetProps) {
     )
   }
 
+  if (step === 'sent') {
+    return (
+      <div className="space-y-5">
+        <button onClick={() => setStep('email')} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition">
+          <ArrowLeft size={14} />
+          {t('common.back')}
+        </button>
+
+        <div className="text-center">
+          <div className="w-12 h-12 mx-auto rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+            <Mail size={20} className="text-emerald-400" />
+          </div>
+          <div className="text-lg font-semibold text-foreground dark:text-white mt-3">{t('reset.title.sent')}</div>
+          <div className="text-sm text-muted-foreground mt-1">{t('reset.subtitle.sent', { email })}</div>
+        </div>
+
+        <div className="flex items-center gap-2 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
+          <div className="w-1.5 h-1.5 rounded-full bg-yellow-400 shrink-0" />
+          <p className="text-yellow-400 text-xs">{t('reset.sentInfo')}</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-5">
-      <button onClick={() => setSent(false)} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition">
-        <ArrowLeft size={14} />
-        {t('common.back')}
-      </button>
+      {!hasToken && (
+        <button onClick={() => setStep('email')} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition">
+          <ArrowLeft size={14} />
+          {t('common.back')}
+        </button>
+      )}
 
       <div className="text-center">
         <div className="w-12 h-12 mx-auto rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
-          <Mail size={20} className="text-emerald-400" />
+          <KeyRound size={20} className="text-emerald-400" />
         </div>
         <div className="text-lg font-semibold text-foreground dark:text-white mt-3">{t('reset.title.reset')}</div>
-        <div className="text-sm text-muted-foreground mt-1">{t('reset.subtitle.reset', { email })}</div>
+        <div className="text-sm text-muted-foreground mt-1">{urlEmail || t('reset.subtitle.reset')}</div>
       </div>
 
       <form onSubmit={handleReset} className="space-y-3">

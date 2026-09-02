@@ -15,9 +15,9 @@ interface AuthState extends AuthData {
   login: (username: string, password: string) => Promise<{ ok: boolean; error?: string }>
   logout: () => void
   inviteSetup: (email: string, password: string) => Promise<string | null>
-  resetPassword: (email: string, password: string) => Promise<string | null>
-  sendResetEmail: (email: string) => Promise<string | null>
-  doResetPassword: (email: string, password: string) => Promise<string | null>
+  forgotPassword: (email: string) => Promise<string | null>
+  resetPassword: (token: string, password: string) => Promise<string | null>
+  changePassword: (currentPassword: string, newPassword: string) => Promise<string | null>
   isAdmin: boolean
   rememberSession: boolean
   setRememberSession: (v: boolean) => void
@@ -108,28 +108,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  const resetPassword = useCallback(async (email: string, password: string) => {
+  const forgotPassword = useCallback(async (email: string) => {
     try {
-      await gateways.auth.resetPassword(email, password)
+      await gateways.auth.forgotPassword(email)
       return null
     } catch (e) {
       return getErrorMessage(e)
     }
   }, [])
 
-  const sendResetEmail = useCallback(async (email: string) => {
+  const resetPassword = useCallback(async (token: string, password: string) => {
     try {
-      const { registered } = await gateways.auth.checkEmail(email)
-      if (!registered) return 'Email não registrado'
+      await gateways.auth.resetPassword(token, password)
       return null
     } catch (e) {
       return getErrorMessage(e)
     }
   }, [])
 
-  const doResetPassword = useCallback(async (email: string, password: string) => {
+  const changePassword = useCallback(async (currentPassword: string, newPassword: string) => {
     try {
-      await gateways.auth.resetPassword(email, password)
+      await gateways.auth.changePassword(currentPassword, newPassword)
       return null
     } catch (e) {
       return getErrorMessage(e)
@@ -141,7 +140,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <AuthContext.Provider value={{
       user, loading, ready,
-      login, logout, inviteSetup, resetPassword, sendResetEmail, doResetPassword, isAdmin, rememberSession, setRememberSession,
+      login, logout, inviteSetup, forgotPassword, resetPassword, changePassword, isAdmin, rememberSession, setRememberSession,
     }}>
       {children}
     </AuthContext.Provider>

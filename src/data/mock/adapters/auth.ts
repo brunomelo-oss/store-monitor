@@ -26,7 +26,13 @@ export const mockAuthGateway: AuthGateway = {
   async checkEmail() {
     return withLatency({ registered: true })
   },
-  async resetPassword(_email, _password) {
+  async forgotPassword(_email) {
+    return withLatency(undefined as unknown as void)
+  },
+  async resetPassword(_token, _password) {
+    return withLatency(undefined as unknown as void)
+  },
+  async changePassword(_currentPassword, _newPassword) {
     return withLatency(undefined as unknown as void)
   },
 }

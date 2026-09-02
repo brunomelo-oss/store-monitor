@@ -1,19 +1,33 @@
 import { UserRole } from '@prisma/client'
-import { userRepository, sessionRepository, inviteRepository } from '../repositories'
+import crypto from 'crypto'
+import { userRepository, sessionRepository, inviteRepository, passwordResetTokenRepository } from '../repositories'
 import { hashPassword, comparePassword } from '../lib/hash'
 import { signAccessToken, signRefreshToken, verifyRefreshToken, JwtPayload } from '../lib/jwt'
 import { AuthenticationError, NotFoundError, ConflictError, ValidationError } from '../lib/errors'
 import { withTx } from '../lib/prisma'
 import { getLogger } from '../lib/logger'
+import { sendPasswordResetEmail } from '../lib/email.service'
 import { AuditService } from './audit.service'
 import { AuthUser, LoginRequest, RegisterRequest } from '../types'
+
+export interface AuthServiceDeps {
+  userRepository?: typeof userRepository
+  passwordResetTokenRepository?: typeof passwordResetTokenRepository
+  withTx?: typeof withTx
+}
 
 export class AuthService {
   private audit: AuditService
   private logger = getLogger()
+  private users: typeof userRepository
+  private tokenRepo: typeof passwordResetTokenRepository
+  private tx: typeof withTx
 
-  constructor() {
+  constructor(deps: AuthServiceDeps = {}) {
     this.audit = new AuditService()
+    this.users = deps.userRepository ?? userRepository
+    this.tokenRepo = deps.passwordResetTokenRepository ?? passwordResetTokenRepository
+    this.tx = deps.withTx ?? withTx
   }
 
   async login(data: LoginRequest, ip?: string): Promise<{ user: AuthUser; accessToken: string; refreshToken: string }> {
@@ -150,26 +164,55 @@ export class AuthService {
     this.logger.info({ userId }, 'Password changed')
   }
 
-  async checkEmail(email: string): Promise<boolean> {
-    const user = await userRepository.findByEmail(email)
-    return !!user
-  }
+  async forgotPassword(email: string): Promise<void> {
+    const user = await this.users.findByEmail(email)
 
-  async resetPassword(email: string, password: string, ip?: string): Promise<void> {
-    const user = await userRepository.findByEmail(email)
     if (!user) {
-      throw new NotFoundError('E-mail não encontrado')
+      this.logger.info({ email }, 'forgotPassword: user not found, returning silently')
+      return
     }
 
-    const hashed = await hashPassword(password)
+    const rawToken = crypto.randomBytes(32).toString('hex')
+    const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex')
+    const expiresAt = new Date(Date.now() + 30 * 60 * 1000)
 
-    await withTx(async (tx) => {
-      await tx.user.update({ where: { id: user.id }, data: { password: hashed } })
-      await tx.session.deleteMany({ where: { userId: user.id } })
-      await this.audit.log(user.id, 'RESET_PASSWORD', 'User', user.id, {}, ip, tx, user.organizationId)
+    await this.tx(async (tx) => {
+      await tx.passwordResetToken.deleteMany({ where: { userId: user.id } })
+      await tx.passwordResetToken.create({
+        data: { userId: user.id, tokenHash, expiresAt },
+      })
     })
 
-    this.logger.info({ userId: user.id }, 'Password reset')
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000'
+    const resetLink = `${frontendUrl}/login?resetToken=${rawToken}&resetEmail=${encodeURIComponent(email)}`
+
+    try {
+      await sendPasswordResetEmail(email, resetLink)
+    } catch (err) {
+      this.logger.error({ err, email }, 'Failed to send password reset email')
+    }
+
+    this.logger.info({ userId: user.id }, 'Password reset requested')
+  }
+
+  async resetPassword(token: string, newPassword: string, ip?: string): Promise<void> {
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex')
+
+    const resetToken = await this.tokenRepo.findByTokenHash(tokenHash)
+    if (!resetToken) {
+      throw new ValidationError('Token inválido ou expirado')
+    }
+
+    const hashed = await hashPassword(newPassword)
+
+    await this.tx(async (tx) => {
+      await tx.user.update({ where: { id: resetToken.userId }, data: { password: hashed } })
+      await tx.session.deleteMany({ where: { userId: resetToken.userId } })
+      await tx.passwordResetToken.update({ where: { id: resetToken.id }, data: { usedAt: new Date() } })
+      await this.audit.log(resetToken.userId, 'RESET_PASSWORD', 'User', resetToken.userId, {}, ip, tx)
+    })
+
+    this.logger.info({ userId: resetToken.userId }, 'Password reset completed')
   }
 
   async getAuthenticatedUser(userId: number): Promise<AuthUser> {

@@ -9,7 +9,7 @@ import { LogOut, ChevronDown, User, Lock, Eye, EyeOff } from 'lucide-react'
 import { Input, Button } from '@/components/ui/primitives'
 
 function ChangePasswordForm() {
-  const { doResetPassword } = useAuth()
+  const { changePassword } = useAuth()
   const { t } = useLang()
   const toast = useToast()
   const { close } = useModal()
@@ -29,7 +29,7 @@ function ChangePasswordForm() {
     if (!pwOk) { setError(t('reset.error.password')); return }
     if (next !== confirm) { setError(t('reset.error.match')); return }
     setLoading(true)
-    const err = await doResetPassword('', next)
+    const err = await changePassword(current, next)
     setLoading(false)
     if (err) { setError(err); return }
     toast.show(t('profile.passwordChanged'), 'success')
