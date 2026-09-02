@@ -83,30 +83,30 @@ export class AppService {
     return db
   }
 
-  async list(): Promise<AppResponse[]> {
-    const apps = await appRepository.findAllOrdered()
+  async list(organizationId: number): Promise<AppResponse[]> {
+    const apps = await appRepository.findAllOrdered(organizationId)
     return apps.map(this.toResponse)
   }
 
-  async getById(id: number): Promise<AppResponse> {
-    const app = await appRepository.findById(id)
+  async getById(id: number, organizationId: number): Promise<AppResponse> {
+    const app = await appRepository.findByIdAndOrganization(id, organizationId)
     if (!app) {
       throw new NotFoundError('App')
     }
     return this.toResponse(app)
   }
 
-  async create(data: CreateAppRequest, userId?: number, ip?: string): Promise<AppResponse> {
+  async create(data: CreateAppRequest, organizationId: number, userId?: number, ip?: string): Promise<AppResponse> {
     if (!data.name) {
       throw new ValidationError('Nome é obrigatório')
     }
-    const maxOrder = await appRepository.getMaxSortOrder()
+    const maxOrder = await appRepository.getMaxSortOrder(organizationId)
 
     const app = await withTx(async (tx) => {
       const created = await tx.app.create({
-        data: { ...this.toDb(data) as any, sortOrder: maxOrder + 1 },
+        data: { ...this.toDb(data) as any, organizationId, sortOrder: maxOrder + 1 },
       })
-      await this.audit.log(userId, 'CREATE_APP', 'App', created.id, { name: created.name }, ip, tx, created.organizationId)
+      await this.audit.log(userId, 'CREATE_APP', 'App', created.id, { name: created.name }, ip, tx, organizationId)
       return created
     })
 
@@ -114,15 +114,15 @@ export class AppService {
     return this.toResponse(app)
   }
 
-  async update(id: number, data: UpdateAppRequest, userId?: number, ip?: string): Promise<AppResponse> {
-    const existing = await appRepository.findById(id)
+  async update(id: number, data: UpdateAppRequest, organizationId: number, userId?: number, ip?: string): Promise<AppResponse> {
+    const existing = await appRepository.findByIdAndOrganization(id, organizationId)
     if (!existing) {
       throw new NotFoundError('App')
     }
 
     const app = await withTx(async (tx) => {
       const updated = await tx.app.update({ where: { id }, data: this.toDb(data) as any })
-      await this.audit.log(userId, 'UPDATE_APP', 'App', id, { changes: Object.keys(data) }, ip, tx, existing.organizationId)
+      await this.audit.log(userId, 'UPDATE_APP', 'App', id, { changes: Object.keys(data) }, ip, tx, organizationId)
       return updated
     })
 
@@ -130,28 +130,28 @@ export class AppService {
     return this.toResponse(app)
   }
 
-  async delete(id: number, userId?: number, ip?: string): Promise<void> {
-    const existing = await appRepository.findById(id)
+  async delete(id: number, organizationId: number, userId?: number, ip?: string): Promise<void> {
+    const existing = await appRepository.findByIdAndOrganization(id, organizationId)
     if (!existing) {
       throw new NotFoundError('App')
     }
 
     await withTx(async (tx) => {
       await tx.app.delete({ where: { id } })
-      await this.audit.log(userId, 'DELETE_APP', 'App', id, { name: existing.name }, ip, tx, existing.organizationId)
+      await this.audit.log(userId, 'DELETE_APP', 'App', id, { name: existing.name }, ip, tx, organizationId)
     })
 
     this.logger.info({ appId: id, name: existing.name }, 'App deleted')
   }
 
-  async togglePin(id: number, userId?: number, ip?: string): Promise<AppResponse> {
-    const app = await appRepository.findById(id)
+  async togglePin(id: number, organizationId: number, userId?: number, ip?: string): Promise<AppResponse> {
+    const app = await appRepository.findByIdAndOrganization(id, organizationId)
     if (!app) {
       throw new NotFoundError('App')
     }
 
     if (!app.pinned) {
-      const pinnedCount = await appRepository.countPinned()
+      const pinnedCount = await appRepository.countPinned(organizationId)
       if (pinnedCount >= 3) {
         throw new ValidationError('Máximo de 3 apps fixados')
       }
@@ -159,21 +159,21 @@ export class AppService {
 
     const updated = await withTx(async (tx) => {
       const result = await tx.app.update({ where: { id }, data: { pinned: !app.pinned } })
-      await this.audit.log(userId, 'TOGGLE_PIN_APP', 'App', id, { pinned: !app.pinned }, ip, tx, app.organizationId)
+      await this.audit.log(userId, 'TOGGLE_PIN_APP', 'App', id, { pinned: !app.pinned }, ip, tx, organizationId)
       return result
     })
 
     return this.toResponse(updated)
   }
 
-  async move(id: number, direction: 1 | -1, userId?: number, ip?: string): Promise<AppResponse[]> {
-    const app = await appRepository.findById(id)
+  async move(id: number, direction: 1 | -1, organizationId: number, userId?: number, ip?: string): Promise<AppResponse[]> {
+    const app = await appRepository.findByIdAndOrganization(id, organizationId)
     if (!app) {
       throw new NotFoundError('App')
     }
 
     const unpinned = await appRepository.findMany({
-      where: { pinned: false },
+      where: { pinned: false, organizationId },
       orderBy: { sortOrder: 'asc' },
     })
 
@@ -192,25 +192,26 @@ export class AppService {
       const a2 = unpinned[target]
       await tx.app.update({ where: { id: a1.id }, data: { sortOrder: a2.sortOrder } })
       await tx.app.update({ where: { id: a2.id }, data: { sortOrder: a1.sortOrder } })
-      await this.audit.log(userId, 'MOVE_APP', 'App', id, { direction }, ip, tx, app.organizationId)
+      await this.audit.log(userId, 'MOVE_APP', 'App', id, { direction }, ip, tx, organizationId)
     })
 
-    return this.list()
+    return this.list(organizationId)
   }
 
-  async bulkReplace(apps: CreateAppRequest[], userId?: number, ip?: string): Promise<AppResponse[]> {
+  async bulkReplace(apps: CreateAppRequest[], organizationId: number, userId?: number, ip?: string): Promise<AppResponse[]> {
     const dbApps = apps.map((app, index) => ({
       ...this.toDb(app) as any,
       sortOrder: index,
     }))
 
     const result = await withTx(async (tx) => {
-      await tx.app.deleteMany()
+      await tx.app.deleteMany({ where: { organizationId } })
       for (const data of dbApps) {
-        await tx.app.create({ data })
+        await tx.app.create({ data: { ...data, organizationId } })
       }
-      await this.audit.log(userId, 'BULK_REPLACE_APPS', 'App', null, { count: apps.length }, ip, tx)
+      await this.audit.log(userId, 'BULK_REPLACE_APPS', 'App', null, { count: apps.length }, ip, tx, organizationId)
       return tx.app.findMany({
+        where: { organizationId },
         orderBy: [{ pinned: 'desc' }, { sortOrder: 'asc' }],
       })
     })

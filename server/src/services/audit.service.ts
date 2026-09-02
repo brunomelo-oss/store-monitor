@@ -15,8 +15,12 @@ export class AuditService {
     metadata?: Record<string, unknown>,
     ip?: string,
     tx?: TxClient,
-    organizationId: number | null | undefined = 1,
+    organizationId?: number | null,
   ): Promise<void> {
+    if (!organizationId) {
+      this.logger.warn({ action, entity, entityId }, 'Audit log skipped: no organization context')
+      return
+    }
     try {
       const data = {
         userId: userId ?? null,

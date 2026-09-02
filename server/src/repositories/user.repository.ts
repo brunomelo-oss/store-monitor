@@ -41,10 +41,17 @@ export class UserRepository extends BaseRepository<UserModel, UserCreateInput, U
     return this.model.update({ where: { id }, data: { password } }) as Promise<UserModel>
   }
 
-  async findAllWithoutPassword(): Promise<Omit<UserModel, 'password'>[]> {
+  async findAllWithoutPassword(organizationId: number): Promise<Omit<UserModel, 'password'>[]> {
     return this.model.findMany({
+      where: { organizationId },
       orderBy: { createdAt: 'desc' },
       select: { id: true, username: true, email: true, role: true, avatarUrl: true, organizationId: true, createdAt: true, updatedAt: true },
     })
+  }
+
+  async findByIdInOrganization(id: number, organizationId: number): Promise<UserModel | null> {
+    return this.model.findFirst({
+      where: { id, organizationId },
+    }) as Promise<UserModel | null>
   }
 }

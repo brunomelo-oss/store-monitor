@@ -2,22 +2,26 @@ import { Request, Response } from 'express'
 import { inviteService } from '../services'
 import { createInviteSchema } from '../validators'
 import { ok, created } from '../lib/response'
+import { currentOrganizationId } from '../middleware/auth'
 
 export class InviteController {
-  async list(_req: Request, res: Response) {
-    const invites = await inviteService.list()
+  async list(req: Request, res: Response) {
+    const organizationId = currentOrganizationId(req)
+    const invites = await inviteService.list(organizationId)
     ok(res, invites)
   }
 
   async create(req: Request, res: Response) {
+    const organizationId = currentOrganizationId(req)
     const data = createInviteSchema.parse(req.body)
-    const invite = await inviteService.create(data, 1, req.user?.userId, req.ip)
+    const invite = await inviteService.create(data, organizationId, req.user?.userId, req.ip)
     created(res, invite)
   }
 
   async delete(req: Request, res: Response) {
+    const organizationId = currentOrganizationId(req)
     const id = Number(req.params.id)
-    await inviteService.delete(id, req.user?.userId, req.ip)
+    await inviteService.delete(id, organizationId, req.user?.userId, req.ip)
     ok(res, { ok: true })
   }
 

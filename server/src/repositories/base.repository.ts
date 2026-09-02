@@ -14,6 +14,14 @@ export abstract class BaseRepository<T, CreateInput, UpdateInput> {
     return this.model.findUnique({ where: { id } }) as Promise<T | null>
   }
 
+  async findFirst(params?: {
+    where?: Record<string, unknown>
+    orderBy?: Record<string, 'asc' | 'desc'>
+    include?: Record<string, unknown>
+  }): Promise<T | null> {
+    return this.model.findFirst(params || {}) as Promise<T | null>
+  }
+
   async findMany(params?: {
     skip?: number
     take?: number

@@ -33,6 +33,14 @@ export function requireOrgAccess(organizationId: number) {
   }
 }
 
+export function currentOrganizationId(req: Request): number {
+  const orgId = req.user?.organizationId
+  if (!req.user || orgId === undefined || orgId === null) {
+    throw new AuthorizationError('Usuário não vinculado a uma organização')
+  }
+  return orgId
+}
+
 export function requireAdmin(req: Request, _res: Response, next: NextFunction): void {
   if (!req.user) {
     throw new AuthenticationError('Não autenticado')

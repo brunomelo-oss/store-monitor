@@ -10,8 +10,9 @@ export class AppRepository extends BaseRepository<AppModel, AppCreateInput, AppU
     return this.prisma.app
   }
 
-  async findAllOrdered(): Promise<AppModel[]> {
+  async findAllOrdered(organizationId: number): Promise<AppModel[]> {
     return this.model.findMany({
+      where: { organizationId },
       orderBy: [{ pinned: 'desc' }, { sortOrder: 'asc' }],
       include: {
         syncHistory: { orderBy: { startedAt: 'desc' }, take: 1 },
@@ -19,19 +20,28 @@ export class AppRepository extends BaseRepository<AppModel, AppCreateInput, AppU
     })
   }
 
-  async findPinned(): Promise<AppModel[]> {
+  async findByIdAndOrganization(id: number, organizationId: number): Promise<AppModel | null> {
+    return this.model.findFirst({
+      where: { id, organizationId },
+      include: {
+        syncHistory: { orderBy: { startedAt: 'desc' }, take: 1 },
+      },
+    }) as Promise<AppModel | null>
+  }
+
+  async findPinned(organizationId: number): Promise<AppModel[]> {
     return this.model.findMany({
-      where: { pinned: true },
+      where: { pinned: true, organizationId },
       orderBy: { sortOrder: 'asc' },
     })
   }
 
-  async countPinned(): Promise<number> {
-    return this.model.count({ where: { pinned: true } })
+  async countPinned(organizationId: number): Promise<number> {
+    return this.model.count({ where: { pinned: true, organizationId } })
   }
 
-  async getMaxSortOrder(): Promise<number> {
-    const result = await this.model.aggregate({ _max: { sortOrder: true } })
+  async getMaxSortOrder(organizationId: number): Promise<number> {
+    const result = await this.model.aggregate({ where: { organizationId }, _max: { sortOrder: true } })
     return result._max.sortOrder || 0
   }
 
@@ -46,12 +56,12 @@ export class AppRepository extends BaseRepository<AppModel, AppCreateInput, AppU
     ])
   }
 
-  async bulkReplace(apps: AppCreateInput[]): Promise<AppModel[]> {
+  async bulkReplace(apps: AppCreateInput[], organizationId: number): Promise<AppModel[]> {
     await this.prisma.$transaction([
-      this.model.deleteMany(),
-      ...apps.map((app) => this.model.create({ data: app })),
+      this.model.deleteMany({ where: { organizationId } }),
+      ...apps.map((app) => this.model.create({ data: { ...app, organizationId } as any })),
     ])
-    return this.findAllOrdered()
+    return this.findAllOrdered(organizationId)
   }
 
   async findById(id: number): Promise<AppModel | null> {

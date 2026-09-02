@@ -40,83 +40,60 @@ const MOCK_APPS: AppSeed[] = [
   { name: "Tabatinga", region: Region.BRASIL, city: "Tabatinga", state: "AM", googleAccount: "tabatinga@edu.am.gov.br", appleAccount: "tabatinga@gocase.com", playStatus: "published", playVersion: "1.1.0", playLastUpdate: "12/06/2026", appStatus: "published", appVersion: "1.1.0", appLastUpdate: "12/06/2026", installations: 4100, rating: 4.0, pinned: false, sortOrder: 15 },
 ]
 
-async function main() {
-  console.log('Seeding database...')
+function makeAppSeed(prefix: string, startSort: number): AppSeed[] {
+  return MOCK_APPS.map((app, i) => ({
+    ...app,
+    name: `${prefix} ${app.name}`,
+    sortOrder: startSort + i,
+    pinned: app.pinned && i < 2,
+  }))
+}
 
+async function seedOrg(
+  orgSlug: string,
+  orgName: string,
+  users: Array<{ email: string; username: string; role: UserRole; password: string }>,
+  apps: AppSeed[],
+) {
   const org = await prisma.organization.upsert({
-    where: { slug: 'sas-tech' },
+    where: { slug: orgSlug },
     update: {},
-    create: { name: 'SAS TECH', slug: 'sas-tech' },
+    create: { name: orgName, slug: orgSlug },
   })
   console.log(`  Organization: ${org.name} (${org.slug})`)
 
-  const adminPassword = await hashPassword('Admin123@')
-  await prisma.user.upsert({
-    where: { email: 'bruno.melo@sasi.com.br' },
-    update: { password: adminPassword, role: UserRole.ADMIN },
-    create: {
-      username: 'bruno.melo',
-      email: 'bruno.melo@sasi.com.br',
-      password: adminPassword,
-      role: UserRole.ADMIN,
-      organizationId: org.id,
-    },
-  })
+  for (const u of users) {
+    const hashed = await hashPassword(u.password)
+    await prisma.user.upsert({
+      where: { email: u.email },
+      update: { password: hashed, role: u.role, organizationId: org.id },
+      create: {
+        username: u.username,
+        email: u.email,
+        password: hashed,
+        role: u.role,
+        organizationId: org.id,
+      },
+    })
+  }
+  console.log(`  ${users.length} users created for ${org.slug}`)
 
-  const userPassword = await hashPassword('User123@')
-  await prisma.user.upsert({
-    where: { email: 'user@sasi.com.br' },
-    update: { password: userPassword, role: UserRole.VIEWER },
-    create: {
-      username: 'user',
-      email: 'user@sasi.com.br',
-      password: userPassword,
-      role: UserRole.VIEWER,
-      organizationId: org.id,
-    },
-  })
-
-  const managerPassword = await hashPassword('Manager123@')
-  await prisma.user.upsert({
-    where: { email: 'manager@sasi.com.br' },
-    update: { password: managerPassword, role: UserRole.MANAGER },
-    create: {
-      username: 'manager',
-      email: 'manager@sasi.com.br',
-      password: managerPassword,
-      role: UserRole.MANAGER,
-      organizationId: org.id,
-    },
-  })
-
-  const ownerPassword = await hashPassword('Owner123@')
-  await prisma.user.upsert({
-    where: { email: 'owner@sasi.com.br' },
-    update: { password: ownerPassword, role: UserRole.OWNER },
-    create: {
-      username: 'owner',
-      email: 'owner@sasi.com.br',
-      password: ownerPassword,
-      role: UserRole.OWNER,
-      organizationId: org.id,
-    },
-  })
-  console.log('  Users created (owner, admin, manager, viewer)')
-
-  await prisma.app.deleteMany()
+  await prisma.app.deleteMany({ where: { organizationId: org.id } })
 
   await prisma.app.createMany({
-    data: MOCK_APPS.map((app) => ({ ...app, organizationId: org.id })),
+    data: apps.map((app) => ({ ...app, organizationId: org.id })),
   })
-  const createdApps = await prisma.app.findMany({ orderBy: { sortOrder: 'asc' } })
-  console.log(`  ${createdApps.length} apps created with city/state data`)
+  const createdApps = await prisma.app.findMany({
+    where: { organizationId: org.id },
+    orderBy: { sortOrder: 'asc' },
+  })
+  console.log(`  ${createdApps.length} apps created for ${org.slug}`)
 
   // Create relational data for dashboard demo (sequentially to avoid pool exhaustion)
   for (const app of createdApps) {
     const hasGoogle = app.playVersion && app.playVersion !== ''
     const hasApple = app.appVersion && app.appVersion !== ''
 
-    // Version records
     const statusMap: Record<string, VersionStatus> = {
       'PUBLISHED': 'PUBLISHED',
       'REVIEW': 'REVIEW',
@@ -148,7 +125,6 @@ async function main() {
       })
     }
 
-    // Build records
     await prisma.build.create({
       data: {
         appId: app.id,
@@ -167,7 +143,36 @@ async function main() {
     })
   }
 
-  // Create audit log entries for dashboard timeline
+  return { org, createdApps }
+}
+
+async function main() {
+  console.log('Seeding database...')
+
+  const sasUsers = [
+    { email: 'bruno.melo@sasi.com.br', username: 'bruno.melo', role: UserRole.ADMIN, password: 'Admin123@' },
+    { email: 'owner@sasi.com.br', username: 'owner', role: UserRole.OWNER, password: 'Owner123@' },
+    { email: 'manager@sasi.com.br', username: 'manager', role: UserRole.MANAGER, password: 'Manager123@' },
+    { email: 'user@sasi.com.br', username: 'user', role: UserRole.VIEWER, password: 'User123@' },
+  ]
+
+  const partnerUsers = [
+    { email: 'alice@partner.com.br', username: 'alice', role: UserRole.OWNER, password: 'Partner123@' },
+    { email: 'bob@partner.com.br', username: 'bob', role: UserRole.ADMIN, password: 'Partner123@' },
+    { email: 'carol@partner.com.br', username: 'carol', role: UserRole.MANAGER, password: 'Partner123@' },
+    { email: 'dave@partner.com.br', username: 'dave', role: UserRole.VIEWER, password: 'Partner123@' },
+  ]
+
+  const sasApps = makeAppSeed('', 1)
+  const partnerApps = makeAppSeed('Partner', 1).slice(0, 4)
+
+  await seedOrg('sas-tech', 'SAS TECH', sasUsers, sasApps)
+  await seedOrg('partner-tech', 'Partner TECH', partnerUsers, partnerApps)
+
+  const org = await prisma.organization.findUnique({ where: { slug: 'sas-tech' } })!
+  const partnerOrg = await prisma.organization.findUnique({ where: { slug: 'partner-tech' } })!
+
+  // Create audit log entries for dashboard timeline (per organization)
   const actions = [
     { action: 'CREATE_APP', entity: 'App', description: 'App Manaus version 4.1.0 published' },
     { action: 'CREATE_APP', entity: 'App', description: 'App Borba version 2.1.0 approved' },
@@ -183,21 +188,7 @@ async function main() {
     { action: 'BUILD_APPROVED', entity: 'Build', description: 'Nova build enviada e aprovada: Manaus' },
     { action: 'CREATE_APP', entity: 'App', description: 'App removido: Autaz Mirim (inativo)' },
   ]
-  await prisma.auditLog.createMany({
-    data: actions.map((a, i) => ({
-      organizationId: org.id,
-      userId: 1,
-      action: a.action,
-      entity: a.entity,
-      entityId: 1,
-      metadata: { name: a.description },
-      createdAt: new Date(Date.now() - i * 3600000),
-    })),
-    skipDuplicates: true,
-  })
-  console.log(`  ${actions.length} audit log entries created`)
 
-  // Create some notifications
   const notifications = [
     { type: 'BUILD_APPROVED' as NotificationType, title: 'Build aprovada', message: 'SEMED 3.0.1 aprovado na Google Play' },
     { type: 'BUILD_REJECTED' as NotificationType, title: 'Build rejeitada', message: 'Manacapuru rejeitado na Google Play' },
@@ -205,48 +196,71 @@ async function main() {
     { type: 'NEW_VERSION' as NotificationType, title: 'Nova versão publicada', message: 'Borba 2.1.0 publicado' },
     { type: 'SYNC_FAILURE' as NotificationType, title: 'Falha na sincronização', message: 'Erro ao sincronizar Coari' },
   ]
-  await prisma.notification.createMany({
-    data: notifications.map((n, i) => ({
-      organizationId: org.id,
-      userId: 1,
-      type: n.type,
-      title: n.title,
-      message: n.message,
-      read: i > 1,
-      createdAt: new Date(Date.now() - i * 7200000),
-    })),
-  })
-  console.log(`  ${notifications.length} notifications created`)
 
-  const googleConnection = await prisma.storeConnection.upsert({
-    where: { organizationId_store_label: { organizationId: org.id, store: 'GOOGLE', label: 'Google Play SAS TECH' } },
-    update: {},
-    create: { organizationId: org.id, store: 'GOOGLE', label: 'Google Play SAS TECH' },
-  })
-  await prisma.connectionConfig.upsert({
-    where: { storeConnectionId: googleConnection.id },
-    update: {},
-    create: { storeConnectionId: googleConnection.id, encryptedData: 'mock-encrypted', iv: 'mock-iv', tag: 'mock-tag', keyVersion: 1 },
-  })
-  console.log(`  Google Play connection ready`)
+  for (const o of [{ org: org!, orgName: 'SAS TECH' }, { org: partnerOrg!, orgName: 'Partner TECH' }]) {
+    const owner = await prisma.user.findFirst({
+      where: { organizationId: o.org.id, role: UserRole.OWNER },
+      select: { id: true },
+    })
+    if (!owner) {
+      console.error(`  No owner found for org ${o.org.slug}, skipping notifications/audit`)
+      continue
+    }
+    const ownerId = owner.id
 
-  const appleConnection = await prisma.storeConnection.upsert({
-    where: { organizationId_store_label: { organizationId: org.id, store: 'APPLE', label: 'Apple Store SAS TECH' } },
-    update: {},
-    create: { organizationId: org.id, store: 'APPLE', label: 'Apple Store SAS TECH' },
-  })
-  await prisma.connectionConfig.upsert({
-    where: { storeConnectionId: appleConnection.id },
-    update: {},
-    create: { storeConnectionId: appleConnection.id, encryptedData: 'mock-encrypted', iv: 'mock-iv', tag: 'mock-tag', keyVersion: 1 },
-  })
-  console.log(`  Apple Store connection ready`)
+    await prisma.auditLog.createMany({
+      data: actions.map((a, i) => ({
+        organizationId: o.org.id,
+        userId: ownerId,
+        action: a.action,
+        entity: a.entity,
+        entityId: 1,
+        metadata: { name: a.description },
+        createdAt: new Date(Date.now() - i * 3600000),
+      })),
+      skipDuplicates: true,
+    })
 
-  console.log('Seed complete')
-  console.log('  Owner:  owner@sasi.com.br / Owner123@')
-  console.log('  Admin:  bruno.melo@sasi.com.br / Admin123@')
-  console.log('  Manager: manager@sasi.com.br / Manager123@')
-  console.log('  Viewer: user@sasi.com.br / User123@')
+    await prisma.notification.createMany({
+      data: notifications.map((n, i) => ({
+        organizationId: o.org.id,
+        userId: ownerId,
+        type: n.type,
+        title: n.title,
+        message: n.message,
+        read: i > 1,
+        createdAt: new Date(Date.now() - i * 7200000),
+      })),
+    })
+    console.log(`  ${actions.length} audit log entries + ${notifications.length} notifications created for ${o.orgName}`)
+
+    const googleConnection = await prisma.storeConnection.upsert({
+      where: { organizationId_store_label: { organizationId: o.org.id, store: 'GOOGLE', label: `Google Play ${o.orgName}` } },
+      update: {},
+      create: { organizationId: o.org.id, store: 'GOOGLE', label: `Google Play ${o.orgName}` },
+    })
+    await prisma.connectionConfig.upsert({
+      where: { storeConnectionId: googleConnection.id },
+      update: {},
+      create: { storeConnectionId: googleConnection.id, encryptedData: 'mock-encrypted', iv: 'mock-iv', tag: 'mock-tag', keyVersion: 1 },
+    })
+
+    const appleConnection = await prisma.storeConnection.upsert({
+      where: { organizationId_store_label: { organizationId: o.org.id, store: 'APPLE', label: `Apple Store ${o.orgName}` } },
+      update: {},
+      create: { organizationId: o.org.id, store: 'APPLE', label: `Apple Store ${o.orgName}` },
+    })
+    await prisma.connectionConfig.upsert({
+      where: { storeConnectionId: appleConnection.id },
+      update: {},
+      create: { storeConnectionId: appleConnection.id, encryptedData: 'mock-encrypted', iv: 'mock-iv', tag: 'mock-tag', keyVersion: 1 },
+    })
+    console.log(`  Connections ready for ${o.orgName}`)
+  }
+
+  console.log('Seed complete (2 organizations for multi-tenant isolation testing)')
+  console.log('  SAS TECH:  owner@sasi.com.br / Owner123@ | admin bruno.melo@sasi.com.br / Admin123@')
+  console.log('  Partner:   alice@partner.com.br / Partner123@')
 }
 
 main()

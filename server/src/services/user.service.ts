@@ -27,12 +27,12 @@ export class UserService {
     }
   }
 
-  async list(): Promise<UserResponse[]> {
-    const users = await userRepository.findAllWithoutPassword()
+  async list(organizationId: number): Promise<UserResponse[]> {
+    const users = await userRepository.findAllWithoutPassword(organizationId)
     return users.map(this.toResponse)
   }
 
-  async create(data: CreateUserRequest, adminId?: number, ip?: string): Promise<UserResponse> {
+  async create(data: CreateUserRequest, organizationId: number, adminId?: number, ip?: string): Promise<UserResponse> {
     const { email, password, role } = data
 
     const existing = await userRepository.findByEmail(email)
@@ -52,9 +52,9 @@ export class UserService {
 
     const user = await withTx(async (tx) => {
       const created = await tx.user.create({
-        data: { email, username: finalUsername, password: hashed, role },
+        data: { email, username: finalUsername, password: hashed, role, organizationId },
       })
-      await this.audit.log(adminId, 'CREATE_USER', 'User', created.id, { email, role }, ip, tx, created.organizationId)
+      await this.audit.log(adminId, 'CREATE_USER', 'User', created.id, { email, role }, ip, tx, organizationId)
       return created
     })
 
@@ -62,15 +62,15 @@ export class UserService {
     return this.toResponse(user)
   }
 
-  async updateRole(id: number, role: UserRole, adminId?: number, ip?: string): Promise<UserResponse> {
-    const user = await userRepository.findById(id)
+  async updateRole(id: number, role: UserRole, organizationId: number, adminId?: number, ip?: string): Promise<UserResponse> {
+    const user = await userRepository.findByIdInOrganization(id, organizationId)
     if (!user) {
       throw new NotFoundError('Usuário')
     }
 
     const updated = await withTx(async (tx) => {
       const result = await tx.user.update({ where: { id }, data: { role } })
-      await this.audit.log(adminId, 'UPDATE_USER_ROLE', 'User', id, { oldRole: user.role, newRole: role }, ip, tx, user.organizationId)
+      await this.audit.log(adminId, 'UPDATE_USER_ROLE', 'User', id, { oldRole: user.role, newRole: role }, ip, tx, organizationId)
       return result
     })
 
@@ -78,8 +78,8 @@ export class UserService {
     return this.toResponse(updated)
   }
 
-  async updatePassword(id: number, password: string, adminId?: number, ip?: string): Promise<void> {
-    const user = await userRepository.findById(id)
+  async updatePassword(id: number, password: string, organizationId: number, adminId?: number, ip?: string): Promise<void> {
+    const user = await userRepository.findByIdInOrganization(id, organizationId)
     if (!user) {
       throw new NotFoundError('Usuário')
     }
@@ -89,14 +89,14 @@ export class UserService {
     await withTx(async (tx) => {
       await tx.user.update({ where: { id }, data: { password: hashed } })
       await tx.session.deleteMany({ where: { userId: id } })
-      await this.audit.log(adminId, 'UPDATE_USER_PASSWORD', 'User', id, {}, ip, tx, user.organizationId)
+      await this.audit.log(adminId, 'UPDATE_USER_PASSWORD', 'User', id, {}, ip, tx, organizationId)
     })
 
     this.logger.info({ userId: id }, 'User password updated by admin')
   }
 
-  async delete(id: number, adminId?: number, ip?: string): Promise<void> {
-    const user = await userRepository.findById(id)
+  async delete(id: number, organizationId: number, adminId?: number, ip?: string): Promise<void> {
+    const user = await userRepository.findByIdInOrganization(id, organizationId)
     if (!user) {
       throw new NotFoundError('Usuário')
     }
@@ -107,7 +107,7 @@ export class UserService {
 
     await withTx(async (tx) => {
       await tx.user.delete({ where: { id } })
-      await this.audit.log(adminId, 'DELETE_USER', 'User', id, { email: user.email }, ip, tx, user.organizationId)
+      await this.audit.log(adminId, 'DELETE_USER', 'User', id, { email: user.email }, ip, tx, organizationId)
     })
 
     this.logger.info({ userId: id, email: user.email }, 'User deleted')

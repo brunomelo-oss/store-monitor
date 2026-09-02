@@ -1,7 +1,7 @@
 import { UserRole } from '@prisma/client'
 import crypto from 'crypto'
 import { userRepository, sessionRepository, inviteRepository, passwordResetTokenRepository } from '../repositories'
-import { hashPassword, comparePassword } from '../lib/hash'
+import { hashPassword, comparePassword as comparePasswordImpl } from '../lib/hash'
 import { signAccessToken, signRefreshToken, verifyRefreshToken, JwtPayload } from '../lib/jwt'
 import { AuthenticationError, NotFoundError, ConflictError, ValidationError } from '../lib/errors'
 import { withTx } from '../lib/prisma'
@@ -14,6 +14,7 @@ export interface AuthServiceDeps {
   userRepository?: typeof userRepository
   passwordResetTokenRepository?: typeof passwordResetTokenRepository
   withTx?: typeof withTx
+  comparePassword?: typeof comparePasswordImpl
 }
 
 export class AuthService {
@@ -22,33 +23,39 @@ export class AuthService {
   private users: typeof userRepository
   private tokenRepo: typeof passwordResetTokenRepository
   private tx: typeof withTx
+  private compare: typeof comparePasswordImpl
 
   constructor(deps: AuthServiceDeps = {}) {
     this.audit = new AuditService()
     this.users = deps.userRepository ?? userRepository
     this.tokenRepo = deps.passwordResetTokenRepository ?? passwordResetTokenRepository
     this.tx = deps.withTx ?? withTx
+    this.compare = deps.comparePassword ?? comparePasswordImpl
   }
 
   async login(data: LoginRequest, ip?: string): Promise<{ user: AuthUser; accessToken: string; refreshToken: string }> {
-    const user = await userRepository.findByEmailOrUsername(data.username)
+    const user = await this.users.findByEmailOrUsername(data.username)
     if (!user) {
       throw new AuthenticationError('Credenciais inválidas')
     }
 
-    const valid = await comparePassword(data.password, user.password)
+    const valid = await this.compare(data.password, user.password)
     if (!valid) {
       throw new AuthenticationError('Credenciais inválidas')
     }
 
-    const orgId = user.organizationId ?? 1
+    if (!user.organizationId) {
+      throw new AuthenticationError('Conta sem organização vinculada')
+    }
+
+    const orgId = user.organizationId
     const payload: JwtPayload = { userId: user.id, organizationId: orgId, role: user.role }
     const accessToken = signAccessToken(payload)
     const refreshToken = signRefreshToken(payload)
 
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
 
-    await withTx(async (tx) => {
+    await this.tx(async (tx) => {
       await tx.session.create({
         data: { token: refreshToken, expiresAt, user: { connect: { id: user.id } } },
       })
@@ -67,7 +74,7 @@ export class AuthService {
   async setupFromInvite(data: RegisterRequest, ip?: string): Promise<void> {
     const { email, password } = data
 
-    const existingEmail = await userRepository.findByEmail(email)
+    const existingEmail = await this.users.findByEmail(email)
     if (existingEmail) {
       throw new ConflictError('E-mail já cadastrado')
     }
@@ -82,14 +89,14 @@ export class AuthService {
 
     let finalUsername = username
     let attempt = 0
-    while (await userRepository.findByUsername(finalUsername)) {
+    while (await this.users.findByUsername(finalUsername)) {
       attempt++
       finalUsername = `${username}${attempt}`
     }
 
     const role = invite.role as UserRole
 
-    await withTx(async (tx) => {
+    await this.tx(async (tx) => {
       const user = await tx.user.create({
         data: { email, username: finalUsername, password: hashed, role },
       })
@@ -109,18 +116,22 @@ export class AuthService {
     }
 
     const payload = verifyRefreshToken(token)
-    const user = await userRepository.findById(payload.userId)
+    const user = await this.users.findById(payload.userId)
     if (!user) {
       throw new AuthenticationError('Usuário não encontrado')
     }
 
-    const orgId = user.organizationId ?? 1
+    if (!user.organizationId) {
+      throw new AuthenticationError('Conta sem organização vinculada')
+    }
+
+    const orgId = user.organizationId
     const newPayload: JwtPayload = { userId: user.id, organizationId: orgId, role: user.role }
     const accessToken = signAccessToken(newPayload)
     const refreshToken = signRefreshToken(newPayload)
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
 
-    await withTx(async (tx) => {
+    await this.tx(async (tx) => {
       await tx.session.delete({ where: { id: session.id } })
       await tx.session.create({
         data: { token: refreshToken, expiresAt, user: { connect: { id: user.id } } },
@@ -143,19 +154,19 @@ export class AuthService {
   }
 
   async changePassword(userId: number, currentPassword: string, newPassword: string, ip?: string): Promise<void> {
-    const user = await userRepository.findById(userId)
+    const user = await this.users.findById(userId)
     if (!user) {
       throw new NotFoundError('Usuário')
     }
 
-    const valid = await comparePassword(currentPassword, user.password)
+    const valid = await this.compare(currentPassword, user.password)
     if (!valid) {
       throw new ValidationError('Senha atual inválida')
     }
 
     const hashed = await hashPassword(newPassword)
 
-    await withTx(async (tx) => {
+    await this.tx(async (tx) => {
       await tx.user.update({ where: { id: userId }, data: { password: hashed } })
       await tx.session.deleteMany({ where: { userId } })
       await this.audit.log(userId, 'CHANGE_PASSWORD', 'User', userId, {}, ip, tx, user.organizationId)
@@ -204,19 +215,20 @@ export class AuthService {
     }
 
     const hashed = await hashPassword(newPassword)
+    const user = await this.users.findById(resetToken.userId)
 
     await this.tx(async (tx) => {
       await tx.user.update({ where: { id: resetToken.userId }, data: { password: hashed } })
       await tx.session.deleteMany({ where: { userId: resetToken.userId } })
       await tx.passwordResetToken.update({ where: { id: resetToken.id }, data: { usedAt: new Date() } })
-      await this.audit.log(resetToken.userId, 'RESET_PASSWORD', 'User', resetToken.userId, {}, ip, tx)
+      await this.audit.log(resetToken.userId, 'RESET_PASSWORD', 'User', resetToken.userId, {}, ip, tx, user?.organizationId)
     })
 
     this.logger.info({ userId: resetToken.userId }, 'Password reset completed')
   }
 
   async getAuthenticatedUser(userId: number): Promise<AuthUser> {
-    const user = await userRepository.findById(userId)
+    const user = await this.users.findById(userId)
     if (!user) {
       throw new AuthenticationError('Usuário não encontrado')
     }

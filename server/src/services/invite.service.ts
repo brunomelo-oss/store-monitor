@@ -24,8 +24,8 @@ export class InviteService {
     }
   }
 
-  async list(): Promise<InviteResponse[]> {
-    const invites = await inviteRepository.findMany({ orderBy: { createdAt: 'desc' } })
+  async list(organizationId: number): Promise<InviteResponse[]> {
+    const invites = await inviteRepository.findMany({ where: { organizationId }, orderBy: { createdAt: 'desc' } })
     return invites.map(this.toResponse)
   }
 
@@ -48,19 +48,19 @@ export class InviteService {
       organization: { connect: { id: organizationId } },
     })
 
-    await this.audit.log(adminId || null, 'CREATE_INVITE', 'Invite', invite.id, { email, role }, ip)
+    await this.audit.log(adminId || null, 'CREATE_INVITE', 'Invite', invite.id, { email, role }, ip, undefined, organizationId)
     this.logger.info({ inviteId: invite.id, email }, 'Invite created')
     return this.toResponse(invite)
   }
 
-  async delete(id: number, adminId?: number, ip?: string): Promise<void> {
-    const invite = await inviteRepository.findById(id)
+  async delete(id: number, organizationId: number, adminId?: number, ip?: string): Promise<void> {
+    const invite = await inviteRepository.findFirst({ where: { id, organizationId } })
     if (!invite) {
       throw new NotFoundError('Convite')
     }
 
     await inviteRepository.delete(id)
-    await this.audit.log(adminId || null, 'DELETE_INVITE', 'Invite', id, { email: invite.email }, ip)
+    await this.audit.log(adminId || null, 'DELETE_INVITE', 'Invite', id, { email: invite.email }, ip, undefined, organizationId)
     this.logger.info({ inviteId: id }, 'Invite deleted')
   }
 

@@ -8,6 +8,8 @@ import { JobResponse } from '../types'
 
 interface JobPayload {
   type: JobType
+  organizationId: number
+  triggerType?: SyncTriggerType
   payload?: Record<string, unknown>
   scheduledAt?: Date
 }
@@ -45,11 +47,16 @@ export class JobService {
   }
 
   async enqueue(data: JobPayload): Promise<JobResponse> {
+    if (!data.organizationId) {
+      throw new Error('Job sem organização vinculada')
+    }
     const job = await jobRepository.create({
       type: data.type,
       status: JobStatus.PENDING,
       payload: data.payload || {},
       scheduledAt: data.scheduledAt,
+      organizationId: data.organizationId,
+      triggerType: data.triggerType ?? SyncTriggerType.MANUAL,
     } as any)
 
     this.logger.info({ jobId: job.id, type: data.type }, 'Job enqueued')
@@ -66,18 +73,26 @@ export class JobService {
     return jobs.map(this.toResponse)
   }
 
-  async getById(id: number): Promise<JobResponse> {
-    const job = await jobRepository.findById(id)
+  async getById(id: number, organizationId: number): Promise<JobResponse> {
+    const job = await jobRepository.findFirst({
+      where: { id, organizationId },
+    })
     if (!job) {
       throw new Error('Job não encontrado')
     }
     return this.toResponse(job)
   }
 
-  async markIgnored(id: number): Promise<JobResponse> {
-    const job = await jobRepository.markIgnored(id)
+  async markIgnored(id: number, organizationId: number): Promise<JobResponse> {
+    const job = await jobRepository.findFirst({
+      where: { id, organizationId },
+    })
+    if (!job) {
+      throw new Error('Job não encontrado')
+    }
+    const updated = await jobRepository.markIgnored(id)
     this.logger.info({ jobId: id }, 'Job ignored')
-    return this.toResponse(job)
+    return this.toResponse(updated)
   }
 
   async processNext(): Promise<JobResponse | null> {
@@ -105,13 +120,13 @@ export class JobService {
       }
 
       const completed = await jobRepository.markCompleted(job.id, { processed: true })
-      await this.audit.log(null, 'JOB_COMPLETED', 'Job', job.id, { type: job.type })
+      await this.audit.log(null, 'JOB_COMPLETED', 'Job', job.id, { type: job.type }, undefined, undefined, job.organizationId)
       this.logger.info({ jobId: job.id, type: job.type }, 'Job completed')
       return this.toResponse(completed)
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error'
       const failed = await jobRepository.markFailed(job.id, message)
-      await this.audit.log(null, 'JOB_FAILED', 'Job', job.id, { type: job.type, error: message })
+      await this.audit.log(null, 'JOB_FAILED', 'Job', job.id, { type: job.type, error: message }, undefined, undefined, job.organizationId)
       this.logger.error({ jobId: job.id, type: job.type, err: error }, 'Job failed')
       return this.toResponse(failed)
     }
@@ -119,11 +134,14 @@ export class JobService {
 
   private async processSyncJob(job: any): Promise<void> {
     const payload = (job.payload || {}) as Record<string, unknown>
+    if (!job.organizationId) {
+      throw new Error('Job sem organização vinculada')
+    }
     await this.syncEngine.executeSync({
       appId: payload.appId as number,
       store: payload.store as any,
       types: [payload.type as any],
-      organizationId: job.organizationId ?? 1,
+      organizationId: job.organizationId,
     })
   }
 
@@ -154,6 +172,8 @@ export class JobService {
       type: originalJob.type,
       status: JobStatus.PENDING,
       payload: originalJob.payload || {},
+      organizationId: originalJob.organizationId,
+      triggerType: originalJob.triggerType,
     } as any)
   }
 
