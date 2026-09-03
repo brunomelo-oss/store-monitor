@@ -51,6 +51,7 @@ export class AppService {
       lastSyncStatus: lastSync ? (lastSync.status || null) : null,
       createdAt: toISO(app.createdAt) || '',
       updatedAt: toISO(app.updatedAt) || '',
+      issues: [],
     }
   }
 

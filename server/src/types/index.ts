@@ -29,6 +29,13 @@ export interface AppStoreInfo {
   lastUpdate?: string
 }
 
+export interface AppIssue {
+  store: 'google' | 'apple'
+  status: string
+  message?: string
+  date?: string
+}
+
 export interface AppResponse {
   id: number
   name: string
@@ -51,6 +58,7 @@ export interface AppResponse {
   lastSyncStatus: string | null
   createdAt: string
   updatedAt: string
+  issues: AppIssue[]
 }
 
 export interface CreateAppRequest {

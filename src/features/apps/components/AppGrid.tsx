@@ -9,11 +9,9 @@ interface AppGridProps {
   region: string
   badge: string
   badgeClass?: string
-  mode: 'view' | 'edit'
-  onEdit: (app: App) => void
 }
 
-export function AppGrid({ apps, region, badge, badgeClass, mode, onEdit }: AppGridProps) {
+export function AppGrid({ apps, region, badge, badgeClass }: AppGridProps) {
   const { t } = useLang()
   if (apps.length === 0) return null
 
@@ -30,7 +28,7 @@ export function AppGrid({ apps, region, badge, badgeClass, mode, onEdit }: AppGr
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
         {apps.map((app, i) => (
-          <AppCard key={app.id} app={app} mode={mode} onEdit={onEdit} index={i} />
+          <AppCard key={app.id} app={app} index={i} />
         ))}
       </div>
     </div>

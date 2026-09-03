@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/Badge'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Button } from '@/components/ui/primitives'
 import { useToast } from '@/components/ui/Toast'
-import { Smartphone, Apple, RefreshCw, LayoutGrid, Clock, GitBranch, Bell, ScrollText, Info } from 'lucide-react'
+import { Smartphone, RefreshCw, LayoutGrid, Clock, GitBranch, Bell, ScrollText, Info, AlertTriangle } from 'lucide-react'
 
 const TABS = [
   { id: 'overview', label: 'Visão geral', icon: LayoutGrid },
@@ -104,7 +104,34 @@ export function AppDetailView({ app }: { app: App }) {
       </div>
 
       {tab === 'overview' && (
-        <div className="grid gap-4 md:grid-cols-2">
+        <>
+          {app.issues && app.issues.length > 0 && (
+            <div className="sasi-card rounded-xl p-5 border-red-500/40">
+              <div className="flex items-center gap-2 mb-4">
+                <AlertTriangle size={16} className="text-red-500" />
+                <h3 className="font-semibold text-foreground">Erro de publicação</h3>
+              </div>
+              <div className="space-y-2">
+                {app.issues.map((issue, i) => (
+                  <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-surface/60 border border-red-500/30">
+                    <div className="flex items-center gap-2">
+                      <img
+                        src={issue.store === 'apple' ? '/assets/app-store-icon.png' : '/assets/google-play-icon.png'}
+                        alt=""
+                        className="w-4 h-4 shrink-0 opacity-70"
+                      />
+                      <span className={`text-xs font-medium capitalize ${statusColor(issue.status)}`}>{issue.status}</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                      {issue.date && <span>{formatLocaleDate(issue.date, locale)}</span>}
+                      {issue.message && <span className="max-w-md text-right">{issue.message}</span>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          <div className="grid gap-4 md:grid-cols-2">
           <div className="sasi-card rounded-xl p-5">
             <h3 className="font-semibold text-foreground mb-4">Status das lojas</h3>
             <div className="space-y-2">
@@ -132,6 +159,7 @@ export function AppDetailView({ app }: { app: App }) {
             )}
           </div>
         </div>
+        </>
       )}
 
       {tab === 'versions' && (

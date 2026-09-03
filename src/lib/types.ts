@@ -17,6 +17,13 @@ export interface StoreInfo {
   lastUpdate: string
 }
 
+export interface AppIssue {
+  store: 'google' | 'apple'
+  status: string
+  message?: string
+  date?: string
+}
+
 export interface App {
   id: number
   name: string
@@ -36,6 +43,7 @@ export interface App {
   sortOrder?: number
   createdAt?: string
   lastSyncAt?: string | null
+  issues?: AppIssue[]
 }
 
 export interface Account {

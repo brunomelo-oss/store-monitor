@@ -1,4 +1,4 @@
-import type { App, AppStatus } from './types'
+import type { App, AppIssue, AppStatus } from './types'
 
 const STATUS_ORDER: AppStatus[] = ['published', 'review', 'rejected', 'pending', 'unpublished']
 
@@ -130,4 +130,12 @@ export function formatInstallCount(n: number): string {
 
 export function validateVersion(v: string): boolean {
   return /^\d+\.\d+\.\d+$/.test(v)
+}
+
+export function appIssues(app: App): AppIssue[] {
+  return app.issues ?? []
+}
+
+export function hasIssues(app: App): boolean {
+  return appIssues(app).length > 0
 }

@@ -3,16 +3,13 @@
 import { memo, useEffect, useMemo, useState } from 'react'
 import { useLang } from '@/contexts/LanguageContext'
 import type { App } from '@/lib/types'
-import { useAuth } from '@/contexts/AuthContext'
-import { overallStatus, daysLabel, statusColor, appIcon, getAccountName } from '@/lib/utils'
+import { daysLabel, statusColor, appIcon, getAccountName, hasIssues } from '@/lib/utils'
 import { AppCardActions } from './AppCardActions'
-import { Pin, Star, Download } from 'lucide-react'
+import { Pin, Star, Download, AlertTriangle } from 'lucide-react'
 import Link from 'next/link'
 
 interface AppCardProps {
   app: App
-  mode: 'view' | 'edit'
-  onEdit: (app: App) => void
   index?: number
 }
 
@@ -21,21 +18,8 @@ const storeIcons = {
   apple: '/assets/app-store-icon.png',
 }
 
-function statusClass(status: string): string {
-  const base = {
-    published: 'bg-emerald-500/10 text-emerald-500',
-    review: 'bg-yellow-500/10 text-yellow-500',
-    rejected: 'bg-red-500/10 text-red-500',
-    pending: 'bg-blue-500/10 text-blue-500',
-    unpublished: 'bg-zinc-500/10 text-zinc-400',
-  }
-  return base[status as keyof typeof base] ?? 'bg-zinc-500/10 text-zinc-400'
-}
-
-export const AppCard = memo(function AppCard({ app, mode, onEdit, index = 0 }: AppCardProps) {
+export const AppCard = memo(function AppCard({ app, index = 0 }: AppCardProps) {
   const { t } = useLang()
-  const { isAdmin } = useAuth()
-  const isEdit = mode === 'edit' && isAdmin
   const imgSrc = appIcon(app)
   const [visible, setVisible] = useState(false)
   const placeholderColor = useMemo(() => {
@@ -52,11 +36,11 @@ export const AppCard = memo(function AppCard({ app, mode, onEdit, index = 0 }: A
     return () => clearTimeout(timer)
   }, [index])
 
-  const status = overallStatus(app)
+  const issues = hasIssues(app)
 
   return (
     <div
-      className={`relative bg-card border border-border rounded-2xl overflow-hidden shadow-sm transition-all duration-300 group hover:shadow-md hover:-translate-y-0.5 ${app.pinned ? 'border-amber-400/50 shadow-md' : ''} ${visible ? 'opacity-100' : 'opacity-0'}`}
+      className={`relative bg-card border border-border rounded-2xl overflow-hidden shadow-sm transition-all duration-300 group hover:shadow-md hover:-translate-y-0.5 ${app.pinned ? 'border-amber-400/50 shadow-md' : ''} ${issues ? 'border-red-500/40' : ''} ${visible ? 'opacity-100' : 'opacity-0'}`}
     >
       <div className="relative h-36 overflow-hidden" style={imgSrc ? {} : { background: `linear-gradient(135deg, ${placeholderColor.from}, ${placeholderColor.to})` }}>
         {imgSrc ? (
@@ -75,9 +59,20 @@ export const AppCard = memo(function AppCard({ app, mode, onEdit, index = 0 }: A
               {t('appCard.pinned')}
             </div>
           )}
-          <div className={`text-[10px] font-medium px-1.5 py-0.5 rounded-md shadow-lg backdrop-blur-sm ${statusClass(status)} capitalize`}>
-            {t('status.' + status)}
-          </div>
+          {issues && (
+            <div className="bg-red-500/90 backdrop-blur-sm text-white text-[10px] font-medium px-1.5 py-0.5 rounded-md flex items-center gap-1 shadow-lg">
+              <AlertTriangle size={10} />
+              {t('appCard.issue')}
+            </div>
+          )}
+        </div>
+
+        <div className="absolute top-2 right-2 flex items-center gap-1.5">
+          {issues && (
+            <div className="bg-red-500/90 backdrop-blur-sm text-white p-1 rounded-full shadow-lg">
+              <AlertTriangle size={11} />
+            </div>
+          )}
         </div>
 
         <div className="absolute bottom-2 right-2 bg-inset/80 backdrop-blur-sm text-muted-foreground text-[10px] font-medium px-2 py-0.5 rounded-md">
@@ -127,7 +122,7 @@ export const AppCard = memo(function AppCard({ app, mode, onEdit, index = 0 }: A
           )}
         </div>
 
-        <AppCardActions app={app} isEdit={isEdit} onEdit={onEdit} />
+        <AppCardActions app={app} />
       </div>
     </div>
   )
