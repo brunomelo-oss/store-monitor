@@ -21,10 +21,6 @@ export const changePasswordSchema = z.object({
   newPassword: z.string().min(8, 'Mínimo de 8 caracteres'),
 })
 
-export const checkEmailSchema = z.object({
-  email: z.string().email('E-mail inválido'),
-})
-
 export const forgotPasswordSchema = z.object({
   email: z.string().email('E-mail inválido'),
 })

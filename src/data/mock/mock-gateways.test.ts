@@ -28,7 +28,6 @@ describe('mock gateways (data layer)', () => {
       await expect(gateways.auth.logout()).resolves.toBeUndefined()
       await expect(gateways.auth.setupAccount('x@y.com', 'Password1@', 'token-x')).resolves.toBeUndefined()
       await expect(gateways.auth.resetPassword('x@y.com', 'Password1@')).resolves.toBeUndefined()
-      await expect(gateways.auth.checkEmail('x@y.com')).resolves.toEqual({ registered: true })
       await wait()
     })
   })

@@ -5,7 +5,6 @@ export interface AuthGateway {
   me(): Promise<AuthUser>
   logout(): Promise<void>
   setupAccount(email: string, password: string, token: string): Promise<void>
-  checkEmail(email: string): Promise<{ registered: boolean }>
   forgotPassword(email: string): Promise<void>
   resetPassword(token: string, password: string): Promise<void>
   changePassword(currentPassword: string, newPassword: string): Promise<void>

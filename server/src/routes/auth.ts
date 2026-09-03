@@ -30,14 +30,4 @@ router.post('/change-password', requireAuth, authController.changePassword.bind(
 router.post('/forgot-password', forgotPasswordLimiter, authController.forgotPassword.bind(authController))
 router.post('/reset-password', forgotPasswordLimiter, authController.resetPassword.bind(authController))
 
-const checkEmailLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 10,
-  message: { error: 'Muitas tentativas' },
-  standardHeaders: true,
-  legacyHeaders: false,
-})
-
-router.post('/check-email', checkEmailLimiter, authController.checkEmail.bind(authController))
-
 export default router
