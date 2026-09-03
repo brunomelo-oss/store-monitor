@@ -20,7 +20,7 @@ export const mockAuthGateway: AuthGateway = {
   async logout() {
     return withLatency(undefined as unknown as void)
   },
-  async setupAccount(_email, _password) {
+  async setupAccount(_email, _password, _token) {
     return withLatency(undefined as unknown as void)
   },
   async checkEmail() {

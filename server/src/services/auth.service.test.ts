@@ -2,7 +2,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import crypto from 'crypto'
 import { AuthService, AuthServiceDeps } from '../services/auth.service'
-import { ValidationError, AuthenticationError } from '../lib/errors'
+import { ValidationError, AuthenticationError, ConflictError } from '../lib/errors'
 import { loadEnv } from '../lib/env'
 
 process.env.NODE_ENV = 'test'
@@ -27,10 +27,75 @@ function buildService(overrides: Partial<AuthServiceDeps> = {}): AuthService {
     passwordResetTokenRepository: {
       findByTokenHash: async () => null,
     } as any,
+    inviteRepository: {
+      findByToken: async () => null,
+    } as any,
     withTx: (async () => {}) as any,
     ...overrides,
   } as any)
 }
+
+const validInvite = {
+  id: 1,
+  email: 'invited@example.com',
+  role: 'VIEWER',
+  token: crypto.randomBytes(32).toString('hex'),
+  expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+  organizationId: 7,
+  createdAt: new Date(),
+}
+
+test('setupFromInvite rejects when no token matches the invite', async () => {
+  const service = buildService({
+    inviteRepository: { findByToken: async () => null } as any,
+  })
+  await assert.rejects(
+    service.setupFromInvite({ email: 'invited@example.com', password: 'NewStrongPass1!', token: 'bad-token' }),
+    (err: any) => err instanceof ValidationError && err.message === 'Convite inválido ou expirado',
+  )
+})
+
+test('setupFromInvite rejects when the token belongs to a different email', async () => {
+  const service = buildService({
+    inviteRepository: { findByToken: async () => ({ ...validInvite, email: 'someone-else@example.com' }) } as any,
+  })
+  await assert.rejects(
+    service.setupFromInvite({ email: 'invited@example.com', password: 'NewStrongPass1!', token: validInvite.token }),
+    (err: any) => err instanceof ValidationError && err.message === 'Convite inválido ou expirado',
+  )
+})
+
+test('setupFromInvite rejects an expired invite', async () => {
+  const service = buildService({
+    inviteRepository: { findByToken: async () => ({ ...validInvite, expiresAt: new Date(Date.now() - 1000) }) } as any,
+  })
+  await assert.rejects(
+    service.setupFromInvite({ email: 'invited@example.com', password: 'NewStrongPass1!', token: validInvite.token }),
+    (err: any) => err instanceof ValidationError && err.message === 'Convite inválido ou expirado',
+  )
+})
+
+test('setupFromInvite attaches the invited user to the invite organization', async () => {
+  let createdOrgId: number | null = null
+  const service = buildService({
+    inviteRepository: { findByToken: async () => validInvite } as any,
+    userRepository: {
+      findByEmail: async () => null,
+      findByUsername: async () => null,
+    } as any,
+    withTx: (async (fn: any) => {
+      await fn({
+        user: { create: async (args: any) => {
+          createdOrgId = args.data.organizationId
+          return { id: 1 }
+        } },
+        invite: { deleteMany: async () => ({ count: 1 }) },
+      })
+    }) as any,
+  })
+  await service.setupFromInvite({ email: 'invited@example.com', password: 'NewStrongPass1!', token: validInvite.token })
+  assert.equal(createdOrgId, 7)
+})
 
 test('forgotPassword for an unknown email is silent (no enumeration)', async () => {
   const service = buildService({

@@ -24,10 +24,4 @@ export class InviteController {
     await inviteService.delete(id, organizationId, req.user?.userId, req.ip)
     ok(res, { ok: true })
   }
-
-  async check(req: Request, res: Response) {
-    const email = req.params.email
-    const active = await inviteService.check(email)
-    ok(res, { active })
-  }
 }

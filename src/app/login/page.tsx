@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { useLang } from '@/contexts/LanguageContext'
 import { AuthShell } from '@/features/auth/components/AuthShell'
@@ -11,12 +11,15 @@ import { PasswordReset } from '@/features/auth/components/PasswordReset'
 import { SuccessScreen } from '@/features/auth/components/primitives'
 import { Spinner } from '@/components/ui/LoadingSkeleton'
 
-export default function LoginPage() {
+function LoginContent() {
   const { user, loading } = useAuth()
   const { t } = useLang()
   const router = useRouter()
-  const [step, setStep] = useState<string>('login')
-  const [inviteEmail, setInviteEmail] = useState('')
+  const searchParams = useSearchParams()
+  const inviteToken = searchParams.get('inviteToken') || ''
+  const inviteEmail = searchParams.get('email') || ''
+  const [step, setStep] = useState<string>(inviteToken ? 'invite' : 'login')
+  const [inviteEmailState, setInviteEmail] = useState(inviteEmail)
 
   useEffect(() => {
     if (user) router.push('/')
@@ -34,8 +37,7 @@ export default function LoginPage() {
     <AuthShell>
       {step === 'login' && (
         <LoginForm
-          onSwitch={(s, data) => {
-            if (s === 'invite' && data) { setInviteEmail(data); setStep('invite') }
+          onSwitch={(s) => {
             if (s === 'email') setStep('email')
           }}
           onSuccess={() => {}}
@@ -43,7 +45,7 @@ export default function LoginPage() {
       )}
       {step === 'invite' && (
         <InviteSetup
-          email={inviteEmail}
+          email={inviteEmailState}
           onSuccess={() => setStep('inviteSuccess')}
           onBack={() => setStep('login')}
         />
@@ -71,5 +73,13 @@ export default function LoginPage() {
         />
       )}
     </AuthShell>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginContent />
+    </Suspense>
   )
 }

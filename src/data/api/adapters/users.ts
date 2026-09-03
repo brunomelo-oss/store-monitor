@@ -15,9 +15,6 @@ export const apiUsersGateway: UsersGateway = {
   deleteInvite(id) {
     return apiClient<void>(`/invites/${id}`, { method: 'DELETE' })
   },
-  checkInvite(email) {
-    return apiClient<{ invited: boolean }>(`/invites/check/${encodeURIComponent(email)}`)
-  },
   updateRole(id, role: Role) {
     return apiClient<User>(`/users/${id}/role`, { method: 'PATCH', body: JSON.stringify({ role }) })
   },

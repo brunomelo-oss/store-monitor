@@ -5,7 +5,6 @@ export interface UsersGateway {
   invites(): Promise<Invite[]>
   createInvite(email: string): Promise<Invite>
   deleteInvite(id: number): Promise<void>
-  checkInvite(email: string): Promise<{ invited: boolean }>
   updateRole(id: number, role: Role): Promise<User>
   updatePassword(id: number, password: string): Promise<void>
   deleteUser(id: number): Promise<void>

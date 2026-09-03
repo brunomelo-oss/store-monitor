@@ -5,6 +5,8 @@ import { NotFoundError, ConflictError } from '../lib/errors'
 import { getLogger } from '../lib/logger'
 import { toISO } from '../lib/utils'
 import { AuditService } from './audit.service'
+import { config } from '../config'
+import { sendInviteEmail } from '../lib/email.service'
 import { InviteRequest, InviteResponse } from '../types'
 
 export class InviteService {
@@ -48,6 +50,9 @@ export class InviteService {
       organization: { connect: { id: organizationId } },
     })
 
+    const inviteLink = `${config.frontendUrl.replace(/\/$/, '')}/login?inviteToken=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`
+    await sendInviteEmail(email, inviteLink)
+
     await this.audit.log(adminId || null, 'CREATE_INVITE', 'Invite', invite.id, { email, role }, ip, undefined, organizationId)
     this.logger.info({ inviteId: invite.id, email }, 'Invite created')
     return this.toResponse(invite)
@@ -62,10 +67,5 @@ export class InviteService {
     await inviteRepository.delete(id)
     await this.audit.log(adminId || null, 'DELETE_INVITE', 'Invite', id, { email: invite.email }, ip, undefined, organizationId)
     this.logger.info({ inviteId: id }, 'Invite deleted')
-  }
-
-  async check(email: string): Promise<boolean> {
-    const invite = await inviteRepository.findByEmail(email)
-    return !!invite && invite.expiresAt > new Date()
   }
 }

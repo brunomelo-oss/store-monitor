@@ -15,8 +15,8 @@ export const apiAuthGateway: AuthGateway = {
   logout() {
     return apiClient<void>('/auth/logout', { method: 'POST' })
   },
-  setupAccount(email, password) {
-    return apiClient<void>('/auth/setup', { method: 'POST', body: JSON.stringify({ email, password }) })
+  setupAccount(email, password, token) {
+    return apiClient<void>('/auth/setup', { method: 'POST', body: JSON.stringify({ email, password, token }) })
   },
   checkEmail(email) {
     return apiClient<{ registered: boolean }>('/auth/check-email', { method: 'POST', body: JSON.stringify({ email }) })

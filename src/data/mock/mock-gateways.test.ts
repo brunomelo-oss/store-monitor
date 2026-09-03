@@ -26,7 +26,7 @@ describe('mock gateways (data layer)', () => {
     it('resolves me/logout/setup/reset', async () => {
       await expect(gateways.auth.me()).resolves.toHaveProperty('username')
       await expect(gateways.auth.logout()).resolves.toBeUndefined()
-      await expect(gateways.auth.setupAccount('x@y.com', 'Password1@')).resolves.toBeUndefined()
+      await expect(gateways.auth.setupAccount('x@y.com', 'Password1@', 'token-x')).resolves.toBeUndefined()
       await expect(gateways.auth.resetPassword('x@y.com', 'Password1@')).resolves.toBeUndefined()
       await expect(gateways.auth.checkEmail('x@y.com')).resolves.toEqual({ registered: true })
       await wait()
@@ -88,9 +88,7 @@ describe('mock gateways (data layer)', () => {
 
       const invite = await gateways.users.createInvite('novo@sasi.com.br')
       expect(invite.email).toBe('novo@sasi.com.br')
-      await expect(gateways.users.checkInvite('novo@sasi.com.br')).resolves.toEqual({ invited: true })
       await gateways.users.deleteInvite(invite.id)
-      await expect(gateways.users.checkInvite('novo@sasi.com.br')).resolves.toEqual({ invited: false })
       await wait()
     })
 

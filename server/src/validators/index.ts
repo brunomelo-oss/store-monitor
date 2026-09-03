@@ -13,6 +13,7 @@ export const loginSchema = z.object({
 export const registerSchema = z.object({
   email: z.string().email('E-mail inválido'),
   password: z.string().min(8, 'Mínimo de 8 caracteres'),
+  token: z.string().min(1, 'Token de convite é obrigatório'),
 })
 
 export const changePasswordSchema = z.object({

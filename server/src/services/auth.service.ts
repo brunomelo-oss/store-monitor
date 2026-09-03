@@ -13,6 +13,7 @@ import { AuthUser, LoginRequest, RegisterRequest } from '../types'
 export interface AuthServiceDeps {
   userRepository?: typeof userRepository
   passwordResetTokenRepository?: typeof passwordResetTokenRepository
+  inviteRepository?: typeof inviteRepository
   withTx?: typeof withTx
   comparePassword?: typeof comparePasswordImpl
 }
@@ -22,6 +23,7 @@ export class AuthService {
   private logger = getLogger()
   private users: typeof userRepository
   private tokenRepo: typeof passwordResetTokenRepository
+  private invites: typeof inviteRepository
   private tx: typeof withTx
   private compare: typeof comparePasswordImpl
 
@@ -29,6 +31,7 @@ export class AuthService {
     this.audit = new AuditService()
     this.users = deps.userRepository ?? userRepository
     this.tokenRepo = deps.passwordResetTokenRepository ?? passwordResetTokenRepository
+    this.invites = deps.inviteRepository ?? inviteRepository
     this.tx = deps.withTx ?? withTx
     this.compare = deps.comparePassword ?? comparePasswordImpl
   }
@@ -72,16 +75,24 @@ export class AuthService {
   }
 
   async setupFromInvite(data: RegisterRequest, ip?: string): Promise<void> {
-    const { email, password } = data
+    const { email, password, token } = data
 
     const existingEmail = await this.users.findByEmail(email)
     if (existingEmail) {
       throw new ConflictError('E-mail já cadastrado')
     }
 
-    const invite = await inviteRepository.findByEmail(email)
-    if (!invite) {
-      throw new ValidationError('Convite não encontrado. Apenas usuários convidados podem se cadastrar.')
+    const invite = await this.invites.findByToken(token)
+    if (!invite || invite.email.toLowerCase() !== email.toLowerCase()) {
+      throw new ValidationError('Convite inválido ou expirado')
+    }
+
+    if (invite.expiresAt < new Date()) {
+      throw new ValidationError('Convite inválido ou expirado')
+    }
+
+    if (!invite.organizationId) {
+      throw new ValidationError('Convite inválido ou expirado')
     }
 
     const hashed = await hashPassword(password)
@@ -95,15 +106,16 @@ export class AuthService {
     }
 
     const role = invite.role as UserRole
+    const organizationId = invite.organizationId
 
     await this.tx(async (tx) => {
       const user = await tx.user.create({
-        data: { email, username: finalUsername, password: hashed, role },
+        data: { email, username: finalUsername, password: hashed, role, organizationId },
       })
 
-      await tx.invite.deleteMany({ where: { email } })
+      await tx.invite.deleteMany({ where: { email, organizationId } })
 
-      await this.audit.log(user.id, 'REGISTER', 'User', user.id, { email }, ip, tx, user.organizationId)
+      await this.audit.log(user.id, 'REGISTER', 'User', user.id, { email }, ip, tx, organizationId)
     })
 
     this.logger.info({ email }, 'User registered via invite')

@@ -22,10 +22,6 @@ export const mockUsersGateway: UsersGateway = {
     invites = invites.filter(i => i.id !== id)
     return withLatency(undefined as unknown as void)
   },
-  async checkInvite(email) {
-    const invited = invites.some(i => i.email.toLowerCase() === email.trim().toLowerCase())
-    return withLatency({ invited })
-  },
   async updateRole(id, role: Role) {
     users = users.map(u => u.id === id ? { ...u, role } : u)
     const user = users.find(u => u.id === id)

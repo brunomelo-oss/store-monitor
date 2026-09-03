@@ -18,6 +18,7 @@ export interface LoginRequest {
 export interface RegisterRequest {
   email: string
   password: string
+  token: string
 }
 
 // ─── App Types ────────────────────────────────────────────────────

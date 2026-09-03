@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { useLang } from '@/contexts/LanguageContext'
 import { Loader2, ArrowLeft, Eye, EyeOff, Lock } from 'lucide-react'
@@ -17,21 +18,25 @@ const inputClass = 'w-full px-4 py-3 rounded-lg bg-slate-100 dark:bg-white/10 bo
 export function InviteSetup({ email, onSuccess, onBack }: InviteSetupProps) {
   const { inviteSetup } = useAuth()
   const { t } = useLang()
+  const searchParams = useSearchParams()
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [showPw, setShowPw] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
+  const token = searchParams.get('inviteToken') || ''
+
   const pwOk = password.length >= 8 && /[A-Z]/.test(password) && /[a-z]/.test(password) && /[!@#$%^&*()_+\-=\[\]{}|;':",.\/<>\?`~]/.test(password)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    if (!token) { setError('Token de convite não encontrado'); return }
     if (!pwOk) { setError(t('invite.error.password')); return }
     if (password !== confirm) { setError(t('invite.error.match')); return }
     setLoading(true)
-    const err = await inviteSetup(email, password)
+    const err = await inviteSetup(email, password, token)
     setLoading(false)
     if (err) { setError(err); return }
     onSuccess()

@@ -14,7 +14,7 @@ interface AuthData {
 interface AuthState extends AuthData {
   login: (username: string, password: string) => Promise<{ ok: boolean; error?: string }>
   logout: () => void
-  inviteSetup: (email: string, password: string) => Promise<string | null>
+  inviteSetup: (email: string, password: string, token: string) => Promise<string | null>
   forgotPassword: (email: string) => Promise<string | null>
   resetPassword: (token: string, password: string) => Promise<string | null>
   changePassword: (currentPassword: string, newPassword: string) => Promise<string | null>
@@ -99,9 +99,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'SET_USER', user: null })
   }, [])
 
-  const inviteSetup = useCallback(async (email: string, password: string) => {
+  const inviteSetup = useCallback(async (email: string, password: string, token: string) => {
     try {
-      await gateways.auth.setupAccount(email, password)
+      await gateways.auth.setupAccount(email, password, token)
       return null
     } catch (e) {
       return getErrorMessage(e)

@@ -5,8 +5,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useLang } from '@/contexts/LanguageContext'
 import { useShake } from '@/hooks/useShake'
-import { gateways } from '@/data'
-import { Loader2, Eye, EyeOff, MailQuestion } from 'lucide-react'
+import { Loader2, Eye, EyeOff } from 'lucide-react'
 
 interface LoginFormProps {
   onSwitch: (step: string, data?: string) => void
@@ -33,17 +32,7 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
   })
   const { shaking, trigger: triggerShake } = useShake()
   const [rememberMe, setRememberMe] = useState(false)
-  const [hasInvite, setHasInvite] = useState(false)
   const passRef = useRef<HTMLInputElement>(null)
-
-  const checkInvite = async () => {
-    const val = username.trim().toLowerCase()
-    if (!val || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) { setHasInvite(false); return }
-    try {
-      const { invited } = await gateways.users.checkInvite(val)
-      setHasInvite(invited)
-    } catch { setHasInvite(true) }
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -89,7 +78,6 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
             placeholder={t('login.username')}
             value={username}
             onChange={e => setUsername(e.target.value)}
-            onBlur={checkInvite}
             onKeyDown={e => e.key === 'Enter' && passRef.current?.focus()}
           />
         </div>
@@ -118,18 +106,6 @@ export function LoginForm({ onSwitch, onSuccess }: LoginFormProps) {
           <div className="flex items-center gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
             <div className="w-1.5 h-1.5 rounded-full bg-red-400 shrink-0" />
             <p className="text-red-400 text-xs">{typeof error === 'string' ? error : 'Erro inesperado'}</p>
-          </div>
-        )}
-
-        {hasInvite && (
-          <div className="flex items-start gap-2.5 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
-            <MailQuestion size={15} className="text-blue-400 shrink-0 mt-0.5" />
-            <div className="text-xs text-blue-300 leading-relaxed">
-              {t('login.invite.pending')}{' '}
-              <button type="button" className="underline font-semibold hover:text-blue-200 transition" onClick={() => onSwitch('invite', username)}>
-                {t('login.invite.setup')}
-              </button>
-            </div>
           </div>
         )}
 
